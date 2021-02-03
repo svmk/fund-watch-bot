@@ -2,6 +2,7 @@ use crate::prelude::*;
 use crate::repository::model::identity::Identity;
 use crate::repository::model::entity::Entity;
 use crate::repository::path_resolver::path_resolver::PathResolver;
+use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::serializer::service::serializer_instance::SerializerInstance;
 use crate::serializer::serializer::Serializer;
 use std::marker::PhantomData;
@@ -9,41 +10,42 @@ use  async_std::path::Path as AsyncPath;
 use async_std::fs::File;
 use async_std::io::prelude::*;
 
-pub struct FileRepository<I, T>
+pub struct FileRepository<I, E>
 {
     _identity: PhantomData<I>,
-    _entity: PhantomData<T>,
+    _entity: PhantomData<E>,
     path_resolver: Box<dyn PathResolver>,
     serializer_instance: SerializerInstance,
 }
 
-impl <I, T> FileRepository<I, T>
+impl <I, E> FileRepository<I, E>
     where 
         I: Identity,
-        T: Entity<I>,
+        E: Entity<I>,
 {
     pub fn new(
         path_resolver: Box<dyn PathResolver>,
         serializer_instance: SerializerInstance,
-    ) -> FileRepository<I, T> {
-        return FileRepository {
+    ) -> RepositoryInstance<I, E> {
+        let repository = FileRepository {
             _identity: PhantomData{},
             _entity: PhantomData {},
             path_resolver,
             serializer_instance,
         };
+        return RepositoryInstance::FileRepository(repository);
     }
 
-    pub async fn get(&self, id: &I) -> Result<T, Failure> {
+    pub async fn get(&self, id: &I) -> Result<E, Failure> {
         let path = self.path_resolver.resolve_path(id)?;
         let mut file = File::open(&path).await?;
         let mut data: Vec<u8> = Vec::new();
         file.read_to_end(&mut data).await?;
-        let model: T = self.serializer_instance.from_slice(&data)?;
+        let model: E = self.serializer_instance.from_slice(&data)?;
         return Ok(model);
     }
 
-    pub async fn find(&self, id: &I) -> Result<Option<T>, Failure> {
+    pub async fn find(&self, id: &I) -> Result<Option<E>, Failure> {
         let path = self.path_resolver.resolve_path(id)?;
         {
             let async_path = AsyncPath::new(&path);
@@ -54,11 +56,11 @@ impl <I, T> FileRepository<I, T>
         let mut file = File::open(&path).await?;
         let mut data: Vec<u8> = Vec::new();
         file.read_to_end(&mut data).await?;
-        let model: T = self.serializer_instance.from_slice(&data)?;
+        let model: E = self.serializer_instance.from_slice(&data)?;
         return Ok(Some(model));
     }
 
-    pub async fn store(&self, model: &T) -> Result<(), Failure> {
+    pub async fn store(&self, model: &E) -> Result<(), Failure> {
         let id = model.get_entity_id();
         let path = self.path_resolver.resolve_path(id)?;
         let mut file = File::open(&path).await?;
