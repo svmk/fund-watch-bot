@@ -1,20 +1,22 @@
 use crate::prelude::*;
 use crate::repository::model::identity::Identity;
 use crate::repository::model::entity::Entity;
-use crate::repository::path_resolver::path_resolver::PathResolver;
+use crate::repository::path_resolver::PathResolver;
+use crate::repository::path_resolver_service::path_resolver_instance::PathResolverInstance;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::serializer::service::serializer_instance::SerializerInstance;
 use crate::serializer::serializer::Serializer;
 use std::marker::PhantomData;
-use  async_std::path::Path as AsyncPath;
+use async_std::path::Path as AsyncPath;
 use async_std::fs::File;
 use async_std::io::prelude::*;
+use async_std::fs::create_dir_all;
 
 pub struct FileRepository<I, E>
 {
     _identity: PhantomData<I>,
     _entity: PhantomData<E>,
-    path_resolver: Box<dyn PathResolver>,
+    path_resolver: PathResolverInstance,
     serializer_instance: SerializerInstance,
 }
 
@@ -24,7 +26,7 @@ impl <I, E> FileRepository<I, E>
         E: Entity<I>,
 {
     pub fn new(
-        path_resolver: Box<dyn PathResolver>,
+        path_resolver: PathResolverInstance,
         serializer_instance: SerializerInstance,
     ) -> RepositoryInstance<I, E> {
         let repository = FileRepository {
@@ -63,6 +65,9 @@ impl <I, E> FileRepository<I, E>
     pub async fn store(&self, model: &E) -> Result<(), Failure> {
         let id = model.get_entity_id();
         let path = self.path_resolver.resolve_path(id)?;
+        if let Some(dir) = path.parent() {
+            create_dir_all(dir).await?;
+        }
         let mut file = File::open(&path).await?;
         let data = self.serializer_instance.to_vec(&model)?;
         file.write_all(&data).await?;
