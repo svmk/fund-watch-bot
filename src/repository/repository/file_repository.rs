@@ -6,7 +6,7 @@ use crate::serializer::service::serializer_instance::SerializerInstance;
 use crate::serializer::serializer::Serializer;
 use std::marker::PhantomData;
 use async_std::fs::File;
-use async_std::io::ReadExt;
+use async_std::io::prelude::*;
 
 pub struct FileRepository<I, T>
 {
@@ -38,7 +38,16 @@ impl <I, T> FileRepository<I, T>
         let mut file = File::open(&path).await?;
         let mut data: Vec<u8> = Vec::new();
         file.read_to_end(&mut data).await?;
-        let value: T = self.serializer_instance.from_slice(&data)?;
-        return Ok(value);
-    }    
+        let model: T = self.serializer_instance.from_slice(&data)?;
+        return Ok(model);
+    }
+
+    pub async fn store(&self, model: &T) -> Result<(), Failure> {
+        let id = model.get_entity_id();
+        let path = self.path_resolver.resolve_path(id)?;
+        let mut file = File::open(&path).await?;
+        let data = self.serializer_instance.to_vec(&model)?;
+        file.write_all(&data).await?;
+        return Ok(());
+    }
 }

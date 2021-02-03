@@ -6,7 +6,7 @@ pub trait Serializer {
         where
             T: Deserialize<'a>;
 
-    fn to_vec<T: ?Sized>(&self, value: &T) -> Result<Vec<u8>, Failure> 
+    fn to_vec<T: ?Sized>(&self, model: &T) -> Result<Vec<u8>, Failure> 
         where
             T: Serialize;
 }
