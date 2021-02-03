@@ -5,6 +5,7 @@ use crate::repository::path_resolver::path_resolver::PathResolver;
 use crate::serializer::service::serializer_instance::SerializerInstance;
 use crate::serializer::serializer::Serializer;
 use std::marker::PhantomData;
+use  async_std::path::Path as AsyncPath;
 use async_std::fs::File;
 use async_std::io::prelude::*;
 
@@ -40,6 +41,21 @@ impl <I, T> FileRepository<I, T>
         file.read_to_end(&mut data).await?;
         let model: T = self.serializer_instance.from_slice(&data)?;
         return Ok(model);
+    }
+
+    pub async fn find(&self, id: &I) -> Result<Option<T>, Failure> {
+        let path = self.path_resolver.resolve_path(id)?;
+        {
+            let async_path = AsyncPath::new(&path);
+            if !async_path.exists().await {
+                return Ok(None);
+            }
+        }
+        let mut file = File::open(&path).await?;
+        let mut data: Vec<u8> = Vec::new();
+        file.read_to_end(&mut data).await?;
+        let model: T = self.serializer_instance.from_slice(&data)?;
+        return Ok(Some(model));
     }
 
     pub async fn store(&self, model: &T) -> Result<(), Failure> {
