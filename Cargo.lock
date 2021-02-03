@@ -780,6 +780,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_derive",
+ "serde_json",
  "telegram-bot",
  "tempfile",
  "thiserror",

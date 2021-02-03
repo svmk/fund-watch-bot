@@ -1,4 +1,4 @@
-use crate::app::model::identity::Identity;
+use crate::repository::model::identity::Identity;
 use serde::{Serialize, de::DeserializeOwned};
 
 pub trait Entity<Id: Identity>: Serialize + DeserializeOwned {

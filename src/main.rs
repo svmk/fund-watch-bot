@@ -13,6 +13,9 @@ mod prelude;
 mod error;
 mod parsing;
 mod market;
+mod repository;
+mod serializer;
+
 fn main() {
     
 }
