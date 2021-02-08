@@ -1,7 +1,7 @@
 use crate::market::error::ticker_parse_error::TickerParseError;
 use std::str::FromStr;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, derive_more::Display)]
 pub struct Ticker(String);
 
 impl FromStr for Ticker {

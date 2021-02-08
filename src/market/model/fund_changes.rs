@@ -6,6 +6,7 @@ use crate::market::model::share_change::ShareChange;
 use crate::market::model::price_change::PriceChange;
 use crate::market::model::weight_change::WeightChange;
 
+#[derive(Debug)]
 pub struct FundChanges {
     added_to_fund: Vec<FundComponent>,
     removed_from_fund: Vec<FundComponent>,

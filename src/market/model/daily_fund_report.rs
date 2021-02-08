@@ -1,10 +1,13 @@
 use crate::market::model::fund_id::FundId;
 use crate::market::model::daily_fund_report_id::DailyFundReportId;
 use crate::market::model::fund_component::FundComponent;
+use crate::repository::model::entity::Entity;
 
 #[derive(Debug)]
 pub struct DailyFundReport {
+    // #[serde(rename="id")]
     id: DailyFundReportId,
+    // #[serde(rename="fund_components")]
     fund_components: Vec<FundComponent>,
 }
 
@@ -28,3 +31,9 @@ impl DailyFundReport {
         return &self.fund_components;
     }
 }
+
+// impl Entity<DailyFundReportId> for DailyFundReportId {
+//     fn get_entity_id(&self) -> &DailyFundReportId {
+//         return &self.id;
+//     }
+// }

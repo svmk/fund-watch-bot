@@ -2,7 +2,7 @@ use crate::market::model::ticker::Ticker;
 use crate::market::error::ticker_parse_error::TickerParseError;
 use std::str::FromStr;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, derive_more::Display)]
 pub struct FundId(Ticker);
 
 impl FromStr for FundId {
