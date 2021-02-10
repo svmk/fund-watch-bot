@@ -1,18 +1,18 @@
 use crate::sec_gov::model::year_quartal::YearQuartal;
 use crate::sec_gov::model::year::Year;
-use crate::sec_gov::model::relative_path::RelativePath;
+use crate::sec_gov::model::relative_url::RelativeUrl;
 
 #[derive(new, Debug)]
 pub struct CompanyIndexRequest(YearQuartal);
 
 impl CompanyIndexRequest {
-    pub fn relative_path(&self) -> RelativePath {
+    pub fn relative_path(&self) -> RelativeUrl {
         let path = format!(
             "{}/{}.idx",
             self.0.get_year(),
             self.0.get_quartal().display_long(),
         );
-        return RelativePath::new(path);
+        return RelativeUrl::new(path);
     }
 
     pub fn is_cacheable(&self) -> bool {

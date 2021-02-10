@@ -4,6 +4,7 @@ use crate::repository::model::file::File;
 use crate::repository::file_storage::file_storage::FileStorage;
 use crate::repository::model::abs_file::AbsFile;
 
+#[derive(Debug)]
 pub enum StorageInstance<F> {
     FileStorage(FileStorage<F>),
 }
@@ -12,26 +13,26 @@ impl <F> StorageInstance<F>
     where 
         F: File,
 {
-    pub async fn read(&self, id: &RelativePath) -> Result<F, Failure> {
+    pub async fn read(&self, path: &RelativePath) -> Result<F, Failure> {
         match self {
             StorageInstance::FileStorage(ref service) => {
-                return service.read(id).await;
+                return service.read(path).await;
             },
         }
     }
 
-    pub async fn write(&self, id: &RelativePath) -> Result<F, Failure> {
+    pub async fn write(&self, path: &RelativePath) -> Result<F, Failure> {
         match self {
             StorageInstance::FileStorage(ref service) => {
-                return service.write(id).await;
+                return service.write(path).await;
             },
         }
     }
 
-    pub async fn exists(&self, id: &RelativePath) -> Result<bool, Failure> {
+    pub async fn exists(&self, path: &RelativePath) -> Result<bool, Failure> {
         match self {
             StorageInstance::FileStorage(ref service) => {
-                return service.exists(id).await;
+                return service.exists(path).await;
             },
         }
     }

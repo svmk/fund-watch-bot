@@ -1,18 +1,16 @@
 use crate::prelude::*;
-use crate::repository::model::identity::Identity;
 use crate::repository::model::file::File;
 use crate::repository::model::relative_path::RelativePath;
 use crate::repository::model::abs_file::AbsFile;
 use crate::repository::path_resolver::PathResolver;
 use crate::repository::path_resolver_service::path_resolver_instance::PathResolverInstance;
-use crate::serializer::service::serializer_instance::SerializerInstance;
 use crate::repository::file_storage::storage_instance::StorageInstance;
 use std::marker::PhantomData;
 use async_std::path::Path as AsyncPath;
 use async_std::fs::File as AsyncFile;
-use async_std::io::prelude::*;
-use async_std::fs::create_dir_all;
+use async_std::fs::OpenOptions as AsyncOpenOptions;
 
+#[derive(Debug)]
 pub struct FileStorage<F>
 {
     _entity: PhantomData<F>,
@@ -33,17 +31,23 @@ impl <F> FileStorage<F>
         return StorageInstance::FileStorage(repository);
     }
 
-    pub async fn read(&self, path: &RelativePath) -> Result<F, Failure> {
-        let path = self.path_resolver.resolve_path(path)?;
+    pub async fn read(&self, relative_path: &RelativePath) -> Result<F, Failure> {
+        let path = self.path_resolver.resolve_path(relative_path)?;
         let file = AsyncFile::open(&path).await?;
-        let file = F::new(file);
+        let file = F::new(relative_path.clone(), path, file);
         return Ok(file);
     }
 
-    pub async fn write(&self, path: &RelativePath) -> Result<F, Failure> {
-        let path = self.path_resolver.resolve_path(path)?;
-        let file = AsyncFile::create(&path).await?;
-        let file = F::new(file);
+    pub async fn write(&self, relative_path: &RelativePath) -> Result<F, Failure> {
+        let path = self.path_resolver.resolve_path(relative_path)?;
+        let mut open_options = AsyncOpenOptions::new();
+        open_options.read(true);
+        open_options.write(true);
+        open_options.append(true);
+        open_options.truncate(false);
+        open_options.create(true);
+        let file = open_options.open(&path).await?;
+        let file = F::new(relative_path.clone(), path, file);
         return Ok(file);
     }
 

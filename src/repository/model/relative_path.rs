@@ -1,12 +1,12 @@
-#[derive(Debug)]
-pub struct RelativePath(String);
+use std::path::PathBuf;
+
+#[derive(Debug, Clone)]
+pub struct RelativePath(PathBuf);
 
 impl RelativePath {
-    pub fn new(value: String) -> RelativePath {
-        return RelativePath(value);
-    }
-
-    pub fn as_str(&self) -> &str {
-        return &self.0;
+    pub fn from_string(value: String) -> RelativePath {
+        let mut path = PathBuf::new();
+        path.push(value);
+        return RelativePath(path);
     }
 }

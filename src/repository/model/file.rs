@@ -1,8 +1,9 @@
 use crate::repository::model::abs_file::AbsFile;
+use crate::repository::model::relative_path::RelativePath;
 use async_std::fs::File as AsyncFile;
 use std::path::PathBuf;
 pub trait File {
-    fn new(file: AsyncFile) -> Self;
+    fn new(relative_path: RelativePath, path: PathBuf, file: AsyncFile) -> Self;
     fn resolve_path(&self) -> PathBuf;
 }
 

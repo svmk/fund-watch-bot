@@ -40,7 +40,7 @@ impl <I, E> FileRepository<I, E>
     }
 
     pub async fn get(&self, id: &I) -> Result<E, Failure> {
-        let path = RelativePath::new(id.to_string());
+        let path = RelativePath::from_string(id.to_string());
         let path = self.path_resolver.resolve_path(&path)?;
         let mut file = File::open(&path).await?;
         let mut data: Vec<u8> = Vec::new();
@@ -50,7 +50,7 @@ impl <I, E> FileRepository<I, E>
     }
 
     pub async fn find(&self, id: &I) -> Result<Option<E>, Failure> {
-        let path = RelativePath::new(id.to_string());
+        let path = RelativePath::from_string(id.to_string());
         let path = self.path_resolver.resolve_path(&path)?;
         {
             let async_path = AsyncPath::new(&path);
@@ -67,7 +67,7 @@ impl <I, E> FileRepository<I, E>
 
     pub async fn store(&self, model: &E) -> Result<(), Failure> {
         let id = model.get_entity_id();
-        let path = RelativePath::new(id.to_string());
+        let path = RelativePath::from_string(id.to_string());
         let path = self.path_resolver.resolve_path(&path)?;
         if let Some(dir) = path.parent() {
             create_dir_all(dir).await?;
