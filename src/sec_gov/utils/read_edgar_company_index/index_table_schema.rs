@@ -11,13 +11,17 @@ struct Field {
     name: String,
     start: usize,
     end: usize,
+    is_last: bool,
 }
 
 impl Field {
     fn read_value(&self, text: &str) -> Result<String, Failure> {
-        let end = self.end.min(text.len());
+        let mut end = self.end.min(text.len());
+        if self.is_last {
+            end = text.len();
+        }
         if let Some(result) = text.get(self.start..end) {
-            return Ok(result.to_string());
+            return Ok(result.trim().to_string());
         }
         let error = format!(
             "Unable to read field `{}` from edgar index at position `{}..{}`",
@@ -70,7 +74,8 @@ impl IndexTableSchema {
             field_positions.push((start_index, field));
         }
         let mut fields = Vec::new();
-        let mut end_index = text.len() - 1;
+        let mut end_index = text.len();
+        let mut is_last = true;
         for (start_index, field_name) in field_positions.drain(..).rev() {
             assert!(start_index <= end_index);
             assert!(!field_name.is_empty());
@@ -78,9 +83,11 @@ impl IndexTableSchema {
                 name: field_name,
                 start: start_index,
                 end: end_index,
+                is_last,
             };
+            is_last = false;
             fields.push(field);
-            end_index = start_index - 1;
+            end_index = start_index;
         }
         fields.reverse();
         if fields.is_empty() {
