@@ -6,6 +6,8 @@ extern crate thiserror;
 extern crate derive_new;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
+extern crate derive_value_object;
 
 mod app;
 mod fetching;

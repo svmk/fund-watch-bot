@@ -1,9 +1,9 @@
 use crate::repository::path_resolver_service::path_resolver_instance::PathResolverInstance;
 use crate::repository::path_resolver::PathResolver;
+use crate::repository::model::relative_path::RelativePath;
 use crate::prelude::*;
 use std::path::PathBuf;
 use async_std::fs::create_dir_all;
-use crate::repository::model::identity::Identity;
 
 #[derive(Debug)]
 struct SubdirectoryRule {
@@ -71,17 +71,18 @@ impl PathResolverDirectory {
 }
 
 impl PathResolver for PathResolverDirectory {
-    fn resolve_path(&self, id: &dyn Identity) -> Result<PathBuf, Failure> {
-        let mut result = self.config.directory.clone();
-        let id = id.to_string();
-        for subdirectory in self.config.subdirectories.iter() {
-            let subdirectory = subdirectory.resolve_path(&id)?;
-            result.push(subdirectory);
-        }
-        result.push(id);
-        if let Some(ref extension) = self.config.extension {
-            result.set_extension(extension);
-        }
-        return Ok(result);
+    fn resolve_path(&self, id: &RelativePath) -> Result<PathBuf, Failure> {
+        unimplemented!()
+        // let mut result = self.config.directory.clone();
+        // let id = id.to_string();
+        // for subdirectory in self.config.subdirectories.iter() {
+        //     let subdirectory = subdirectory.resolve_path(&id)?;
+        //     result.push(subdirectory);
+        // }
+        // result.push(id);
+        // if let Some(ref extension) = self.config.extension {
+        //     result.set_extension(extension);
+        // }
+        // return Ok(result);
     }
 }

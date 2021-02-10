@@ -1,6 +1,7 @@
 use crate::prelude::*;
 use crate::repository::model::identity::Identity;
 use crate::repository::model::entity::Entity;
+use crate::repository::model::relative_path::RelativePath;
 use crate::repository::path_resolver::PathResolver;
 use crate::repository::path_resolver_service::path_resolver_instance::PathResolverInstance;
 use crate::repository::repository::repository_instance::RepositoryInstance;
@@ -39,7 +40,8 @@ impl <I, E> FileRepository<I, E>
     }
 
     pub async fn get(&self, id: &I) -> Result<E, Failure> {
-        let path = self.path_resolver.resolve_path(id)?;
+        let path = RelativePath::new(id.to_string());
+        let path = self.path_resolver.resolve_path(&path)?;
         let mut file = File::open(&path).await?;
         let mut data: Vec<u8> = Vec::new();
         file.read_to_end(&mut data).await?;
@@ -48,7 +50,8 @@ impl <I, E> FileRepository<I, E>
     }
 
     pub async fn find(&self, id: &I) -> Result<Option<E>, Failure> {
-        let path = self.path_resolver.resolve_path(id)?;
+        let path = RelativePath::new(id.to_string());
+        let path = self.path_resolver.resolve_path(&path)?;
         {
             let async_path = AsyncPath::new(&path);
             if !async_path.exists().await {
@@ -64,7 +67,8 @@ impl <I, E> FileRepository<I, E>
 
     pub async fn store(&self, model: &E) -> Result<(), Failure> {
         let id = model.get_entity_id();
-        let path = self.path_resolver.resolve_path(id)?;
+        let path = RelativePath::new(id.to_string());
+        let path = self.path_resolver.resolve_path(&path)?;
         if let Some(dir) = path.parent() {
             create_dir_all(dir).await?;
         }
