@@ -10,6 +10,12 @@ pub struct EdgarFile {
     relative_path: RelativePath,
 }
 
+impl EdgarFile {
+    pub fn into_file(self) -> AsyncFile {
+        return self.file;
+    }
+}
+
 impl File for EdgarFile {
     fn new(relative_path: RelativePath, path: PathBuf, file: AsyncFile) -> Self {
         return EdgarFile {

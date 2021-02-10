@@ -4,3 +4,7 @@ pub mod company_index_request;
 pub mod year_quartal;
 pub mod relative_url;
 pub mod edgar_file;
+pub mod company_report_index;
+pub mod company_report_ref;
+pub mod form_type;
+pub mod cik;
