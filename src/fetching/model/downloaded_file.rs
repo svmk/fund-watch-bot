@@ -1,6 +1,7 @@
 use crate::prelude::*;
 use crate::fetching::model::url::Url;
-use std::path::Path;
+use crate::repository::model::abs_file::AbsFile;
+use std::path::{Path, PathBuf};
 use tempfile::{NamedTempFile, TempPath};
 
 #[derive(Debug)]
@@ -23,4 +24,10 @@ impl DownloadedFile {
     pub fn get_path(&self) -> &Path {
         return &self.path;
     }
+}
+
+impl AbsFile for DownloadedFile {
+    fn resolve_abs_path(&self) -> PathBuf {
+        return self.get_path().to_path_buf();
+    }   
 }

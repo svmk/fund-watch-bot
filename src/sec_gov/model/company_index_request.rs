@@ -6,7 +6,7 @@ use crate::sec_gov::model::relative_url::RelativeUrl;
 pub struct CompanyIndexRequest(YearQuartal);
 
 impl CompanyIndexRequest {
-    pub fn relative_path(&self) -> RelativeUrl {
+    pub fn relative_url(&self) -> RelativeUrl {
         let path = format!(
             "{}/{}.idx",
             self.0.get_year(),
