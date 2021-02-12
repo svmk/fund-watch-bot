@@ -5,6 +5,7 @@ pub struct Cik(u32);
 
 impl Cik {
     pub fn from_u32(value: u32) -> Result<Cik, Failure> {
+        unimplemented!("Cik value example: 0001730817");
         if value == 0 {
             return Err(Failure::msg("Cik value is zero"));
         }

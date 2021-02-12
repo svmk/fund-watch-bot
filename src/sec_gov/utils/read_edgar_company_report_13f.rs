@@ -1,6 +1,11 @@
 use crate::prelude::*;
 use crate::sec_gov::model::company_report_13f::CompanyReport13F;
 use crate::sec_gov::model::edgar_file::EdgarFile;
+use crate::sec_gov::model::form_13f::Form13F;
+use crate::sec_gov::model::cik::Cik;
+use crate::sec_gov::model::company_name::CompanyName;
+use crate::app::model::date::Date;
+use std::str::FromStr;
 use std::path::PathBuf;
 use async_std::io::prelude::*;
 use async_std::io::BufReader;
@@ -118,6 +123,8 @@ impl EdgarDocument {
 
 use sxd_document::Package;
 use sxd_document::parser::parse;
+use sxd_xpath::evaluate_xpath;
+use sxd_xpath::Value as XPathValue;
 pub struct EdgarXmlDocument {
     file: Package,
 }
@@ -130,19 +137,53 @@ impl EdgarXmlDocument {
         };
         return Ok(document);
     }
+
+    pub fn read_xpath_content(&self, selector: &str) -> Result<String, Failure> {
+        let document = self.file.as_document();
+        let value = evaluate_xpath(&document, selector)?;
+        let value = match value {
+            XPathValue::String(value) => {
+                value
+            },
+            XPathValue::Boolean(..) => {
+                return Err(Failure::msg(format!("Invalid type boolean for selecor `{}`", selector)));
+            },
+            XPathValue::Number(..) => {
+                return Err(Failure::msg(format!("Invalid type number for selecor `{}`", selector)));
+            },
+            XPathValue::Nodeset(..) => {
+                return Err(Failure::msg(format!("Invalid type nodeset for selecor `{}`", selector)));
+            },
+        };
+        return Ok(value);
+    }
 }
 
-fn parse_document_13f(document: &EdgarDocument) -> Result<Option<()>, Failure> {
+fn parse_document_13f(document: &EdgarDocument) -> Result<Option<Form13F>, Failure> {
     const DOCUMENT_TYPE_13F_HR: &'static str = "13F";
     let document_type = document.get_document_type()?;
     if !document_type.starts_with(DOCUMENT_TYPE_13F_HR) {
         return Ok(None);
     }
-    let xml_document = document.as_xml_document()?;
-    unimplemented!()
+    let document = document.as_xml_document()?;
+    let cik = document.read_xpath_content("//edgarSubmission//headerData//filerInfo//filer//cik")?;
+    let cik = Cik::from_str(&cik)?;
+    let company_name = document.read_xpath_content("//edgarSubmission//formData//coverPage//filingManager//name")?;
+    let company_name = CompanyName::from_string(company_name)?;
+    let period_of_report = document.read_xpath_content("//edgarSubmission//headerData//filerInfo//periodOfReport")?;
+    let period_of_report = Date::parse_mdy(&period_of_report)?;
+    let report_calendar_or_quarter = document.read_xpath_content("//edgarSubmission//formData//coverPage//reportCalendarOrQuarter")?;
+    let report_calendar_or_quarter = Date::parse_mdy(&report_calendar_or_quarter)?;
+    let report = Form13F::new(
+        cik,
+        company_name,
+        period_of_report,
+        report_calendar_or_quarter,
+    );
+    return Ok(Some(report));
 }
 
-fn parse_document_information_table(document: &EdgarDocument) -> Result<Option<()>, Failure> {
+fn parse_document_information_table(document: &EdgarDocument) -> Result<Option<(Form13F)>, Failure> {
     const DOCUMENT_TYPE_INFORMATION_TABLE: &'static str = "INFORMATION TABLE";
     let document_type = document.get_document_type()?;
     if document_type != DOCUMENT_TYPE_INFORMATION_TABLE {
