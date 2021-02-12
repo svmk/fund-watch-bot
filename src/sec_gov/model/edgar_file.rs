@@ -14,6 +14,10 @@ impl EdgarFile {
     pub fn into_file(self) -> AsyncFile {
         return self.file;
     }
+
+    pub fn get_path(&self) -> &PathBuf {
+        return &self.path;
+    }
 }
 
 impl File for EdgarFile {

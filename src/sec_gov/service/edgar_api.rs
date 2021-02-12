@@ -3,10 +3,12 @@ use crate::fetching::model::url::Url;
 use crate::sec_gov::model::year_quartal::YearQuartal;
 use crate::sec_gov::model::year::Year;
 use crate::sec_gov::model::relative_url::RelativeUrl;
-use crate::sec_gov::model::edgar_file::EdgarFile;
+use crate::sec_gov::model::company_report_ref::CompanyReportRef;
 use crate::sec_gov::model::company_report_index::CompanyReportIndex;
+use crate::sec_gov::model::company_report_13f::CompanyReport13F;
 use crate::sec_gov::repository::edgar_cache::EdgarCache;
 use crate::sec_gov::utils::read_edgar_company_index::read_edgar_company_index;
+use crate::sec_gov::utils::read_edgar_company_report_13f::read_edgar_company_report_13f;
 use crate::fetching::model::mime_type::{MIME_APPLICATION_OCTET_STREAM, MIME_TEXT_PLAIN};
 use crate::prelude::*;
 use typed_di::service::Service;
@@ -67,5 +69,26 @@ impl EdgarApi {
             return false;
         }
         return true;
+    }
+
+    pub async fn fetch_compoany_report_13f(&self, company_ref: &CompanyReportRef) -> Result<CompanyReport13F, Failure> {
+        let relative_url = company_ref.get_relative_url();
+        let url = self
+            .config
+            .base_url
+            .join(relative_url.as_str())?;
+        if let Some(cached_file) = self.edgar_cache.find(&relative_url).await? {
+            let company_report = read_edgar_company_report_13f(cached_file).await?;
+            return Ok(company_report);
+        }
+        let request = FileDownloadRequest::new(
+            url,
+            vec![MIME_APPLICATION_OCTET_STREAM, MIME_TEXT_PLAIN,],
+        );
+        let file = self.http_client.fetch_file(request).await?;
+        self.edgar_cache.replace(&relative_url, &file).await?;
+        let file = self.edgar_cache.get(&relative_url).await?;
+        let company_report = read_edgar_company_report_13f(file).await?;
+        return Ok(company_report);
     }
 }

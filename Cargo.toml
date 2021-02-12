@@ -27,3 +27,5 @@ csv = "1.1"
 chrono = "0.4"
 derive_value_object = {path = "../derive_value_object"}
 tokio = { version = "1", features = ["full"] }
+sxd-document = "0.3"
+sxd-xpath = "0.4"

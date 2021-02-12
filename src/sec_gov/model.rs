@@ -5,5 +5,6 @@ pub mod relative_url;
 pub mod edgar_file;
 pub mod company_report_index;
 pub mod company_report_ref;
+pub mod company_report_13f;
 pub mod form_type;
 pub mod cik;

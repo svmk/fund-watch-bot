@@ -8,3 +8,9 @@ pub struct CompanyReportRef {
     form_type: FormType,
     relative_url: RelativeUrl,
 }
+
+impl CompanyReportRef {
+    pub fn get_relative_url(&self) -> &RelativeUrl {
+        return &self.relative_url;
+    }
+}
