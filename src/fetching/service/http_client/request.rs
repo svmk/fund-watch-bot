@@ -4,16 +4,15 @@ use crate::fetching::model::mime_type::MimeType;
 use crate::fetching::service::http_client::request_method::RequestMethod;
 use reqwest::header::HeaderMap;
 use reqwest::header::HeaderValue;
-use reqwest::Body;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Request {
     url: Url,
     request_method: RequestMethod,
     check_status_code: bool,
     expected_mimes: Vec<MimeType>,
     headers: HeaderMap,
-    body: Option<Body>,
+    body: Option<Vec<u8>>,
 }
 
 impl Request {
@@ -78,7 +77,7 @@ impl Request {
         return &self.headers;
     }
 
-    pub fn take_body(&mut self) -> Option<Body> {
+    pub fn take_body(&mut self) -> Option<Vec<u8>> {
         return self.body.take();
     }
 }
