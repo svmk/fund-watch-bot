@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::repository::model::identity::Identity;
 #[derive(Debug, Clone, PartialEq, ValueObject)]
 #[value_object(error_type = "Failure", load_fn = "Cusip::from_string")]
 pub struct Cusip(String);
@@ -14,5 +15,15 @@ impl Cusip {
             }
         }
         return Ok(Cusip(value));
+    }
+
+    pub fn into_to_string(self) -> String {
+        return self.0;
+    }
+}
+
+impl Identity for Cusip {
+    fn to_string(&self) -> String {
+        return self.0.clone();
     }
 }
