@@ -55,7 +55,7 @@ impl HttpClient {
         return &self.config;
     }
 
-    pub async fn get(&self, request: Request) -> Result<reqwest::Response, FetchError> {
+    pub async fn send(&self, request: Request) -> Result<reqwest::Response, FetchError> {
         let request_builder = self.client.get(request.url);
         let response = request_builder.send().await?;
         if request.check_status_code {
@@ -83,7 +83,7 @@ impl HttpClient {
     }
 
     pub async fn fetch_file(&self, request: FileDownloadRequest) -> Result<DownloadedFile, FetchError> {
-        let response = self.get(request.request).await?;
+        let response = self.send(request.request).await?;
         let downloaded_file = DownloadedFile::new(response.url().clone()).map_err(FetchError::custom)?; 
         let mut file = File::create(downloaded_file.get_path()).await.map_err(FetchError::custom)?;
         let mut response_body = response.bytes_stream();

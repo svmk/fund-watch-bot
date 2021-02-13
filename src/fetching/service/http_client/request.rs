@@ -8,7 +8,7 @@ pub struct Request {
 }
 
 impl Request {
-    pub fn new(url: Url) -> Request {
+    pub fn get(url: Url) -> Request {
         return Request {
             url,
             check_status_code: true,

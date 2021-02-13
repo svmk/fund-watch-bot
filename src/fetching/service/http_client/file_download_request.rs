@@ -9,7 +9,7 @@ pub struct FileDownloadRequest {
 
 impl FileDownloadRequest {
     pub fn new(url: Url, expected_mimes: Vec<MimeType>) -> FileDownloadRequest {
-        let mut request = Request::new(url);
+        let mut request = Request::get(url);
         request.expected_mimes = expected_mimes;
         return FileDownloadRequest {
             request,

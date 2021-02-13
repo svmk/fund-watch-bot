@@ -20,6 +20,7 @@ mod market;
 mod repository;
 mod serializer;
 mod sec_gov;
+mod openfigi;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

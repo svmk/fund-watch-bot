@@ -19,7 +19,7 @@ impl PubProxyClient {
         let api_url = self.config.create_api_random_proxy()?;
         let response = self
             .http_client
-            .get(Request::new(api_url).with_mime_type(MIME_APPLICATION_JSON))
+            .send(Request::get(api_url).with_mime_type(MIME_APPLICATION_JSON))
             .await?;
         let response: PubProxyRandomProxyResponse = response.json().await?;
         let proxy = response.get_first_proxy()?;
