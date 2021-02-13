@@ -252,19 +252,68 @@ fn parse_document_information_table(document: &EdgarDocument) -> Result<Option<F
     return Ok(Some(result));
 }
 
+pub struct DocumentReports {
+    form_13f: Option<Form13F>,
+    information_table: Option<Form13FComponentTable>,
+}
+
+impl DocumentReports {
+    pub fn new() -> DocumentReports {
+        return DocumentReports {
+            form_13f: None,
+            information_table: None,
+        };
+    }
+
+    pub fn set_form_13f(&mut self, value: Form13F) -> Result<(), Failure> {
+        if self.form_13f.is_some() {
+            return Err(Failure::msg("Edgar form 13F already parsed"));
+        }
+        self.form_13f = Some(value);
+        return Ok(());
+    }
+
+    pub fn set_information_table(&mut self, value: Form13FComponentTable) -> Result<(), Failure> {
+        if self.information_table.is_some() {
+            return Err(Failure::msg("Edgar information table 13F already parsed"));
+        }
+        self.information_table = Some(value);
+        return Ok(());
+    }
+
+    pub fn create_company_report_13f(self) -> Result<CompanyReport13F, Failure> {
+        let form_13f = match self.form_13f {
+            Some(form_13f) => form_13f,
+            None => {
+                return Err(Failure::msg("Edgar form 13F not parsed"));
+            },
+        };
+        let information_table = match self.information_table {
+            Some(information_table) => information_table,
+            None => {
+                return Err(Failure::msg("Edgar information table 13F not parsed"));
+            }
+        };
+        let report = CompanyReport13F::new(form_13f, information_table);
+        return Ok(report);
+    }
+}
+
 pub async fn read_edgar_company_report_13f(file: EdgarFile) -> Result<CompanyReport13F, Failure> {
     let path = file.get_path().clone();
     let file = file.into_file();
     
     let mut reader = Reader::new(path, file);
     reader.skip_header().await?;
+    let mut document_reports = DocumentReports::new();
     while let Some(document) = reader.read_document().await? {
-        if let Some(_) = parse_document_13f(&document)? {
-
+        if let Some(report) = parse_document_13f(&document)? {
+            document_reports.set_form_13f(report)?;
         }
-        if let Some(_) = parse_document_information_table(&document)? {
-
+        if let Some(report) = parse_document_information_table(&document)? {
+            document_reports.set_information_table(report)?;
         }
     }
-    unimplemented!()
+    let report = document_reports.create_company_report_13f()?;
+    return Ok(report);
 }
