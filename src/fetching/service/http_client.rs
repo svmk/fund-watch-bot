@@ -67,6 +67,7 @@ impl HttpClient {
             },
         };
         let request_builder = self.client.request(request_method, request.get_url().clone());
+        let request_builder = request_builder.headers(request.get_headers().clone());
         let response = request_builder.send().await?;
         if request.get_check_status_code() {
             if response.status() != reqwest::StatusCode::OK {
