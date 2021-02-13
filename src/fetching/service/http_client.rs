@@ -11,6 +11,8 @@ mod request;
 pub use self::request::Request;
 mod file_download_request;
 pub use self::file_download_request::FileDownloadRequest;
+mod request_method;
+pub use self::request_method::RequestMethod;
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct HttpClientConfig {
@@ -56,7 +58,15 @@ impl HttpClient {
     }
 
     pub async fn send(&self, request: Request) -> Result<reqwest::Response, FetchError> {
-        let request_builder = self.client.get(request.get_url().clone());
+        let request_method = match request.get_method() {
+            &RequestMethod::Get => {
+                reqwest::Method::GET
+            },
+            &RequestMethod::Post => {
+                reqwest::Method::POST
+            },
+        };
+        let request_builder = self.client.request(request_method, request.get_url().clone());
         let response = request_builder.send().await?;
         if request.get_check_status_code() {
             if response.status() != reqwest::StatusCode::OK {
