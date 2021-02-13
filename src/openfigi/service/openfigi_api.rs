@@ -3,6 +3,7 @@ use crate::fetching::model::url::Url;
 use crate::fetching::service::http_client::{HttpClient, Request};
 use crate::market::model::cusip::Cusip;
 use crate::market::model::ticker::Ticker;
+use crate::fetching::model::mime_type::MIME_APPLICATION_JSON;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::openfigi::model::figi_record::FigiRecord;
 use crate::openfigi::model::cusip_cache_record::CusipCacheRecord; 
@@ -57,6 +58,8 @@ impl OpenFigiApi {
         }
         let body = FindByIdRequestBody::new_request_cusip(cusip);
         let body = self.serializer.to_vec(&body)?;
+        request = request.with_mime_type(MIME_APPLICATION_JSON);
+        request = request.with_body(body)?;
         unimplemented!()
     }
 }

@@ -4,6 +4,7 @@ use crate::fetching::model::mime_type::MimeType;
 use crate::fetching::service::http_client::request_method::RequestMethod;
 use reqwest::header::HeaderMap;
 use reqwest::header::HeaderValue;
+use reqwest::Body;
 
 #[derive(Debug)]
 pub struct Request {
@@ -12,6 +13,7 @@ pub struct Request {
     check_status_code: bool,
     expected_mimes: Vec<MimeType>,
     headers: HeaderMap,
+    body: Option<Body>,
 }
 
 impl Request {
@@ -22,6 +24,7 @@ impl Request {
             check_status_code: true,
             expected_mimes: Vec::new(),
             headers: HeaderMap::new(),
+            body: None,
         };
     }
 
@@ -32,12 +35,21 @@ impl Request {
             check_status_code: true,
             expected_mimes: Vec::new(),
             headers: HeaderMap::new(),
+            body: None,
         };
     }
 
     pub fn with_mime_type(mut self, mime_type: MimeType) -> Self {
         self.expected_mimes = vec![mime_type];
         return self;
+    }
+
+    pub fn with_body(mut self, body: Vec<u8>) -> Result<Self, Failure> {
+        if !self.get_method().has_body() {
+            return Err(Failure::msg("Body not acceptable for this request"));
+        }
+        self.body = Some(body.into());
+        return Ok(self);
     }
 
     pub fn with_header(mut self, key: &'static str, value: &str) -> Result<Self, Failure> {
@@ -64,5 +76,9 @@ impl Request {
 
     pub fn get_headers(&self) -> &HeaderMap {
         return &self.headers;
+    }
+
+    pub fn take_body(&mut self) -> Option<Body> {
+        return self.body.take();
     }
 }
