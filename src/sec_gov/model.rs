@@ -10,3 +10,7 @@ pub mod form_type;
 pub mod cik;
 pub mod form_13f;
 pub mod company_name;
+pub mod form_13f_componenttable;
+pub mod form_13f_component;
+pub mod cusip;
+pub mod investment_discretion;

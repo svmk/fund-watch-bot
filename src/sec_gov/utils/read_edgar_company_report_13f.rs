@@ -4,6 +4,11 @@ use crate::sec_gov::model::edgar_file::EdgarFile;
 use crate::sec_gov::model::form_13f::Form13F;
 use crate::sec_gov::model::cik::Cik;
 use crate::sec_gov::model::company_name::CompanyName;
+use crate::sec_gov::model::cusip::Cusip;
+use crate::sec_gov::model::investment_discretion::InvestmentDiscretion;
+use crate::sec_gov::model::form_13f_component::Form13FComponent;
+use crate::sec_gov::model::form_13f_componenttable::Form13FComponentTable;
+use crate::market::model::share::Share;
 use crate::app::model::date::Date;
 use std::str::FromStr;
 use std::path::PathBuf;
@@ -123,6 +128,7 @@ impl EdgarDocument {
 
 use sxd_document::Package;
 use sxd_document::parser::parse;
+use sxd_document::dom::Document;
 use sxd_xpath::evaluate_xpath;
 use sxd_xpath::Value as XPathValue;
 pub struct EdgarXmlDocument {
@@ -138,9 +144,20 @@ impl EdgarXmlDocument {
         return Ok(document);
     }
 
-    pub fn read_xpath_content(&self, selector: &str) -> Result<String, Failure> {
-        let document = self.file.as_document();
-        let value = evaluate_xpath(&document, selector)?;
+    pub fn root(&self) -> EdgarXmlFragment {
+        return EdgarXmlFragment::new(self.file.as_document());
+    }
+}
+
+use sxd_xpath::nodeset::Node;
+#[derive(new)]
+pub struct EdgarXmlFragment<'a> {
+    document: Document<'a>,
+}
+
+impl <'a>EdgarXmlFragment<'a> {
+    pub fn read_xpath_string(&self, selector: &str) -> Result<String, Failure> {
+        let value = evaluate_xpath(&self.document, selector)?;
         let value = match value {
             XPathValue::String(value) => {
                 value
@@ -157,6 +174,23 @@ impl EdgarXmlDocument {
         };
         return Ok(value);
     }
+
+    pub fn list(&self, selector: &str) -> Result<Vec<EdgarXmlFragment>, Failure> {
+        let nodes = evaluate_xpath(&self.document, selector)?;
+        let nodes = match nodes {
+            XPathValue::Nodeset(nodes) => nodes,
+            _ => {
+                return Err(Failure::msg(format!("Expected nodeset for selecor `{}`", selector)));
+            }
+        };
+        let nodes: Vec<_> = nodes
+            .iter()
+            .map(|node| {
+                return EdgarXmlFragment::new(node.document());
+            })
+            .collect();
+        return Ok(nodes);
+    }
 }
 
 fn parse_document_13f(document: &EdgarDocument) -> Result<Option<Form13F>, Failure> {
@@ -166,13 +200,14 @@ fn parse_document_13f(document: &EdgarDocument) -> Result<Option<Form13F>, Failu
         return Ok(None);
     }
     let document = document.as_xml_document()?;
-    let cik = document.read_xpath_content("//edgarSubmission//headerData//filerInfo//filer//cik")?;
+    let document = document.root();
+    let cik = document.read_xpath_string("//edgarSubmission//headerData//filerInfo//filer//cik")?;
     let cik = Cik::from_str(&cik)?;
-    let company_name = document.read_xpath_content("//edgarSubmission//formData//coverPage//filingManager//name")?;
+    let company_name = document.read_xpath_string("//edgarSubmission//formData//coverPage//filingManager//name")?;
     let company_name = CompanyName::from_string(company_name)?;
-    let period_of_report = document.read_xpath_content("//edgarSubmission//headerData//filerInfo//periodOfReport")?;
+    let period_of_report = document.read_xpath_string("//edgarSubmission//headerData//filerInfo//periodOfReport")?;
     let period_of_report = Date::parse_mdy(&period_of_report)?;
-    let report_calendar_or_quarter = document.read_xpath_content("//edgarSubmission//formData//coverPage//reportCalendarOrQuarter")?;
+    let report_calendar_or_quarter = document.read_xpath_string("//edgarSubmission//formData//coverPage//reportCalendarOrQuarter")?;
     let report_calendar_or_quarter = Date::parse_mdy(&report_calendar_or_quarter)?;
     let report = Form13F::new(
         cik,
@@ -183,14 +218,38 @@ fn parse_document_13f(document: &EdgarDocument) -> Result<Option<Form13F>, Failu
     return Ok(Some(report));
 }
 
-fn parse_document_information_table(document: &EdgarDocument) -> Result<Option<(Form13F)>, Failure> {
+fn parse_document_information_table(document: &EdgarDocument) -> Result<Option<Form13FComponentTable>, Failure> {
     const DOCUMENT_TYPE_INFORMATION_TABLE: &'static str = "INFORMATION TABLE";
     let document_type = document.get_document_type()?;
     if document_type != DOCUMENT_TYPE_INFORMATION_TABLE {
         return Ok(None);
     }
-    let xml_document = document.as_xml_document()?;
-    unimplemented!()
+    let document = document.as_xml_document()?;
+    let document = document.root();
+    let info_tables = document.list("//ns1:informationTable//ns1:infoTable")?;
+    let mut result = Form13FComponentTable::new();
+    for info_table in info_tables.iter() {
+        let company_name = info_table.read_xpath_string("//ns1:nameOfIssuer")?;
+        let company_name = CompanyName::from_string(company_name)?;
+        let cusip = info_table.read_xpath_string("//ns1:cusip")?;
+        let cusip = Cusip::from_string(cusip)?;
+        let investment_discretion = info_table.read_xpath_string("//ns1:investmentDiscretion")?;
+        let investment_discretion = InvestmentDiscretion::from_str(&investment_discretion)?;
+        let share = info_table.read_xpath_string("//ns1:shrsOrPrnAmt/ns1:sshPrnamt")?;
+        let share = Share::from_str(&share)?;
+        let share_type = info_table.read_xpath_string("//ns1:shrsOrPrnAmt/ns1:sshPrnamtType")?;
+        if share_type != "SH" {
+            return Err(Failure::msg(format!("Unknown share type {}", share_type)));
+        }
+        let component = Form13FComponent::new(
+            company_name,
+            cusip,
+            investment_discretion,
+            share,
+        );
+        result.push_component(component);
+    } 
+    return Ok(Some(result));
 }
 
 pub async fn read_edgar_company_report_13f(file: EdgarFile) -> Result<CompanyReport13F, Failure> {

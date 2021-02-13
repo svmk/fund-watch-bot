@@ -12,9 +12,6 @@ impl CompanyName {
         if id.is_empty() {
             return Err(Failure::msg("Company name cannot be empty"));
         }
-        if id.to_uppercase() != id {
-            return Err(Failure::msg("Company name must be uppercase"));
-        }
         let id = id.to_string();
         return Ok(CompanyName(id));
     }
