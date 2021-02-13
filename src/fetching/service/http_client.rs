@@ -56,27 +56,27 @@ impl HttpClient {
     }
 
     pub async fn send(&self, request: Request) -> Result<reqwest::Response, FetchError> {
-        let request_builder = self.client.get(request.url);
+        let request_builder = self.client.get(request.get_url().clone());
         let response = request_builder.send().await?;
-        if request.check_status_code {
+        if request.get_check_status_code() {
             if response.status() != reqwest::StatusCode::OK {
                 return Err(FetchError::WrongStatusCode(response));
             }
         }
-        if !request.expected_mimes.is_empty() {
+        if !request.get_expected_mimes().is_empty() {
             let content_type = match response.headers().get(http::header::CONTENT_TYPE) {
                 Some(content_type) => content_type,
                 None => {
-                    return Err(FetchError::MimeTypeNotProvided {expected_mimes: request.expected_mimes, response});
+                    return Err(FetchError::MimeTypeNotProvided {expected_mimes: request.get_expected_mimes().clone(), response});
                 },
             };
             let content_type = content_type.to_str().map_err(FetchError::custom)?;
             let content_type = ContentType::from_str(content_type).map_err(FetchError::custom)?;
             let provided_mime = content_type.get_mime_type();
-            if request.expected_mimes.iter().find(|&expected_mime| {
+            if request.get_expected_mimes().iter().find(|&expected_mime| {
                 return expected_mime == &provided_mime;
             }).is_none() {
-                return Err(FetchError::ExpectedMimeType {expected_mimes: request.expected_mimes, provided_mime, response});
+                return Err(FetchError::ExpectedMimeType {expected_mimes: request.get_expected_mimes().clone(), provided_mime, response});
             }
         }
         return Ok(response);

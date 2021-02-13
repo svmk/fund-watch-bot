@@ -2,9 +2,9 @@ use crate::fetching::model::url::Url;
 use crate::fetching::model::mime_type::MimeType;
 #[derive(Debug)]
 pub struct Request {
-    pub url: Url,
-    pub check_status_code: bool,
-    pub expected_mimes: Vec<MimeType>,
+    url: Url,
+    check_status_code: bool,
+    expected_mimes: Vec<MimeType>,
 }
 
 impl Request {
@@ -19,5 +19,17 @@ impl Request {
     pub fn with_mime_type(mut self, mime_type: MimeType) -> Self {
         self.expected_mimes = vec![mime_type];
         return self;
+    }
+
+    pub fn get_url(&self) -> &Url {
+        return &self.url;
+    }
+
+    pub fn get_check_status_code(&self) -> bool {
+        return self.check_status_code;
+    }
+
+    pub fn get_expected_mimes(&self) -> &Vec<MimeType> {
+        return &self.expected_mimes;;
     }
 }
