@@ -7,8 +7,6 @@ use crate::market::model::historical_price::HistoricalPrice;
 use crate::app::model::datetime::DateTime;
 use crate::prelude::*;
 
-use super::split_rule;
-
 #[derive(Debug)]
 pub struct SplitRules {
     split_rules: Vec<SplitRule>,
@@ -79,7 +77,7 @@ impl SplitRules {
     pub fn calculate_historical_price(&self, datetime: &DateTime, actual_price: &ActualPrice) -> Result<HistoricalPrice, Failure> {
         let mut price = actual_price.clone().into_price();
         for split_rule in self.split_rules.iter().rev() {
-            price = split_rule.calculate_price(price)?;
+            price = split_rule.calculate_historical_price(price)?;
             if split_rule.is_match_datetime(datetime) {
                 break;
             }

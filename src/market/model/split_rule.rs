@@ -13,20 +13,21 @@ pub struct SplitRule {
 
 impl SplitRule {
     pub fn is_match_datetime(&self, datetime: &DateTime) -> bool {
+        // started_at <= date < ended_at
         if let Some(ref started_at) = self.started_at {
             if datetime < started_at {
                 return false;
             }   
         }
         if let Some(ref ended_at) = self.ended_at {
-            if datetime > ended_at {
+            if datetime >= ended_at {
                 return false;
             }
         }
         return true;
     }
 
-    pub fn calculate_price(&self, price: Price) -> Result<Price, Failure> {
+    pub fn calculate_historical_price(&self, price: Price) -> Result<Price, Failure> {
         let price = price.into_f64();
         let price = price / self.nominator.get() as f64;
         let price = price * self.denominator.get() as f64;
