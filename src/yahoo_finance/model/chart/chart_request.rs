@@ -15,7 +15,7 @@ pub struct ChartRequest {
 }
 
 impl ApiRequest for ChartRequest {
-    fn url(&self, base_url: &Url) -> Result<Url, Failure> {
+    fn create_api_url(&self, base_url: &Url) -> Result<Url, Failure> {
         let mut url = format!(
             "/v8/finance/chart/{}?period1={}&period2={}&interval={}", 
             self.symbol,
@@ -26,7 +26,7 @@ impl ApiRequest for ChartRequest {
         if self.include_divs || self.include_splits {
             let mut url_events: Vec<&str> = Vec::new();
             if self.include_divs {
-                url_events.push("divs");
+                url_events.push("div");
             }
             if self.include_splits {
                 url_events.push("split");
