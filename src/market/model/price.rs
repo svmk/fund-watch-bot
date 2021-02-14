@@ -5,7 +5,11 @@ use crate::market::error::price_parse_error::PriceParseError;
 pub struct Price(f64);
 
 impl Price {
-    fn from_f64(value: f64) -> Result<Price, PriceParseError> {
+    pub fn into_f64(self) -> f64 {
+        return self.0;
+    }
+    
+    pub fn from_f64(value: f64) -> Result<Price, PriceParseError> {
         if value < 0.0 {
             return Err(PriceParseError::Negative);
         }

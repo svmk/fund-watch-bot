@@ -1,10 +1,15 @@
 use crate::market::error::price_parse_error::PriceParseError;
+use crate::market::model::price::Price;
 
 #[derive(Debug, Clone, PartialEq, ValueObject)]
 #[value_object(error_type = "PriceParseError", load_fn = "HistoricalPrice::from_f64")]
 pub struct HistoricalPrice(f64);
 
 impl HistoricalPrice {
+    pub fn from_price(value: Price) -> HistoricalPrice {
+        return HistoricalPrice(value.into_f64());
+    }
+    
     fn from_f64(value: f64) -> Result<HistoricalPrice, PriceParseError> {
         if value < 0.0 {
             return Err(PriceParseError::Negative);

@@ -2,6 +2,8 @@ use std::{convert::TryFrom, num::NonZeroU32};
 
 use crate::market::model::split_rule::SplitRule;
 use crate::market::model::split::Split;
+use crate::market::model::actual_price::ActualPrice;
+use crate::market::model::historical_price::HistoricalPrice;
 use crate::app::model::datetime::DateTime;
 use crate::prelude::*;
 
@@ -72,5 +74,17 @@ impl SplitRules {
             previous_date = Some(split_date);
         }
         return Ok(split_rules);
+    }
+
+    pub fn calculate_historical_price(&self, datetime: &DateTime, actual_price: &ActualPrice) -> Result<HistoricalPrice, Failure> {
+        let mut price = actual_price.clone().into_price();
+        for split_rule in self.split_rules.iter().rev() {
+            price = split_rule.calculate_price(price)?;
+            if split_rule.is_match_datetime(datetime) {
+                break;
+            }
+        }
+        let price = HistoricalPrice::from_price(price);
+        return Ok(price);
     }
 }
