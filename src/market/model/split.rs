@@ -1,11 +1,11 @@
 use crate::app::model::datetime::DateTime;
 use std::num::NonZeroU32;
 
-#[derive(Debug)]
+#[derive(new, Debug)]
 pub struct Split {
+    date: DateTime,
     nominator: NonZeroU32,
     denominator: NonZeroU32,
-    date: DateTime,
 }
 
 impl Split {
