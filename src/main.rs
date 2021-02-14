@@ -21,6 +21,7 @@ mod repository;
 mod serializer;
 mod sec_gov;
 mod openfigi;
+mod yahoo_finance;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
