@@ -30,7 +30,7 @@ pub struct OpenFigiApiConfig {
 pub struct OpenFigiApi {
     config: OpenFigiApiConfig,
     http_client: Service<HttpClient>,
-    cache_repository: RepositoryInstance<Cusip, CusipCacheRecord>,
+    cache_repository: Service<RepositoryInstance<Cusip, CusipCacheRecord>>,
     serializer: SerializerInstance,
 }
 
@@ -40,7 +40,7 @@ impl OpenFigiApi {
     pub fn new(
         config: OpenFigiApiConfig,
         http_client: Service<HttpClient>,
-        cache_repository: RepositoryInstance<Cusip, CusipCacheRecord>,
+        cache_repository: Service<RepositoryInstance<Cusip, CusipCacheRecord>>,
     ) -> OpenFigiApi {
         return OpenFigiApi {
             config,
@@ -49,6 +49,7 @@ impl OpenFigiApi {
             serializer: JsonSerializer::new(),
         };
     }
+
     pub async fn get_ticker_by_cusip(&self, cusip: &Cusip) -> Result<Ticker, Failure> {
         if let Some(cache_record) = self.cache_repository.find(cusip).await? {
             let ticker = cache_record.get_first_record()?.get_ticker()?;
@@ -75,6 +76,8 @@ impl OpenFigiApi {
                             return Err(error.into());
                         }
                         sleep(self.config.request_delay.clone()).await;
+                    } else {
+                        return Err(error.into());
                     }
                 }
             }

@@ -15,3 +15,5 @@ pub mod fund_component_change;
 pub mod fund_component_share;
 pub mod cik;
 pub mod cusip;
+pub mod actual_price;
+pub mod historical_price;
