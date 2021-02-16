@@ -7,8 +7,16 @@ use std::prelude::*;
 pub struct TimeStamp(u64);
 
 impl TimeStamp {
-    fn from_u64(value: u64) -> Result<TimeStamp, Failure> {
+    pub fn from_u64(value: u64) -> Result<TimeStamp, Failure> {
         return Ok(TimeStamp(value));
+    }
+
+    pub fn zero() -> TimeStamp {
+        return TimeStamp(0);
+    }
+
+    pub fn now() -> TimeStamp {
+        return DateTime::now().to_timestamp();
     }
 
     pub fn to_datetime(&self) -> DateTime {

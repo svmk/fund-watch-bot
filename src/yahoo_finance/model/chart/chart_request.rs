@@ -1,17 +1,46 @@
 use crate::yahoo_finance::model::common_api::interval::Interval;
 use crate::yahoo_finance::model::common_api::api_request::ApiRequest;
 use crate::market::common::model::ticker::Ticker;
-use crate::app::model::datetime::DateTime;
+use crate::app::model::timestamp::TimeStamp;
 use crate::fetching::model::url::Url;
 use crate::prelude::*;
 
+#[derive(Debug)]
 pub struct ChartRequest {
-    interval: Interval,
-    period_start_at: DateTime,
-    period_end_at: DateTime,
     symbol: Ticker,
+    interval: Interval,
+    period_start_at: TimeStamp,
+    period_end_at: TimeStamp,
     include_divs: bool,
     include_splits: bool,
+}
+
+impl ChartRequest {
+    pub fn new(
+        symbol: Ticker,
+        interval: Interval,
+        period_start_at: TimeStamp,
+        period_end_at: TimeStamp,
+    ) -> ChartRequest {
+        return ChartRequest {
+            symbol,
+            interval,
+            period_start_at,
+            period_end_at,
+            include_divs: false,
+            include_splits: false,
+        }
+    }
+
+    pub fn with_dividients(mut self) -> Self {
+        self.include_divs = true;
+        return self;
+    }
+
+    pub fn with_splits(mut self) -> Self {
+        self.include_splits = true;
+        return self;
+    }
 }
 
 impl ApiRequest for ChartRequest {

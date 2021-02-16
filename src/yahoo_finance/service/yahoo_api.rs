@@ -5,7 +5,6 @@ use crate::prelude::*;
 use crate::yahoo_finance::model::common_api::api_request::ApiRequest;
 use crate::yahoo_finance::model::common_api::response::Response;
 use typed_di::service::Service;
-use std::convert::AsRef;
 
 #[derive(Debug)]
 pub struct YahooApiConfig {
@@ -19,8 +18,8 @@ pub struct YahooApi {
 }
 
 impl YahooApi {
-    pub async fn send(&self, request: impl AsRef<&dyn ApiRequest>) -> Result<Response, Failure> {
-        let url = request.as_ref().create_api_url(&self.config.base_url)?;
+    pub async fn send(&self, request: impl ApiRequest) -> Result<Response, Failure> {
+        let url = request.create_api_url(&self.config.base_url)?;
         let request = Request::get(url);
         let request = request.with_mime_type(MIME_APPLICATION_JSON);
         let response = self.http_client.send(request).await?;

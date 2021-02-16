@@ -1,15 +1,15 @@
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
 use crate::market::market_data::model::day_price_id::DayPriceId;
-use crate::market::common::model::candlestick::CandleStick;
+use crate::market::common::model::historical_candlestick::HistoricalCandleStick;
 #[derive(Debug)]
 pub struct QuartalPrice {
     id: QuartalPriceId,
-    candlestick: CandleStick,
+    candlestick: HistoricalCandleStick,
     prices: Vec<DayPriceId>,
 }
 
 impl QuartalPrice {
-    pub fn new(id: QuartalPriceId, candlestick: CandleStick) -> QuartalPrice {
+    pub fn new(id: QuartalPriceId, candlestick: HistoricalCandleStick) -> QuartalPrice {
         return QuartalPrice {
             id,
             candlestick,
