@@ -9,6 +9,10 @@ impl ActualPrice {
     pub fn into_price(self) -> Price {
         return Price::from_f64(self.0).unwrap();
     }
+
+    pub fn into_f64(&self) -> f64 {
+        return self.0;
+    }
 }
 
 impl ActualPrice {

@@ -27,11 +27,9 @@ impl SplitRule {
         return true;
     }
 
-    pub fn calculate_historical_price(&self, price: Price) -> Result<Price, Failure> {
-        let price = price.into_f64();
-        let price = price / self.nominator.get() as f64;
-        let price = price * self.denominator.get() as f64;
-        let price = Price::from_f64(price)?;
-        return Ok(price);
+    pub fn calculate(&self, value: f64) -> f64 {
+        let value = value / self.nominator.get() as f64;
+        let value = value * self.denominator.get() as f64;
+        return value;
     }
 }

@@ -10,7 +10,7 @@ impl HistoricalPrice {
         return HistoricalPrice(value.into_f64());
     }
     
-    fn from_f64(value: f64) -> Result<HistoricalPrice, PriceParseError> {
+    pub fn from_f64(value: f64) -> Result<HistoricalPrice, PriceParseError> {
         if value < 0.0 {
             return Err(PriceParseError::Negative);
         }

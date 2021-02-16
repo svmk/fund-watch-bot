@@ -8,4 +8,8 @@ impl ActualVolume {
     fn from_f64(value: f64) -> Result<ActualVolume, Failure> {
         return Ok(ActualVolume(value));
     }
+
+    pub fn into_f64(&self) -> f64 {
+        return self.0;
+    }
 }
