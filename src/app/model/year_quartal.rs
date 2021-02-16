@@ -13,7 +13,11 @@ impl YearQuartal {
     pub fn from_datetime(datetime: DateTime) -> YearQuartal {
         let year = datetime.get_year();
         let month = datetime.get_month();
-        unimplemented!()
+        let quartal = Quartal::from_month(month);
+        return YearQuartal {
+            year,
+            quartal,
+        };
     }
 
     pub fn get_year(&self) -> &Year {
