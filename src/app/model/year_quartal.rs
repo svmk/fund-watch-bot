@@ -1,5 +1,6 @@
 use crate::app::model::year::Year;
 use crate::app::model::quartal::Quartal;
+use crate::app::model::datetime::DateTime;
 use std::fmt;
 
 #[derive(new, Debug)]
@@ -9,6 +10,12 @@ pub struct YearQuartal {
 }
 
 impl YearQuartal {
+    pub fn from_datetime(datetime: DateTime) -> YearQuartal {
+        let year = datetime.get_year();
+        let month = datetime.get_month();
+        unimplemented!()
+    }
+
     pub fn get_year(&self) -> &Year {
         return &self.year;
     }

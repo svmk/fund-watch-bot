@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::app::model::year::Year;
 use chrono::Date as ChronoDate;
 use chrono::offset::Utc;
 use chrono::Datelike;
@@ -12,8 +13,8 @@ impl Date {
         return Date(Utc::today());
     }
 
-    pub fn get_year(&self) -> i32 {
-        return self.0.year();
+    pub fn get_year(&self) -> Year {
+        return Year::from_i32(self.0.year()).unwrap();
     }
 
     pub fn parse_mdy(text: &str) -> Result<Date, Failure> {

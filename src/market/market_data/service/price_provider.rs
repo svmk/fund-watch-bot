@@ -14,7 +14,7 @@ pub struct PriceProvider {
 }
 
 impl PriceProvider {
-    async fn fetch(&self, mut price: TickerPrice) -> Result<TickerPrice, Failure> {
+    async fn fetch_by_ticker(&self, mut price: TickerPrice) -> Result<TickerPrice, Failure> {
         let request = ChartRequest::new(
             price.get_ticker().clone(),
             Interval::ThreeMonths,
@@ -28,8 +28,8 @@ impl PriceProvider {
                 price.add_split(split)?;
             }
         }
-        let candlesticks = response.get_candlesticks();
-        let candlesticks = price.calculate_historical_candlesticks(candlesticks)?;
+        let quartal_candlesticks = response.get_candlesticks();
+        let quartal_candlesticks = price.calculate_historical_candlesticks(quartal_candlesticks)?;
         unimplemented!()
     }
 }

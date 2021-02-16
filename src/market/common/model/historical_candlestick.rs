@@ -2,7 +2,7 @@ use crate::market::common::model::historical_price::HistoricalPrice;
 use crate::market::common::model::historical_volume::HistoricalVolume;
 use crate::app::model::datetime::DateTime;
 
-#[derive(new, Debug, Clone)]
+#[derive(new, Debug, Clone, PartialEq)]
 pub struct HistoricalCandleStick {
     timestamp: DateTime,
     open: HistoricalPrice,

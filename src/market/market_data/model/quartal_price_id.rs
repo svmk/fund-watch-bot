@@ -1,11 +1,18 @@
 use crate::market::common::model::ticker::Ticker;
 use crate::app::model::year_quartal::YearQuartal;
+use crate::app::model::datetime::DateTime;
 use crate::repository::model::identity::Identity;
 
 #[derive(Debug)]
 pub struct QuartalPriceId {
     ticker: Ticker,
     period: YearQuartal,
+}
+
+impl QuartalPriceId {
+    pub fn from_ticker_and_date(ticker: Ticker, datetime: DateTime) -> QuartalPriceId {
+        unimplemented!()
+    }
 }
 
 impl Identity for QuartalPriceId {

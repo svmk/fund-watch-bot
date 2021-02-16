@@ -16,4 +16,8 @@ impl QuartalPrice {
             prices: Vec::new(),
         };
     }
+
+    pub fn is_candlestick_differ(&self, candelstick: &HistoricalCandleStick) -> bool {
+        return &self.candlestick != candelstick;
+    }
 }

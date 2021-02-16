@@ -1,3 +1,4 @@
+use crate::app::model::month::Month;
 use std::fmt;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -13,6 +14,22 @@ pub enum Quartal {
 }
 
 impl Quartal {
+    pub fn from_month(month: Month) -> Quartal {
+        match month {
+            Month::Jan => Quartal::Q1,
+            Month::Feb => Quartal::Q1,
+            Month::Mar => Quartal::Q1,
+            Month::Apr => Quartal::Q2,
+            Month::May => Quartal::Q2,
+            Month::Jun => Quartal::Q2,
+            Month::Jul => Quartal::Q3,
+            Month::Aug => Quartal::Q3,
+            Month::Sep => Quartal::Q3,
+            Month::Oct => Quartal::Q4,
+            Month::Nov => Quartal::Q4,
+            Month::Dec => Quartal::Q4,
+        }
+    }
     pub fn display_long(&self) -> &str {
         match self {
             Quartal::Q1 => {
