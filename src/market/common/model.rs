@@ -6,3 +6,4 @@ pub mod cusip;
 pub mod historical_price;
 pub mod volume;
 pub mod actual_price;
+pub mod candlestick;
