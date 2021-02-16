@@ -1,4 +1,4 @@
-use crate::market::model::share::Share;
+use crate::market::common::model::share::Share;
 
 #[derive(Debug, Clone)]
 pub struct ShareChange {

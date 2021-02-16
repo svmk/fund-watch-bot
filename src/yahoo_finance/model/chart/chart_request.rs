@@ -1,6 +1,6 @@
 use crate::yahoo_finance::model::common_api::interval::Interval;
 use crate::yahoo_finance::model::common_api::api_request::ApiRequest;
-use crate::market::model::ticker::Ticker;
+use crate::market::common::model::ticker::Ticker;
 use crate::app::model::datetime::DateTime;
 use crate::fetching::model::url::Url;
 use crate::prelude::*;

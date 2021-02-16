@@ -1,4 +1,4 @@
-use crate::market::model::price::Price;
+use crate::market::common::model::price::Price;
 
 #[derive(Debug, Clone)]
 pub struct PriceChange {

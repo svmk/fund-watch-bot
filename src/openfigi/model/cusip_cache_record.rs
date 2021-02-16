@@ -1,4 +1,4 @@
-use crate::market::model::cusip::Cusip;
+use crate::market::common::model::cusip::Cusip;
 use crate::openfigi::model::figi_record::FigiRecord;
 use crate::repository::model::entity::Entity;
 use crate::prelude::*;

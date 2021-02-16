@@ -1,5 +1,5 @@
-use crate::market::model::fund_id::FundId;
-use crate::market::model::daily_fund_report_id::DailyFundReportId;
+use crate::market::fund_report::model::fund_id::FundId;
+use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
 
 #[derive(Debug)]
 pub struct Fund {

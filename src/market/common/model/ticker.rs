@@ -1,4 +1,4 @@
-use crate::market::error::ticker_parse_error::TickerParseError;
+use crate::market::common::error::ticker_parse_error::TickerParseError;
 use crate::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, ValueObject)]

@@ -1,1 +1,1 @@
-pub use crate::market::model::cusip::Cusip;
+pub use crate::market::common::model::cusip::Cusip;

@@ -1,5 +1,5 @@
-use crate::market::error::price_parse_error::PriceParseError;
-use crate::market::model::price::Price;
+use crate::market::common::error::price_parse_error::PriceParseError;
+use crate::market::common::model::price::Price;
 
 #[derive(Debug, Clone, PartialEq, ValueObject)]
 #[value_object(error_type = "PriceParseError", load_fn = "HistoricalPrice::from_f64")]

@@ -1,5 +1,5 @@
 use crate::repository::model::identity::Identity;
-use crate::market::model::fund_id::FundId;
+use crate::market::fund_report::model::fund_id::FundId;
 use crate::app::model::date::Date;
 
 #[derive(Debug, Clone, PartialEq)]

@@ -1,4 +1,4 @@
-use crate::market::model::actual_price::ActualPrice;
+use crate::market::common::model::actual_price::ActualPrice;
 use crate::app::model::timestamp::TimeStamp;
 
 #[derive(Debug, serde_query::Deserialize)]

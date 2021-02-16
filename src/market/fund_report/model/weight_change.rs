@@ -1,4 +1,4 @@
-use crate::market::model::weight::Weight;
+use crate::market::fund_report::model::weight::Weight;
 
 #[derive(Debug, Clone)]
 pub struct WeightChange {

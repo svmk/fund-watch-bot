@@ -1,4 +1,4 @@
-use crate::market::error::price_parse_error::PriceParseError;
+use crate::market::common::error::price_parse_error::PriceParseError;
 
 #[derive(Debug, Clone, PartialEq, ValueObject)]
 #[value_object(error_type = "PriceParseError", load_fn = "Price::from_f64")]

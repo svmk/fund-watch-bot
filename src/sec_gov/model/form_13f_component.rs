@@ -1,7 +1,7 @@
 use crate::sec_gov::model::company_name::CompanyName;
 use crate::sec_gov::model::cusip::Cusip;
 use crate::sec_gov::model::investment_discretion::InvestmentDiscretion;
-use crate::market::model::share::Share;
+use crate::market::common::model::share::Share;
 
 #[derive(new, Debug)]
 pub struct Form13FComponent {

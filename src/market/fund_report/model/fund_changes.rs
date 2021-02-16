@@ -1,10 +1,10 @@
-use crate::market::model::daily_fund_report::DailyFundReport;
-use crate::market::model::fund_component::FundComponent;
-use crate::market::error::fund_changes_error::FundChangesError;
-use crate::market::model::fund_component_change::FundComponentChange;
-use crate::market::model::share_change::ShareChange;
-use crate::market::model::price_change::PriceChange;
-use crate::market::model::weight_change::WeightChange;
+use crate::market::fund_report::model::daily_fund_report::DailyFundReport;
+use crate::market::fund_report::model::fund_component::FundComponent;
+use crate::market::common::error::fund_changes_error::FundChangesError;
+use crate::market::fund_report::model::fund_component_change::FundComponentChange;
+use crate::market::fund_report::model::share_change::ShareChange;
+use crate::market::fund_report::model::price_change::PriceChange;
+use crate::market::fund_report::model::weight_change::WeightChange;
 
 #[derive(Debug)]
 pub struct FundChanges {

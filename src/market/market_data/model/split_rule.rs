@@ -1,5 +1,5 @@
 use crate::app::model::datetime::DateTime;
-use crate::market::model::price::Price;
+use crate::market::common::model::price::Price;
 use crate::prelude::*;
 use std::num::NonZeroU32;
 

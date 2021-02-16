@@ -1,8 +1,8 @@
-use crate::market::model::ticker::Ticker;
-use crate::market::model::share::Share;
-use crate::market::model::price::Price;
-use crate::market::model::weight::Weight;
-use crate::market::model::fund_component_share::FundComponentShare;
+use crate::market::common::model::ticker::Ticker;
+use crate::market::common::model::share::Share;
+use crate::market::common::model::price::Price;
+use crate::market::fund_report::model::weight::Weight;
+use crate::market::fund_report::model::fund_component_share::FundComponentShare;
 
 #[derive(Debug, Clone)]
 pub struct FundComponent {

@@ -1,4 +1,4 @@
-use crate::market::model::cusip::Cusip;
+use crate::market::common::model::cusip::Cusip;
 
 #[derive(Serialize, Deserialize)]
 pub struct FindByIdRequestBody {

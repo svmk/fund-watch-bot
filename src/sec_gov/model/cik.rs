@@ -1,1 +1,1 @@
-pub use crate::market::model::cik::Cik;
+pub use crate::market::common::model::cik::Cik;

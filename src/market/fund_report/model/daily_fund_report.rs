@@ -1,6 +1,6 @@
-use crate::market::model::fund_id::FundId;
-use crate::market::model::daily_fund_report_id::DailyFundReportId;
-use crate::market::model::fund_component::FundComponent;
+use crate::market::fund_report::model::fund_id::FundId;
+use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
+use crate::market::fund_report::model::fund_component::FundComponent;
 use crate::repository::model::entity::Entity;
 
 #[derive(Debug)]

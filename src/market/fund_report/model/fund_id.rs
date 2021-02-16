@@ -1,4 +1,4 @@
-use crate::market::model::ticker::Ticker;
+use crate::market::common::model::ticker::Ticker;
 use crate::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, ValueObject)]

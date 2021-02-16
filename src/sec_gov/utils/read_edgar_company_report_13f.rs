@@ -8,7 +8,7 @@ use crate::sec_gov::model::cusip::Cusip;
 use crate::sec_gov::model::investment_discretion::InvestmentDiscretion;
 use crate::sec_gov::model::form_13f_component::Form13FComponent;
 use crate::sec_gov::model::form_13f_componenttable::Form13FComponentTable;
-use crate::market::model::share::Share;
+use crate::market::common::model::share::Share;
 use crate::app::model::date::Date;
 use std::str::FromStr;
 

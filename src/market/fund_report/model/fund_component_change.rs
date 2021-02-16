@@ -1,7 +1,7 @@
-use crate::market::model::ticker::Ticker;
-use crate::market::model::share_change::ShareChange;
-use crate::market::model::price_change::PriceChange;
-use crate::market::model::weight_change::WeightChange;
+use crate::market::common::model::ticker::Ticker;
+use crate::market::fund_report::model::share_change::ShareChange;
+use crate::market::fund_report::model::price_change::PriceChange;
+use crate::market::fund_report::model::weight_change::WeightChange;
 
 #[derive(Debug, Clone)]
 pub struct FundComponentChange {
