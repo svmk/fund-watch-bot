@@ -4,6 +4,7 @@ use chrono::naive::NaiveDateTime;
 use crate::app::model::timestamp::TimeStamp;
 use crate::app::model::year::Year;
 use crate::app::model::month::Month;
+use crate::app::model::date::Date;
 use chrono::Datelike;
 use serde::{Serialize, Deserialize, Serializer, Deserializer};
 use chrono::Duration;
@@ -32,6 +33,11 @@ impl DateTime {
 
     pub fn to_timestamp(&self) -> TimeStamp {
         return TimeStamp::from_u64(self.0.timestamp() as u64).unwrap();
+    }
+
+    pub fn to_date(&self) -> Date {
+        let date = self.0.date();
+        return Date::from_chrono_date(date);
     }
 
     pub fn add_days(&self, days: u32) -> DateTime {

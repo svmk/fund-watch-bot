@@ -6,10 +6,14 @@ use chrono::Datelike;
 use chrono::NaiveDate;
 use serde::{Serialize, Deserialize, Serializer, Deserializer};
 
-#[derive(Debug, Clone, PartialEq, derive_more::Display)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, derive_more::Display)]
 pub struct Date(ChronoDate<Utc>);
 
 impl Date {
+    pub fn from_chrono_date(date: ChronoDate<Utc>) -> Date {
+        return Date(date);
+    }
+    
     pub fn today() -> Date {
         return Date(Utc::today());
     }

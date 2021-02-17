@@ -1,8 +1,10 @@
-use crate::repository::repository::repository_instance::RepositoryInstance;
+use crate::{market::market_data::model::quartal_price, repository::repository::repository_instance::RepositoryInstance};
 use crate::market::common::model::ticker::Ticker;
 use crate::market::market_data::model::ticker_price::TickerPrice;
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
 use crate::market::market_data::model::quartal_price::QuartalPrice;
+use crate::market::market_data::model::day_price_id::DayPriceId;
+use crate::market::market_data::model::day_price::DayPrice;
 use crate::market::common::model::historical_candlestick::HistoricalCandleStick;
 use crate::yahoo_finance::service::yahoo_api::YahooApi;
 use crate::yahoo_finance::model::chart::chart_request::ChartRequest;
@@ -19,6 +21,7 @@ pub struct CandlestickDownloader {
     yahoo_api: Service<YahooApi>,
     ticker_price_repository: Service<RepositoryInstance<Ticker, TickerPrice>>,
     quartal_price_repository: Service<RepositoryInstance<QuartalPriceId, QuartalPrice>>,
+    daily_price_repository: Service<RepositoryInstance<DayPriceId, DayPrice>>,
 }
 
 impl CandlestickDownloader {
@@ -80,21 +83,36 @@ impl CandlestickDownloader {
         let chart_request = ChartRequest::new(
             request.get_ticker().clone(),
             Interval::OneDay,
-            request.get_started_at().sub_days(1).to_timestamp(),
-            request.get_ended_at().add_days(1).to_timestamp(),
+            request.get_started_at().to_timestamp(),
+            request.get_ended_at().to_timestamp(),
         );
         let chart_response = self.yahoo_api.send(chart_request).await?;
         let chart_response = chart_response.get_charts()?;
         let daily_candlesticks = chart_response.get_candlesticks();
         let daily_candlesticks = ticker_price.calculate_historical_candlesticks(daily_candlesticks)?;
         for daily_candlestick in daily_candlesticks {
-            self.fetch_by_day(request, ticker_price, daily_candlestick).await?;
+            let daily_price_id = self.fetch_by_day(request, ticker_price, daily_candlestick).await?;
+            quartal_price.push_daily_price_once(daily_price_id);
         }
         self.quartal_price_repository.store(&quartal_price).await?;
         return Ok(quartal_price_id);
     }
 
-    async fn fetch_by_day(&self, request: &CandlestickRequest, ticker_price: &TickerPrice, candlestick: HistoricalCandleStick) -> Result<(), Failure> {
-        unimplemented!()
+    async fn fetch_by_day(&self, request: &CandlestickRequest, ticker_price: &TickerPrice, candlestick: HistoricalCandleStick) -> Result<DayPriceId, Failure> {
+        let day_price_id = DayPriceId::from_ticker_and_date(
+            request.get_ticker().clone(),
+            candlestick.get_timestamp().to_date(),
+        );
+        let day_price = self
+            .daily_price_repository
+            .find(&day_price_id).await?;
+        if let Some(ref day_price) = day_price {
+            if day_price.is_candlestick_equals(&candlestick) {
+                return Ok(day_price_id);
+            }
+        }
+        let day_price = DayPrice::new(day_price_id.clone(), candlestick);
+        self.daily_price_repository.store(&day_price).await?;
+        return Ok(day_price_id);
     }
 }
