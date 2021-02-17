@@ -20,4 +20,8 @@ impl CandlestickRequest {
     pub fn get_ended_at(&self) -> &DateTime {
         return &self.ended_at;
     }
+
+    pub fn need_fetch(&self, datetime: &DateTime) -> bool {
+        return &self.started_at <= datetime && datetime <= &self.ended_at;
+    }
 }

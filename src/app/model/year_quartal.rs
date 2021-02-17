@@ -6,7 +6,7 @@ use std::fmt;
 use std::str::FromStr;
 use serde::{Serialize, Deserialize, Serializer, Deserializer};
 
-#[derive(new, Debug)]
+#[derive(new, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct YearQuartal {
     year: Year,
     quartal: Quartal,

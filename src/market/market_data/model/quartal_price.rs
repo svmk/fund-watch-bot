@@ -22,8 +22,8 @@ impl QuartalPrice {
         };
     }
 
-    pub fn is_candlestick_differ(&self, candelstick: &HistoricalCandleStick) -> bool {
-        return &self.candlestick != candelstick;
+    pub fn is_candlestick_equals(&self, candelstick: &HistoricalCandleStick) -> bool {
+        return &self.candlestick == candelstick;
     }
 }
 

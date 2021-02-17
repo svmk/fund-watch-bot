@@ -6,6 +6,7 @@ use crate::app::model::year::Year;
 use crate::app::model::month::Month;
 use chrono::Datelike;
 use serde::{Serialize, Deserialize, Serializer, Deserializer};
+use chrono::Duration;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, derive_more::Display)]
 pub struct DateTime(ChronoDateTime<Utc>);
@@ -31,6 +32,18 @@ impl DateTime {
 
     pub fn to_timestamp(&self) -> TimeStamp {
         return TimeStamp::from_u64(self.0.timestamp() as u64).unwrap();
+    }
+
+    pub fn add_days(&self, days: u32) -> DateTime {
+        let days = Duration::days(days as i64);
+        let datetime = self.0 + days;
+        return DateTime(datetime);
+    }
+
+    pub fn sub_days(&self, days: u32) -> DateTime {
+        let days = Duration::days(days as i64);
+        let datetime = self.0 - days;
+        return DateTime(datetime);
     }
 }
 

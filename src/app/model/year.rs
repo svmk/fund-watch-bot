@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use crate::app::model::date::Date;
 
-#[derive(Debug, ValueObject, PartialEq)]
+#[derive(Debug, Clone, ValueObject, PartialEq, Eq, PartialOrd, Ord)]
 #[value_object(error_type = "Failure", load_fn = "Year::from_i32")]
 pub struct Year(i32);
 

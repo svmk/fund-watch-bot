@@ -3,7 +3,7 @@ use crate::app::model::year_quartal::YearQuartal;
 use crate::app::model::datetime::DateTime;
 use crate::repository::model::identity::Identity;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct QuartalPriceId {
     ticker: Ticker,
     period: YearQuartal,

@@ -17,3 +17,9 @@ pub struct HistoricalCandleStick {
     #[serde(rename="volume")]
     volume: HistoricalVolume,
 }
+
+impl HistoricalCandleStick {
+    pub fn get_timestamp(&self) -> &DateTime {
+        return &self.timestamp;
+    }
+}

@@ -7,6 +7,7 @@ use crate::market::common::model::actual_candlestick::ActualCandleStick;
 use crate::app::model::datetime::DateTime;
 use crate::repository::model::entity::Entity;
 use crate::prelude::*;
+use std::collections::BinaryHeap;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TickerPrice {
@@ -16,7 +17,7 @@ pub struct TickerPrice {
     #[serde(rename = "split_rules")]
     split_rules: SplitRules,
     #[serde(rename = "quartal_prices")]
-    quartal_prices: Vec<QuartalPriceId>,
+    quartal_prices: BinaryHeap<QuartalPriceId>,
 }
 
 impl TickerPrice {
@@ -28,7 +29,7 @@ impl TickerPrice {
             ticker,
             // candlestick,
             split_rules: SplitRules::new(),
-            quartal_prices: Vec::new(),
+            quartal_prices: BinaryHeap::new(),
         };
     }
 
@@ -50,6 +51,10 @@ impl TickerPrice {
 
     pub fn create_quartal_price_id(&self, datetime: DateTime) -> QuartalPriceId {
         return QuartalPriceId::from_ticker_and_date(self.ticker.clone(), datetime);
+    }
+
+    pub fn push_quartal_price_once(&mut self, quartal_price: QuartalPriceId) {
+        self.quartal_prices.push(quartal_price);
     }
 }
 

@@ -2,7 +2,7 @@ use crate::app::model::month::Month;
 use crate::prelude::*;
 use std::fmt;
 use std::str::FromStr;
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Quartal {
     #[serde(rename = "Q1")]
     Q1,
