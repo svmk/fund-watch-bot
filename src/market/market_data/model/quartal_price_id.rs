@@ -24,6 +24,10 @@ impl QuartalPriceId {
             period,
         };
     }
+
+    pub fn get_period(&self) -> &YearQuartal {
+        return &self.period;
+    }
 }
 
 impl Identity for QuartalPriceId {

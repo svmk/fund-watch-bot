@@ -16,6 +16,10 @@ impl DayPriceId {
             date,
         }
     }
+
+    pub fn get_date(&self) -> &Date {
+        return &self.date;
+    }
 }
 
 impl Identity for DayPriceId {

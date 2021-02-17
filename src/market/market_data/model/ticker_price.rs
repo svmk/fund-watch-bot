@@ -17,6 +17,8 @@ pub struct TickerPrice {
     split_rules: SplitRules,
     #[serde(rename = "quartal_prices")]
     quartal_prices: Vec<QuartalPriceId>,
+    #[serde(rename = "quartal_prices")]
+    incomplete_quartal_prices: Vec<QuartalPriceId>,
 }
 
 impl TickerPrice {
@@ -29,6 +31,7 @@ impl TickerPrice {
             // candlestick,
             split_rules: SplitRules::new(),
             quartal_prices: Vec::new(),
+            incomplete_quartal_prices: Vec::new(),
         };
     }
 
@@ -53,12 +56,25 @@ impl TickerPrice {
     }
 
     pub fn push_quartal_price_once(&mut self, quartal_price: QuartalPriceId) {
-        self.quartal_prices.push(quartal_price);
+        if !self.contains_quartal_price(&quartal_price) {
+            self.quartal_prices.push(quartal_price);
+        }
         self.quartal_prices.sort();
     }
 
     pub fn contains_quartal_price(&self, quartal_price: &QuartalPriceId) -> bool {
         return self.quartal_prices.binary_search(quartal_price).is_ok();
+    }
+
+    pub fn push_incomplete_quartal_price_once(&mut self, quartal_price: QuartalPriceId) {
+        if !self.contains_incomplete_quartal_price(&quartal_price) {
+            self.incomplete_quartal_prices.push(quartal_price);
+        }
+        self.incomplete_quartal_prices.sort();
+    }
+
+    pub fn contains_incomplete_quartal_price(&self, quartal_price: &QuartalPriceId) -> bool {
+        return self.incomplete_quartal_prices.binary_search(quartal_price).is_ok();
     }
 }
 

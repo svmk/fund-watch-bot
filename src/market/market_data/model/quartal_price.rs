@@ -2,7 +2,6 @@ use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
 use crate::market::market_data::model::day_price_id::DayPriceId;
 use crate::market::common::model::historical_candlestick::HistoricalCandleStick;
 use crate::repository::model::entity::Entity;
-use std::collections::BinaryHeap;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QuartalPrice {
@@ -11,7 +10,9 @@ pub struct QuartalPrice {
     #[serde(rename="candlestick")]
     candlestick: HistoricalCandleStick,
     #[serde(rename="daily_prices")]
-    daily_prices: BinaryHeap<DayPriceId>,
+    daily_prices: Vec<DayPriceId>,
+    #[serde(rename="incomplete_daily_prices")]
+    incomplete_daily_prices: Vec<DayPriceId>,
 }
 
 impl QuartalPrice {
@@ -19,7 +20,8 @@ impl QuartalPrice {
         return QuartalPrice {
             id,
             candlestick,
-            daily_prices: BinaryHeap::new(),
+            daily_prices: Vec::new(),
+            incomplete_daily_prices: Vec::new(),
         };
     }
 
@@ -27,8 +29,26 @@ impl QuartalPrice {
         return &self.candlestick == candelstick;
     }
 
+    pub fn contains_daily_price(&self, daily_price: &DayPriceId) -> bool {
+        return self.daily_prices.binary_search(daily_price).is_ok();
+    }
+
     pub fn push_daily_price_once(&mut self, daily_price: DayPriceId) {
-        self.daily_prices.push(daily_price);
+        if !self.contains_daily_price(&daily_price) {
+            self.daily_prices.push(daily_price);
+        }
+        self.daily_prices.sort();
+    }
+
+    pub fn contains_incomplete_daily_price(&self, incomplete_daily_price: &DayPriceId) -> bool {
+        return self.incomplete_daily_prices.binary_search(incomplete_daily_price).is_ok();
+    }
+    
+    pub fn push_incomplete_daily_price_once(&mut self, incomplete_daily_price: DayPriceId) {
+        if !self.contains_incomplete_daily_price(&incomplete_daily_price) {
+            self.incomplete_daily_prices.push(incomplete_daily_price);
+        }
+        self.incomplete_daily_prices.sort();
     }
 }
 

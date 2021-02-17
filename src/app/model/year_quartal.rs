@@ -31,6 +31,12 @@ impl YearQuartal {
         return &self.quartal;
     }
 
+    pub fn now() -> YearQuartal {
+        let now = DateTime::now();
+        let now = YearQuartal::from_datetime(now);
+        return now;
+    }
+
     pub fn next(&self) -> YearQuartal {
         let mut year = self.year.clone();
         let quartal = match &self.quartal {
