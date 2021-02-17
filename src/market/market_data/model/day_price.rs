@@ -13,6 +13,10 @@ impl DayPrice {
     pub fn is_candlestick_equals(&self, candlestick: &HistoricalCandleStick) -> bool {
         return &self.candlestick == candlestick;
     }
+
+    pub fn get_candlestick(&self) -> &HistoricalCandleStick {
+        return &self.candlestick;
+    }
 }
 
 impl Entity<DayPriceId> for DayPrice {

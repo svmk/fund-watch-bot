@@ -4,5 +4,6 @@ use crate::app::model::datetime::DateTime;
 #[derive(new, Debug)]
 pub struct CandlestickReport {
     datetime: DateTime,
+    quartal: HistoricalCandleStick,
     daily: HistoricalCandleStick,
 }

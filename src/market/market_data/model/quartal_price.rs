@@ -50,6 +50,10 @@ impl QuartalPrice {
         }
         self.incomplete_daily_prices.sort();
     }
+
+    pub fn get_candlestick(&self) -> &HistoricalCandleStick {
+        return &self.candlestick;
+    }
 }
 
 impl Entity<QuartalPriceId> for QuartalPrice {
