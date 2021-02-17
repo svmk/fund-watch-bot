@@ -27,6 +27,11 @@ impl Date {
         let date = ChronoDate::from_utc(date, Utc{});
         return Ok(Date(date));
     }
+
+    pub fn next(&self) -> Date {
+        let date = self.0.succ();
+        return Date(date);
+    }
 }
 
 impl Serialize for Date {

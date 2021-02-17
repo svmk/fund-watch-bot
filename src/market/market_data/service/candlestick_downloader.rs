@@ -1,4 +1,5 @@
-use crate::{market::market_data::model::quartal_price, repository::repository::repository_instance::RepositoryInstance, sec_gov::model::year_quartal::YearQuartal};
+use crate::{repository::repository::repository_instance::RepositoryInstance, sec_gov::model::year_quartal::YearQuartal};
+use crate::app::model::date_iterator::DateIterator;
 use crate::market::common::model::ticker::Ticker;
 use crate::market::market_data::model::ticker_price::TickerPrice;
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
@@ -137,7 +138,23 @@ impl CandlestickDownloader {
         if quartal_price.is_candlestick_equals(&candlestick) {
             return Ok(false);
         }
-        unimplemented!()
+        let date_iterator = DateIterator::new(
+            request.get_started_at().to_date(),
+            request.get_ended_at().to_date(),
+        )?;
+        for date in date_iterator {
+            let daily_price = DayPriceId::from_ticker_and_date(
+                request.get_ticker().clone(), 
+                date,
+            );
+            if quartal_price.contains_daily_price(&daily_price) {
+                return Ok(false);
+            }
+            if quartal_price.contains_incomplete_daily_price(&daily_price) {
+                return Ok(false);
+            }
+        }
+        return Ok(true);
     }
 
     async fn fetch_by_day(&self, request: &CandlestickRequest, ticker_price: &TickerPrice, candlestick: HistoricalCandleStick) -> Result<DayPriceId, Failure> {
