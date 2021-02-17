@@ -9,6 +9,14 @@ pub struct CandlestickRequest {
 }
 
 impl CandlestickRequest {
+    pub fn from_datetime(ticker: Ticker, datetime: DateTime) -> CandlestickRequest {
+        return CandlestickRequest {
+            ticker,
+            started_at: datetime.clone(),
+            ended_at: datetime,
+        }
+    }
+
     pub fn get_ticker(&self) -> &Ticker {
         return &self.ticker;
     }
