@@ -1,13 +1,15 @@
 use crate::app::model::datetime::DateTime;
-use crate::market::common::model::price::Price;
-use crate::prelude::*;
 use std::num::NonZeroU32;
 
-#[derive(new, Debug)]
+#[derive(new, Debug, Serialize, Deserialize)]
 pub struct SplitRule {
+    #[serde(rename = "started_at")]
     started_at: Option<DateTime>,
+    #[serde(rename = "ended_at")]
     ended_at: Option<DateTime>,
+    #[serde(rename = "nominator")]
     nominator: NonZeroU32,
+    #[serde(rename = "denominator")]
     denominator: NonZeroU32,
 }
 

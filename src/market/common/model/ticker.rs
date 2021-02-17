@@ -1,5 +1,6 @@
 use crate::market::common::error::ticker_parse_error::TickerParseError;
 use crate::prelude::*;
+use crate::repository::model::identity::Identity;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, ValueObject)]
 #[value_object(error_type = "Failure", load_fn = "Ticker::from_string")]
@@ -16,4 +17,10 @@ impl Ticker {
         let id = id.to_string();
         return Ok(Ticker(id));
     }
+}
+
+impl Identity for Ticker {
+    fn to_string(&self) -> String {
+        return self.0.clone();
+    }   
 }

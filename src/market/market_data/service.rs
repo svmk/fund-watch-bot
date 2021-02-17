@@ -1,1 +1,1 @@
-pub mod price_provider;
+pub mod candlestick_downloader;

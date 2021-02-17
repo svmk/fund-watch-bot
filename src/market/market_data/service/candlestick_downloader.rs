@@ -7,18 +7,30 @@ use crate::yahoo_finance::service::yahoo_api::YahooApi;
 use crate::yahoo_finance::model::chart::chart_request::ChartRequest;
 use crate::yahoo_finance::model::common_api::interval::Interval;
 use crate::app::model::timestamp::TimeStamp;
+use crate::app::model::datetime::DateTime;
 use crate::prelude::*;
 use typed_di::service::Service;
-
+mod candlestick_request;
+pub use self::candlestick_request::CandlestickRequest;
 
 #[derive(new)]
-pub struct PriceProvider {
+pub struct CandlestickDownloader {
     yahoo_api: Service<YahooApi>,
-    quartal_price_repository: RepositoryInstance<QuartalPriceId, QuartalPrice>,
+    ticker_price_repository: Service<RepositoryInstance<Ticker, TickerPrice>>,
+    quartal_price_repository: Service<RepositoryInstance<QuartalPriceId, QuartalPrice>>,
 }
 
-impl PriceProvider {
-    async fn fetch_by_ticker(&self, mut price: TickerPrice) -> Result<TickerPrice, Failure> {
+impl CandlestickDownloader {
+    async fn fetch_by_ticker(&self, request: &CandlestickRequest) -> Result<TickerPrice, Failure> {
+        let price = self
+            .ticker_price_repository
+            .find(request.get_ticker()).await?;
+        let mut price = match price {
+            Some(price) => price,
+            None => {
+                TickerPrice::new(request.get_ticker().clone())
+            },
+        };
         let request = ChartRequest::new(
             price.get_ticker().clone(),
             Interval::ThreeMonths,

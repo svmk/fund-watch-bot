@@ -7,9 +7,11 @@ use crate::market::common::model::historical_price::HistoricalPrice;
 use crate::app::model::datetime::DateTime;
 use crate::prelude::*;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SplitRules {
+    #[serde(rename = "split_rules")]
     split_rules: Vec<SplitRule>,
+    #[serde(rename = "splits")]
     splits: Vec<Split>,
 }
 

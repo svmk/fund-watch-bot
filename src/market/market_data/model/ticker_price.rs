@@ -5,13 +5,17 @@ use crate::market::market_data::model::split_rules::SplitRules;
 use crate::market::common::model::historical_candlestick::HistoricalCandleStick;
 use crate::market::common::model::actual_candlestick::ActualCandleStick;
 use crate::app::model::datetime::DateTime;
+use crate::repository::model::entity::Entity;
 use crate::prelude::*;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TickerPrice {
+    #[serde(rename = "ticker")]
     ticker: Ticker,
     // candlestick: HistoricalCandleStick,
+    #[serde(rename = "split_rules")]
     split_rules: SplitRules,
+    #[serde(rename = "quartal_prices")]
     quartal_prices: Vec<QuartalPriceId>,
 }
 
@@ -46,5 +50,11 @@ impl TickerPrice {
 
     pub fn create_quartal_price_id(&self, datetime: DateTime) -> QuartalPriceId {
         return QuartalPriceId::from_ticker_and_date(self.ticker.clone(), datetime);
+    }
+}
+
+impl Entity<Ticker> for TickerPrice {
+    fn get_entity_id(&self) -> &Ticker {
+        return &self.ticker;
     }
 }

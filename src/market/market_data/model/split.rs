@@ -1,10 +1,13 @@
 use crate::app::model::datetime::DateTime;
 use std::num::NonZeroU32;
 
-#[derive(new, Debug)]
+#[derive(new, Debug, Serialize, Deserialize)]
 pub struct Split {
+    #[serde(rename = "date")]
     date: DateTime,
+    #[serde(rename = "nominator")]
     nominator: NonZeroU32,
+    #[serde(rename = "denominator")]
     denominator: NonZeroU32,
 }
 
