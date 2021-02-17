@@ -17,6 +17,13 @@ impl QuartalPriceId {
             period,
         };
     }
+
+    pub fn from_ticker_and_year_quartal(ticker: Ticker, period: YearQuartal) -> QuartalPriceId {
+        return QuartalPriceId {
+            ticker,
+            period,
+        };
+    }
 }
 
 impl Identity for QuartalPriceId {

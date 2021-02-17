@@ -14,4 +14,9 @@ impl Year {
         let today = Date::today();
         return today.get_year();
     }
+
+    pub fn next(mut self) -> Year {
+        self.0 += 1;
+        return self;
+    }
 }

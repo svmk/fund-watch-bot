@@ -1,4 +1,4 @@
-use crate::{app::model::year::Year, market::market_data::model::quartal_price};
+use crate::app::model::year::Year;
 use crate::app::model::quartal::Quartal;
 use crate::app::model::datetime::DateTime;
 use crate::prelude::*;
@@ -29,6 +29,23 @@ impl YearQuartal {
 
     pub fn get_quartal(&self) -> &Quartal {
         return &self.quartal;
+    }
+
+    pub fn next(&self) -> YearQuartal {
+        let mut year = self.year.clone();
+        let quartal = match &self.quartal {
+            Quartal::Q1 => Quartal::Q2,
+            Quartal::Q2 => Quartal::Q3,
+            Quartal::Q3 => Quartal::Q4,
+            Quartal::Q4 => {
+                year = year.next();
+                Quartal::Q1
+            },
+        };
+        return YearQuartal {
+            year,
+            quartal,
+        };
     }
 }
 

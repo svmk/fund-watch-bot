@@ -1,7 +1,7 @@
 use crate::app::model::datetime::DateTime;
 use std::num::NonZeroU32;
 
-#[derive(new, Debug, Serialize, Deserialize)]
+#[derive(new, Debug, Clone, Serialize, Deserialize)]
 pub struct SplitRule {
     #[serde(rename = "started_at")]
     started_at: Option<DateTime>,

@@ -1,4 +1,4 @@
-use crate::{market::market_data::model::quartal_price, repository::repository::repository_instance::RepositoryInstance};
+use crate::{market::market_data::model::quartal_price, repository::repository::repository_instance::RepositoryInstance, sec_gov::model::year_quartal::YearQuartal};
 use crate::market::common::model::ticker::Ticker;
 use crate::market::market_data::model::ticker_price::TickerPrice;
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
@@ -9,8 +9,8 @@ use crate::market::common::model::historical_candlestick::HistoricalCandleStick;
 use crate::yahoo_finance::service::yahoo_api::YahooApi;
 use crate::yahoo_finance::model::chart::chart_request::ChartRequest;
 use crate::yahoo_finance::model::common_api::interval::Interval;
+use crate::app::model::year_quartal_iterator::YearQuartalIterator;
 use crate::app::model::timestamp::TimeStamp;
-use crate::app::model::datetime::DateTime;
 use crate::prelude::*;
 use typed_di::service::Service;
 mod candlestick_request;
@@ -25,10 +25,15 @@ pub struct CandlestickDownloader {
 }
 
 impl CandlestickDownloader {
-    async fn fetch_by_ticker(&self, request: &CandlestickRequest) -> Result<(), Failure> {
+    pub async fn fetch_by_ticker(&self, request: &CandlestickRequest) -> Result<TickerPrice, Failure> {
         let ticker_price = self
             .ticker_price_repository
             .find(request.get_ticker()).await?;
+        if let Some(ref ticker_price) = ticker_price {
+            if self.is_ticker_price_cached(request, ticker_price)? {
+                return Ok(ticker_price.clone());
+            }
+        }
         let mut ticker_price = match ticker_price {
             Some(ticker_price) => ticker_price,
             None => {
@@ -55,7 +60,23 @@ impl CandlestickDownloader {
             ticker_price.push_quartal_price_once(quartal_price);
         }
         self.ticker_price_repository.store(&ticker_price).await?;
-        return Ok(());
+        return Ok(ticker_price);
+    }
+
+    fn is_ticker_price_cached(&self, request: &CandlestickRequest, ticker_price: &TickerPrice) -> Result<bool, Failure> {
+        let started_at = YearQuartal::from_datetime(request.get_started_at().clone());
+        let ended_at = YearQuartal::from_datetime(request.get_ended_at().clone());
+        let year_quartal_iterator = YearQuartalIterator::new(started_at, ended_at)?;
+        for year_quartal in year_quartal_iterator {
+            let quartal_price = QuartalPriceId::from_ticker_and_year_quartal(
+                ticker_price.get_ticker().clone(), 
+                year_quartal,
+            );
+            if !ticker_price.contains_quartal_price(&quartal_price) {
+                return Ok(false);
+            }
+        }
+        return Ok(true);
     }
 
     async fn fetch_by_quartal(&self, request: &CandlestickRequest, ticker_price: &TickerPrice, candlestick: HistoricalCandleStick) -> Result<QuartalPriceId, Failure> {
