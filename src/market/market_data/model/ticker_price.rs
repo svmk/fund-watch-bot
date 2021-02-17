@@ -12,7 +12,7 @@ pub struct TickerPrice {
     ticker: Ticker,
     // candlestick: HistoricalCandleStick,
     split_rules: SplitRules,
-    prices: Vec<QuartalPriceId>,
+    quartal_prices: Vec<QuartalPriceId>,
 }
 
 impl TickerPrice {
@@ -24,7 +24,7 @@ impl TickerPrice {
             ticker,
             // candlestick,
             split_rules: SplitRules::new(),
-            prices: Vec::new(),
+            quartal_prices: Vec::new(),
         };
     }
 

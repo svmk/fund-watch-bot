@@ -1,6 +1,7 @@
 use crate::app::model::month::Month;
+use crate::prelude::*;
 use std::fmt;
-
+use std::str::FromStr;
 #[derive(Debug, Serialize, Deserialize)]
 pub enum Quartal {
     #[serde(rename = "Q1")]
@@ -48,6 +49,21 @@ impl Quartal {
     }
 }
 
+impl FromStr for Quartal {
+    type Err = Failure;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let value = match s {
+            "Q1" => Quartal::Q1,
+            "Q2" => Quartal::Q2,
+            "Q3" => Quartal::Q3,
+            "Q4" => Quartal::Q4,
+            _ => {
+                return Err(Failure::msg(format!("Invalid quartal value: `{}`", s)));
+            },
+        };
+        return Ok(value);
+    }
+}
 
 impl fmt::Display for Quartal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

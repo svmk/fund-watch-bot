@@ -3,7 +3,7 @@ use crate::app::model::date::Date;
 use crate::repository::model::identity::Identity;
 
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct DayPriceId {
     ticker: Ticker,
     date: Date,

@@ -4,6 +4,7 @@ use chrono::Date as ChronoDate;
 use chrono::offset::Utc;
 use chrono::Datelike;
 use chrono::NaiveDate;
+use serde::{Serialize, Deserialize, Serializer, Deserializer};
 
 #[derive(Debug, Clone, PartialEq, derive_more::Display)]
 pub struct Date(ChronoDate<Utc>);
@@ -22,4 +23,23 @@ impl Date {
         let date = ChronoDate::from_utc(date, Utc{});
         return Ok(Date(date));
     }
+}
+
+impl Serialize for Date {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer {
+            return self.0.naive_utc().serialize(serializer);
+        }   
+}
+
+impl <'de>Deserialize<'de> for Date {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de> {
+            let value: NaiveDate = Deserialize::deserialize(deserializer)?;
+            let value = ChronoDate::from_utc(value, Utc{});
+            let value = Date(value);
+            return Ok(value);
+        }
 }

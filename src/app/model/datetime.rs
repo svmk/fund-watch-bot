@@ -5,6 +5,7 @@ use crate::app::model::timestamp::TimeStamp;
 use crate::app::model::year::Year;
 use crate::app::model::month::Month;
 use chrono::Datelike;
+use serde::{Serialize, Deserialize, Serializer, Deserializer};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, derive_more::Display)]
 pub struct DateTime(ChronoDateTime<Utc>);
@@ -31,4 +32,22 @@ impl DateTime {
     pub fn to_timestamp(&self) -> TimeStamp {
         return TimeStamp::from_u64(self.0.timestamp() as u64).unwrap();
     }
+}
+
+impl Serialize for DateTime {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer {
+            return self.0.serialize(serializer);
+        }   
+}
+
+impl <'de>Deserialize<'de> for DateTime {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de> {
+            let value: ChronoDateTime<Utc> = Deserialize::deserialize(deserializer)?;
+            let value = DateTime(value);
+            return Ok(value);
+        }
 }
