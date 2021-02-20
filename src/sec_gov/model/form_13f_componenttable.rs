@@ -15,4 +15,8 @@ impl Form13FComponentTable {
     pub fn push_component(&mut self, component: Form13FComponent) {
         self.components.push(component);
     }
+
+    pub fn iter_components(&self) -> impl Iterator<Item=&Form13FComponent> {
+        return self.components.iter();
+    }
 }

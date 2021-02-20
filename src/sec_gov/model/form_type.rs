@@ -11,4 +11,8 @@ impl FormType {
         }
         return Ok(FormType(value));
     }
+
+    pub fn is_13f(&self) -> bool {
+        return self.0.starts_with("13F");
+    }
 }

@@ -9,3 +9,9 @@ pub struct Form13F {
     period_of_report: Date,
     report_calendar_or_quarter: Date,
 }
+
+impl Form13F {
+    pub fn get_company_name(&self) -> &CompanyName {
+        return &self.company_name;
+    }
+}

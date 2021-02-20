@@ -1,7 +1,7 @@
 
 use crate::prelude::*;
 
-#[derive(Debug, derive_more::Display)]
+#[derive(Debug, Clone, derive_more::Display)]
 pub struct RelativeUrl(String);
 
 impl RelativeUrl {

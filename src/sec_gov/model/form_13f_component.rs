@@ -11,4 +11,10 @@ pub struct Form13FComponent {
     share: Share,
 }
 
+impl Form13FComponent {
+    pub fn get_cusip(&self) -> &Cusip {
+        return &self.cusip;
+    }
+}
+
 // 77ea5ae2-43ba-4fec-a181-b452cd3d148f

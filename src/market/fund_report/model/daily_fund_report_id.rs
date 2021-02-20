@@ -2,9 +2,11 @@ use crate::repository::model::identity::Identity;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::app::model::date::Date;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DailyFundReportId {
+    #[serde(rename = "fund_id")]
     fund_id: FundId,
+    #[serde(rename = "date")]
     date: Date,
 }
 

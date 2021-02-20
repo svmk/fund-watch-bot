@@ -10,3 +10,4 @@ pub mod historical_candlestick;
 pub mod historical_volume;
 pub mod actual_candlestick;
 pub mod actual_volume;
+pub mod company_name;
