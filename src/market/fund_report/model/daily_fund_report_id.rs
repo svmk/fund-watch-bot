@@ -2,7 +2,7 @@ use crate::repository::model::identity::Identity;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::app::model::date::Date;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(new, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DailyFundReportId {
     #[serde(rename = "fund_id")]
     fund_id: FundId,
@@ -11,13 +11,6 @@ pub struct DailyFundReportId {
 }
 
 impl DailyFundReportId {
-    pub fn new(fund_id: FundId) -> DailyFundReportId {
-        return DailyFundReportId {
-            fund_id,
-            date: Date::today(),
-        };
-    }
-
     pub fn get_fund_id(&self) -> &FundId {
         return &self.fund_id;
     }

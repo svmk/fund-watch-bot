@@ -1,20 +1,19 @@
-use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
 use crate::market::fund_report::model::fund_component::FundComponent;
 use crate::repository::model::entity::Entity;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct DailyFundReport {
-    // #[serde(rename="id")]
+    #[serde(rename="id")]
     id: DailyFundReportId,
-    // #[serde(rename="fund_components")]
+    #[serde(rename="fund_components")]
     fund_components: Vec<FundComponent>,
 }
 
 impl DailyFundReport {
-    pub fn new(fund_id: FundId) -> DailyFundReport {
+    pub fn new(id: DailyFundReportId) -> DailyFundReport {
         return DailyFundReport {
-            id: DailyFundReportId::new(fund_id),
+            id,
             fund_components: Vec::new(),
         };
     }
@@ -32,8 +31,8 @@ impl DailyFundReport {
     }
 }
 
-// impl Entity<DailyFundReportId> for DailyFundReportId {
-//     fn get_entity_id(&self) -> &DailyFundReportId {
-//         return &self.id;
-//     }
-// }
+impl Entity<DailyFundReportId> for DailyFundReport {
+    fn get_entity_id(&self) -> &DailyFundReportId {
+        return &self.id;
+    }
+}

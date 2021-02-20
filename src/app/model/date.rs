@@ -1,11 +1,13 @@
 use crate::prelude::*;
 use crate::app::model::year::Year;
 use crate::app::model::datetime::DateTime;
+use crate::prelude::*;
 use chrono::Date as ChronoDate;
 use chrono::offset::Utc;
 use chrono::Datelike;
 use chrono::NaiveDate;
 use serde::{Serialize, Deserialize, Serializer, Deserializer};
+use std::str::FromStr;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, derive_more::Display)]
 pub struct Date(ChronoDate<Utc>);
@@ -57,4 +59,14 @@ impl <'de>Deserialize<'de> for Date {
             let value = Date(value);
             return Ok(value);
         }
+}
+
+impl FromStr for Date {
+    type Err = Failure;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let date = NaiveDate::from_str(s)?;
+        let date = ChronoDate::from_utc(date, Utc{});
+        let date = Date(date);
+        return Ok(date);
+    }
 }
