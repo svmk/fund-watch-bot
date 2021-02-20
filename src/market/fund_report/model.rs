@@ -5,6 +5,7 @@ pub mod fund_id;
 pub mod fund_component;
 pub mod weight;
 pub mod fund_changes;
+pub mod fund_changes_id;
 pub mod share_change;
 pub mod price_change;
 pub mod weight_change;

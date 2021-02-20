@@ -5,9 +5,11 @@ use crate::market::fund_report::model::fund_component_change::FundComponentChang
 use crate::market::fund_report::model::share_change::ShareChange;
 use crate::market::fund_report::model::price_change::PriceChange;
 use crate::market::fund_report::model::weight_change::WeightChange;
+use crate::market::fund_report::model::fund_changes_id::FundChangesId;
 
 #[derive(Debug)]
 pub struct FundChanges {
+    id: FundChangesId,
     added_to_fund: Vec<FundComponent>,
     removed_from_fund: Vec<FundComponent>,
     fund_component_changes: Vec<FundComponentChange>,
@@ -29,7 +31,12 @@ impl FundChanges {
         next_fund_components.sort_by(|a, b| {
             return a.get_ticker().cmp(b.get_ticker());
         });
+        let id = FundChangesId::new(
+            prev_report.get_id().clone(),
+            next_report.get_id().clone(),
+        );
         let mut result = FundChanges {
+            id,
             added_to_fund: Vec::new(),
             removed_from_fund: Vec::new(),
             fund_component_changes: Vec::new(),
