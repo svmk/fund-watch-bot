@@ -40,15 +40,18 @@ impl DailyFundReportImporting {
         quartal: &YearQuartal,
     ) -> Result<Vec<DailyFundReportRef>, Failure> {
         let edgar_company_index = self.edgar_api.fetch_company_index(quartal).await?;
-        let report_refs: Vec<_> = edgar_company_index
+        let mut report_refs: Vec<_> = edgar_company_index
             .iter()
-            .filter(|report| {
-                return report.get_form_type().is_13f();
+            .filter(|report_ref| {
+                return report_ref.get_form_type().is_13f();
             })
-            .map(|report| {
-                return DailyFundReportRef::new(report.clone());
+            .map(|report_ref| {
+                return DailyFundReportRef::new(report_ref.clone());
             })
             .collect();
+        report_refs.sort_by_key(|report_ref| {
+            return report_ref.get_company_report_ref().get_date().clone();
+        });
         return Ok(report_refs);
     }
 
