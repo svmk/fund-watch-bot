@@ -11,6 +11,10 @@ pub struct Form13F {
 }
 
 impl Form13F {
+    pub fn get_period_of_report(&self) -> &Date {
+        return &self.period_of_report;
+    }
+    
     pub fn get_company_name(&self) -> &CompanyName {
         return &self.company_name;
     }

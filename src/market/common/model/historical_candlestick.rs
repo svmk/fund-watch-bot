@@ -22,4 +22,8 @@ impl HistoricalCandleStick {
     pub fn get_timestamp(&self) -> &DateTime {
         return &self.timestamp;
     }
+
+    pub fn get_close(&self) -> &HistoricalPrice {
+        return &self.close;
+    }
 }

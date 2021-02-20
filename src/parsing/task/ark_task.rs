@@ -31,36 +31,6 @@ pub struct ArkkTask {
 
 impl ArkkTask {
     pub async fn run(&self) -> Result<DailyFundReport, Failure> {
-        let http_client = self.http_client_factory.create_proxy_connection().await?;
-        let request = FileDownloadRequest::new(self.config.url.clone(), vec![MIME_TEXT_CSV]);
-        let csv_file = http_client.fetch_file(request).await?;
-        let mut data = Vec::new();
-        {
-            let mut file = File::open(csv_file.get_path()).await?;
-            file.read_to_end(&mut data).await?;
-        }
-        let mut csv_reader = CsvReaderBuilder::new()
-            .has_headers(true)
-            .trim(CsvTrim::All)
-            .from_reader(data.as_slice());
-        let mut report = DailyFundReport::new(self.config.fund_id.clone());
-        for record in csv_reader.deserialize() {
-            let record: ArkCsvRecord = record?;
-            if record.is_empty() {
-                break;
-            }
-            let record_ticker = Ticker::from_str(&record.ticker)?;
-            let record_share = Share::from_str(&record.shares)?;
-            let record_price = Price::from_str(&record.market_value)?;
-            let record_weight = Weight::from_str(&record.weight)?;
-            let fund_component = FundComponent::new(
-                record_ticker,
-                record_share,
-                record_price,
-                record_weight,
-            );
-            report.add_fund_component(fund_component);
-        }
-        return Ok(report);
+        unimplemented!()
     }
 }

@@ -1,15 +1,15 @@
-use crate::market::common::model::price::Price;
+use crate::market::common::model::historical_price::HistoricalPrice;
 
 #[derive(Debug, Clone)]
 pub struct PriceChange {
-    from: Price,
-    to: Price,
+    from: HistoricalPrice,
+    to: HistoricalPrice,
 }
 
 impl PriceChange {
     pub fn new(
-        from: Price,
-        to: Price,
+        from: HistoricalPrice,
+        to: HistoricalPrice,
     ) -> Option<PriceChange> {
         if from == to {
             return None;

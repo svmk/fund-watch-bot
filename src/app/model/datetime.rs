@@ -17,6 +17,10 @@ impl DateTime {
         return DateTime(Utc::now());
     }
 
+    pub fn from_chrono_datetime(datetime: ChronoDateTime<Utc>) -> DateTime {
+        return DateTime(datetime);
+    }
+
     pub fn get_year(&self) -> Year {
         return Year::from_i32(self.0.year()).unwrap();
     }

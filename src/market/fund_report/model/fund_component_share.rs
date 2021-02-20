@@ -1,11 +1,11 @@
 use crate::market::common::model::share::Share;
-use crate::market::common::model::price::Price;
+use crate::market::common::model::historical_price::HistoricalPrice;
 use crate::market::fund_report::model::weight::Weight;
 
 #[derive(new, Debug, Clone)]
 pub struct FundComponentShare {
     share: Share,
-    price: Price,
+    price: HistoricalPrice,
     weight: Weight,
 }
 
@@ -14,7 +14,7 @@ impl FundComponentShare {
         return &self.share;
     }
 
-    pub fn get_price(&self) -> &Price {
+    pub fn get_price(&self) -> &HistoricalPrice {
         return &self.price;
     }
 

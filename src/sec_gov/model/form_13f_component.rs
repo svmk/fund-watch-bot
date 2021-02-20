@@ -15,6 +15,10 @@ impl Form13FComponent {
     pub fn get_cusip(&self) -> &Cusip {
         return &self.cusip;
     }
+
+    pub fn get_share(&self) -> &Share {
+        return &self.share;
+    }
 }
 
 // 77ea5ae2-43ba-4fec-a181-b452cd3d148f

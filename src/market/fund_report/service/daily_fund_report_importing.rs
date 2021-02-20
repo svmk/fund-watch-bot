@@ -1,5 +1,6 @@
 use crate::sec_gov::service::edgar_api::EdgarApi;
 use crate::sec_gov::model::company_report_ref::CompanyReportRef;
+use crate::sec_gov::model::form_13f_component::Form13FComponent;
 use crate::openfigi::service::openfigi_api::OpenFigiApi;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::app::model::year_quartal::YearQuartal;
@@ -9,6 +10,9 @@ use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
 use crate::market::fund_report::model::fund_component::FundComponent;
 use crate::market::fund_report::model::fund_component_share::FundComponentShare;
 use crate::market::fund_report::model::fund::Fund;
+use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
+use crate::market::common::model::share::Share;
+use crate::market::fund_report::model::weight::Weight;
 use crate::prelude::*;
 use typed_di::service::Service;
 
@@ -28,6 +32,7 @@ pub struct DailyFundReportImporting {
     edgar_api: Service<EdgarApi>,
     openfigi_api: Service<OpenFigiApi>,
     fund_repository: Service<RepositoryInstance<FundId, Fund>>,
+    candlestick_provider: Service<CandlestickProvider>,
 }
 
 impl DailyFundReportImporting {
@@ -47,7 +52,7 @@ impl DailyFundReportImporting {
         return Ok(report_refs);
     }
 
-    async fn fetch_report(&self, report_ref: &DailyFundReportRef) -> Result<Option<DailyFundReport>, Failure> {
+    pub async fn fetch_report(&self, report_ref: &DailyFundReportRef) -> Result<DailyFundReport, Failure> {
         let report_ref= report_ref.get_company_report_ref();
         let report = self
             .edgar_api
@@ -60,13 +65,33 @@ impl DailyFundReportImporting {
             },
         };
         let mut result = DailyFundReport::new(fund.get_fund_id().clone());
+        let share_sum = report
+            .get_information_table()
+            .iter_components()
+            .map(|component| {
+                return component.get_share().clone();
+            })
+            .fold(Share::zero(), |accumulator, share| {
+                return accumulator.add(share);
+            });
+        let share_sum = share_sum.into_f64();
+        let report_datetime = report.get_form_13f().get_period_of_report().end_of_day();
         for fund_component in report.get_information_table().iter_components() {
             let ticker = self
                 .openfigi_api
                 .get_ticker_by_cusip(fund_component.get_cusip()).await?;
-            // let fund_component_share = FundComponentShare::new(
-
-            // );
+            let weight = fund_component.get_share().clone().into_f64() / share_sum;
+            let weight = Weight::from_f64(weight)?;
+            let candlestick = self
+                .candlestick_provider
+                .fetch_historical_candlestick(ticker.clone(), report_datetime.clone()).await?;
+            let fund_component = FundComponent::new(
+                ticker.clone(),
+                fund_component.get_share().clone(),
+                candlestick.get_daily().get_close().clone(),
+                weight,
+            );
+            result.add_fund_component(fund_component);
         }
         unimplemented!()
     }

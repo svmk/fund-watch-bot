@@ -7,3 +7,9 @@ pub struct CandlestickReport {
     quartal: HistoricalCandleStick,
     daily: HistoricalCandleStick,
 }
+
+impl CandlestickReport {
+    pub fn get_daily(&self) -> &HistoricalCandleStick {
+        return &self.daily;
+    }
+}

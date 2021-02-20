@@ -1,5 +1,6 @@
 use crate::prelude::*;
 use crate::app::model::year::Year;
+use crate::app::model::datetime::DateTime;
 use chrono::Date as ChronoDate;
 use chrono::offset::Utc;
 use chrono::Datelike;
@@ -31,6 +32,11 @@ impl Date {
     pub fn next(&self) -> Date {
         let date = self.0.succ();
         return Date(date);
+    }
+
+    pub fn end_of_day(&self) -> DateTime {
+        let datetime = self.0.and_hms(23, 59, 59);
+        return DateTime::from_chrono_datetime(datetime);
     }
 }
 
