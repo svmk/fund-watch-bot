@@ -6,12 +6,17 @@ use crate::market::fund_report::model::share_change::ShareChange;
 use crate::market::fund_report::model::price_change::PriceChange;
 use crate::market::fund_report::model::weight_change::WeightChange;
 use crate::market::fund_report::model::fund_changes_id::FundChangesId;
+use crate::repository::model::entity::Entity;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct FundChanges {
+    #[serde(rename= "id")]
     id: FundChangesId,
+    #[serde(rename= "added_to_fund")]
     added_to_fund: Vec<FundComponent>,
+    #[serde(rename= "removed_from_fund")]
     removed_from_fund: Vec<FundComponent>,
+    #[serde(rename= "fund_component_changes")]
     fund_component_changes: Vec<FundComponentChange>,
 }
 
@@ -103,5 +108,11 @@ impl FundChanges {
 
     fn push_removed_fund_component(&mut self, component: FundComponent) {
         self.removed_from_fund.push(component);
+    }
+}
+
+impl Entity<FundChangesId> for FundChanges {
+    fn get_entity_id(&self) -> &FundChangesId {
+        return &self.id;
     }
 }

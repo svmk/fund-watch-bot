@@ -2,7 +2,8 @@ use crate::prelude::*;
 use crate::market::common::error::weight_parse_error::WeightParseError;
 use std::str::FromStr;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, ValueObject)]
+#[value_object(error_type = "Failure", load_fn = "Weight::from_f64")]
 pub struct Weight(f64);
 
 impl Weight {
@@ -20,13 +21,5 @@ impl Weight {
             return Err(WeightParseError::Over100);
         }
         return Ok(Weight(value));
-    }
-}
-
-impl FromStr for Weight {
-    type Err = WeightParseError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let value = f64::from_str(s).map_err(Failure::msg)?;
-        return Weight::from_f64(value);
     }
 }

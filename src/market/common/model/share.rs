@@ -1,7 +1,7 @@
 use crate::prelude::*;
-use std::str::FromStr;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, ValueObject)]
+#[value_object(error_type = "Failure", load_fn = "Share::from_u64")]
 pub struct Share(u64);
 
 impl Share {
@@ -16,12 +16,8 @@ impl Share {
     pub fn into_f64(self) -> f64 {
         return self.0 as f64;
     }
-}
 
-impl FromStr for Share {
-    type Err = Failure;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let value = u64::from_str(s)?;
+    fn from_u64(value: u64) -> Result<Share, Failure> {
         return Ok(Share(value));
     }
 }

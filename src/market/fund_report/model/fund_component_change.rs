@@ -3,11 +3,15 @@ use crate::market::fund_report::model::share_change::ShareChange;
 use crate::market::fund_report::model::price_change::PriceChange;
 use crate::market::fund_report::model::weight_change::WeightChange;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FundComponentChange {
+    #[serde(rename = "ticker")]
     ticker: Ticker,
+    #[serde(rename = "share_change")]
     share_change: Option<ShareChange>,
+    #[serde(rename = "price_change")]
     price_change: Option<PriceChange>,
+    #[serde(rename = "weight_change")]
     weight_change: Option<WeightChange>,
 }
 

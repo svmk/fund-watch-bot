@@ -1,8 +1,10 @@
 use crate::market::common::model::share::Share;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ShareChange {
+    #[serde(rename = "from")]
     from: Share,
+    #[serde(rename = "to")]
     to: Share,
 }
 

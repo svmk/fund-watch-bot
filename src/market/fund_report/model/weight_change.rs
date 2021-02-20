@@ -1,8 +1,10 @@
 use crate::market::fund_report::model::weight::Weight;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WeightChange {
+    #[serde(rename = "from")]
     from: Weight,
+    #[serde(rename = "to")]
     to: Weight,
 }
 

@@ -4,9 +4,11 @@ use crate::market::common::model::historical_price::HistoricalPrice;
 use crate::market::fund_report::model::weight::Weight;
 use crate::market::fund_report::model::fund_component_share::FundComponentShare;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FundComponent {
+    #[serde(rename = "ticker")]
     ticker: Ticker,
+    #[serde(rename = "fund_component_share")]
     fund_component_share: FundComponentShare,
 }
 
