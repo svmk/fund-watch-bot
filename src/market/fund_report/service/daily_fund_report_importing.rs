@@ -1,14 +1,11 @@
 use crate::sec_gov::service::edgar_api::EdgarApi;
 use crate::sec_gov::model::company_report_ref::CompanyReportRef;
-use crate::sec_gov::model::form_13f_component::Form13FComponent;
 use crate::openfigi::service::openfigi_api::OpenFigiApi;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::app::model::year_quartal::YearQuartal;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::daily_fund_report::DailyFundReport;
-use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
 use crate::market::fund_report::model::fund_component::FundComponent;
-use crate::market::fund_report::model::fund_component_share::FundComponentShare;
 use crate::market::fund_report::model::fund::Fund;
 use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
 use crate::market::common::model::share::Share;
@@ -52,7 +49,7 @@ impl DailyFundReportImporting {
         return Ok(report_refs);
     }
 
-    pub async fn fetch_report(&self, report_ref: &DailyFundReportRef) -> Result<DailyFundReport, Failure> {
+    pub async fn fetch_daily_fund_report(&self, report_ref: &DailyFundReportRef) -> Result<DailyFundReport, Failure> {
         let report_ref= report_ref.get_company_report_ref();
         let report = self
             .edgar_api
@@ -93,6 +90,6 @@ impl DailyFundReportImporting {
             );
             result.add_fund_component(fund_component);
         }
-        unimplemented!()
+        return Ok(result);
     }
 }
