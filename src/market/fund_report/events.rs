@@ -1,0 +1,1 @@
+pub mod new_daily_fund_report_event;

@@ -6,7 +6,9 @@ use crate::market::fund_report::model::fund::Fund;
 use crate::market::fund_report::model::fund_component::FundComponent;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::weight::Weight;
+use crate::market::fund_report::events::new_daily_fund_report_event::NewDailyFundReportEvent;
 use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
+use crate::event_emitter::service::event_emitter::EventEmitter;
 use crate::openfigi::service::openfigi_api::OpenFigiApi;
 use crate::prelude::*;
 use crate::repository::repository::repository_instance::RepositoryInstance;
@@ -32,6 +34,7 @@ pub struct DailyFundReportImporting {
     fund_repository: Service<RepositoryInstance<FundId, Fund>>,
     report_repository: Service<RepositoryInstance<DailyFundReportId, DailyFundReport>>,
     candlestick_provider: Service<CandlestickProvider>,
+    event_emitter: Service<EventEmitter>,
 }
 
 impl DailyFundReportImporting {
@@ -105,6 +108,7 @@ impl DailyFundReportImporting {
             result.add_fund_component(fund_component);
         }
         self.report_repository.store(&result).await?;
+        self.event_emitter.emit_event(NewDailyFundReportEvent::new(result.get_id().clone())).await?;
         return Ok(result);
     }
 }

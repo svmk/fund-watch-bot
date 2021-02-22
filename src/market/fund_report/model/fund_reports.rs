@@ -22,6 +22,19 @@ impl FundReports {
             fund_changes_ids: BTreeSet::new(),
         };
     }
+
+    pub fn generate_fund_change_ids(&self) -> impl Iterator<Item=FundChangesId> + '_ {
+        let iterator = self
+            .daily_reports
+            .iter()
+            .zip(
+                self.daily_reports.iter().skip(1)
+            )
+            .map(|(prev_id, next_id)| {
+                return FundChangesId::new(prev_id.clone(), next_id.clone());
+            });
+        return iterator;
+    }
 }
 
 impl Entity<FundId> for FundReports {
