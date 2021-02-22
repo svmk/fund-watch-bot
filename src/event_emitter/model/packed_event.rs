@@ -8,11 +8,14 @@ use std::sync::Arc;
 #[derive(Clone)]
 pub struct PackedEvent {
     event_category: EventCategory,
-    payload: Arc<Box<dyn Any>>,
+    payload: Arc<Box<dyn Any + Send + Sync>>,
 }
 
 impl PackedEvent {
-    pub fn new<P>(event_category: EventCategory, payload: P) -> PackedEvent where P: Event {
+    pub fn new<P>(event_category: EventCategory, payload: P) -> PackedEvent 
+        where 
+            P: Event,
+    {
         return PackedEvent {
             event_category,
             payload: Arc::new(Box::new(payload)),

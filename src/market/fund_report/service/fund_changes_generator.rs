@@ -27,7 +27,7 @@ impl FundChangesGenerator {
                 fund_changes
             },
         };
-        // self.event_emitter.emit_event(NewFundChangeEvent::new(fund_changes.get_id().clone())).await?;
+        self.event_emitter.emit_event(NewFundChangeEvent::new(fund_changes.get_id().clone())).await?;
         return Ok(fund_changes);
     }   
 }
