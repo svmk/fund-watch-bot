@@ -4,11 +4,14 @@ use crate::market::fund_report::model::daily_fund_report::DailyFundReport;
 use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
 use crate::market::fund_report::model::fund_changes::FundChanges;
 use crate::market::fund_report::model::fund_changes_id::FundChangesId;
+use crate::market::fund_report::events::new_fund_change_event::NewFundChangeEvent;
+use crate::event_emitter::service::event_emitter::EventEmitter;
 use typed_di::service::Service;
 
 pub struct FundChangesGenerator {
     report_repository: Service<RepositoryInstance<DailyFundReportId, DailyFundReport>>,
     fund_changes_repository: Service<RepositoryInstance<FundChangesId, FundChanges>>,
+    event_emitter: Service<EventEmitter>,
 }
 
 impl FundChangesGenerator {
@@ -24,6 +27,7 @@ impl FundChangesGenerator {
                 fund_changes
             },
         };
+        // self.event_emitter.emit_event(NewFundChangeEvent::new(fund_changes.get_id().clone())).await?;
         return Ok(fund_changes);
     }   
 }

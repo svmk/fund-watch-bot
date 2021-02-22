@@ -109,6 +109,10 @@ impl FundChanges {
     fn push_removed_fund_component(&mut self, component: FundComponent) {
         self.removed_from_fund.push(component);
     }
+
+    pub fn get_id(&self) -> &FundChangesId {
+        return &self.id;
+    }
 }
 
 impl Entity<FundChangesId> for FundChanges {

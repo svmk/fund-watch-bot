@@ -2,17 +2,13 @@ use crate::prelude::*;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::market::fund_report::service::fund_changes_generator::FundChangesGenerator;
 use crate::market::fund_report::events::new_daily_fund_report_event::NewDailyFundReportEvent;
-use crate::market::fund_report::model::daily_fund_report::DailyFundReport;
-use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
 use crate::market::fund_report::model::fund_reports::FundReports;
 use crate::market::fund_report::model::fund_id::FundId;
-use crate::event_emitter::service::event_emitter::EventEmitter;
 use crate::event_emitter::prelude::*;
 use typed_di::service::Service;
 
 #[derive(new)]
 pub struct FundReportsEventListener {
-    event_emitter: Service<EventEmitter>,
     fund_changes_generator: Service<FundChangesGenerator>,
     fund_reports_repository: Service<RepositoryInstance<FundId, FundReports>>,
 }
@@ -29,6 +25,14 @@ impl FundReportsEventListener {
             .get(fund_id).await?;
         fund_reports.push_once_daily_fund_report_id(daily_fund_report_id);
         self.fund_reports_repository.store(&fund_reports).await?;
+        self.generate_fund_changes(&fund_reports).await?;
+        return Ok(());
+    }
+
+    async fn generate_fund_changes(&self, fund_reports: &FundReports) -> Result<(), Failure> {
+        for fund_change_id in fund_reports.generate_fund_change_ids() {
+            let _ = self.fund_changes_generator.generate_fund_changes(fund_change_id).await?;
+        }
         return Ok(());
     }
 }

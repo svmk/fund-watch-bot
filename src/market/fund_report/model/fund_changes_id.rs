@@ -1,7 +1,7 @@
 use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
 use crate::repository::model::identity::Identity;
 
-#[derive(new, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(new, Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize)]
 pub struct FundChangesId {
     #[serde(rename = "prev_fund_id")]
     prev_fund_id: DailyFundReportId,
