@@ -32,3 +32,4 @@ sxd-xpath = "0.4"
 serde-query = "0.1"
 itertools = "0.10"
 teloxide = "0.3"
+# sorted-vec = {version = "0.5", features = ["serde"]}

@@ -1,5 +1,5 @@
 use crate::prelude::*;
-#[derive(Debug, Clone, PartialEq, ValueObject)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, ValueObject)]
 #[value_object(error_type = "Failure", load_fn = "Cik::from_string")]
 pub struct Cik(String);
 
