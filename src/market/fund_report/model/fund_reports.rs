@@ -35,6 +35,10 @@ impl FundReports {
             });
         return iterator;
     }
+
+    pub fn push_once_daily_fund_report_id(&mut self, id: DailyFundReportId) {
+        let _ = self.daily_reports.insert(id);
+    }
 }
 
 impl Entity<FundId> for FundReports {

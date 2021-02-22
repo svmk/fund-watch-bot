@@ -6,4 +6,10 @@ pub struct NewDailyFundReportEvent {
     daily_fund_report_id: DailyFundReportId,
 }
 
+impl NewDailyFundReportEvent {
+    pub fn get_daily_fund_report_id(&self) -> &DailyFundReportId {
+        return &self.daily_fund_report_id;
+    }
+}
+
 impl Event for NewDailyFundReportEvent {}
