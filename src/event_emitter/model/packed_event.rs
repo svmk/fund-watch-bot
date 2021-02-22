@@ -1,11 +1,14 @@
 use crate::event_emitter::model::event::Event;
+use crate::event_emitter::model::event_record::EventRecord;
 use crate::event_emitter::model::event_category::EventCategory;
+use crate::prelude::*;
+use std::any::{Any, type_name};
 use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct PackedEvent {
     event_category: EventCategory,
-    payload: Arc<Box<dyn Event>>,
+    payload: Arc<Box<dyn Any>>,
 }
 
 impl PackedEvent {
@@ -18,5 +21,21 @@ impl PackedEvent {
 
     pub fn get_event_category(&self) -> &EventCategory {
         return &self.event_category;
+    }
+
+    pub fn create_event_record<P>(&self) -> Result<EventRecord<P>, Failure> 
+        where 
+            P: Event,
+            P: Any,
+            P: 'static,
+    {
+        let payload = match self.payload.downcast_ref::<P>() {
+            Some(payload) => payload,
+            None => {
+                return crate::fail!("Unable to convert packed event `{}`", type_name::<P>());
+            },
+        };
+        let event = EventRecord::new(self.event_category.clone(), payload.clone());
+        return Ok(event);
     }
 }

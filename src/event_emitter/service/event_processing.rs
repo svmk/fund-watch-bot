@@ -5,6 +5,8 @@ use crate::event_emitter::model::event_category::EventCategory;
 use crate::event_emitter::model::packed_event::PackedEvent;
 use crate::event_emitter::model::packed_event_listener::PackedEventListener;
 use std::collections::HashMap;
+mod event_listener_item;
+use self::event_listener_item::EventListenerItem;
 
 #[derive(new)]
 pub struct EventProcessing {
@@ -16,14 +18,18 @@ impl EventProcessing {
         where 
             P: Event,
             L: EventListener<P>,
+            L: Send + Sync + 'static,
         {
-            unimplemented!()
+            self.add_packed_event_listener(
+                L::event_category(), 
+                EventListenerItem::new(listener)
+            );
     }
 
     pub fn add_packed_event_listener<L>(&mut self, category: EventCategory, listener: L) 
         where 
-            L :PackedEventListener,
-            L: 'static,
+            L: PackedEventListener,
+            L: Send + Sync + 'static,
     {
         if !self.event_listeners.contains_key(&category) {
             let _ = self.event_listeners.insert(category.clone(), Vec::new());

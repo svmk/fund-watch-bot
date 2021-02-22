@@ -13,7 +13,7 @@ impl EventEmitter {
     pub async fn emit_event<E>(&self, payload: E) -> Result<(), Failure> 
         where E: Event
     {
-        let event = PackedEvent::new(payload.event_category(), payload);
+        let event = PackedEvent::new(E::event_category(), payload);
         return self.event_processing.emit_event(event).await;
     }
 }

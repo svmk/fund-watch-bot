@@ -5,8 +5,13 @@ use futures::future::BoxFuture;
 use std::future::Future;
 use std::pin::Pin;
 
+use super::event_category::EventCategory;
+
 pub trait EventListener<P> where P: Event {
     fn handle_event(&self, event: EventRecord<P>) -> BoxFuture<Result<(), Failure>>;
+    fn event_category() -> EventCategory where Self: Sized {
+        return P::event_category();
+    }
 }
 
 impl <P, F, Fut> EventListener<P> for F 
