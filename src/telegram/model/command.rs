@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Command {
     Start,
     Funds,
