@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::telegram::service::router::Router;
+use crate::telegram::service::message_handler::MessageHandler;
 use typed_di::service::Service;
 use tbot::Bot;
 
@@ -17,16 +17,24 @@ impl TelegramBotTaskConfig {
 #[derive(new)]
 pub struct TelegramBotTask {
     config: TelegramBotTaskConfig,
-    router: Service<Router>,
+    message_handler: Service<MessageHandler>,
 }
 
 impl TelegramBotTask {
     pub async fn run(&self) -> Result<(), Failure> {
         let bot = Bot::new(self.config.get_token().to_string());
         let mut event_loop = bot.event_loop();
-        event_loop.text(|context| async move {
-            
-        });    
+        let message_handler = self.message_handler.clone();
+
+        event_loop.text(move |context| {
+            let message_handler = message_handler.clone();
+            return async move {
+                let result = message_handler.handle_text_message(&context).await;
+                if let Err(error) = result {
+                    eprintln!("Telegram error: {}", error);
+                }
+            };
+        });
         event_loop
             .polling()
             .start()
@@ -34,6 +42,6 @@ impl TelegramBotTask {
             .map_err(|error|{
                 return Failure::msg(format!("{:?}", error));
             })?;
-        unimplemented!()
+        return Ok(());
     }
 }

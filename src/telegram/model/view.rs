@@ -15,4 +15,8 @@ impl View {
     pub fn push_message(&mut self, message: impl Into<OutgoingMessage>) {
         self.messages.push(message.into());
     }
+
+    pub fn iter_messages(&self) -> impl Iterator<Item=&OutgoingMessage> {
+        return self.messages.iter();
+    }
 }

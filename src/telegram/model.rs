@@ -4,3 +4,5 @@ pub mod reply_markup;
 pub mod outgoing_message;
 pub mod view;
 pub mod command_handler;
+pub mod chat_id;
+pub mod chat;

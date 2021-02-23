@@ -13,6 +13,14 @@ impl OutgoingMessage {
             reply_markup: None,
         }
     }
+
+    pub fn get_text(&self) -> &String {
+        return &self.text;
+    }
+
+    pub fn get_reply_markup(&self) -> &Option<ReplyMarkup> {
+        return &self.reply_markup;
+    }
 }
 
 impl From<String> for OutgoingMessage {

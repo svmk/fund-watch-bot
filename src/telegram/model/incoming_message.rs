@@ -6,6 +6,12 @@ pub struct IncomingMessage {
     command: Command,
 }
 
+impl IncomingMessage {
+    pub fn get_command(&self) -> &Command {
+        return &self.command;
+    }
+}
+
 impl FromStr for IncomingMessage {
     type Err = Failure;
     fn from_str(text: &str) -> Result<Self, Self::Err> {
