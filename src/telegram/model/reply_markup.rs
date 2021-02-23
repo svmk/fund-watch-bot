@@ -1,1 +1,2 @@
-pub use teloxide::types::ReplyMarkup;
+#[derive(Debug)]
+pub enum ReplyMarkup {}

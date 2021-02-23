@@ -8,7 +8,6 @@ edition = "2018"
 
 [dependencies]
 typed-di = {path = "../typed-di"}
-telegram-bot = "0.8"
 url = {version = "2.2", features = ["serde"]}
 serde = "1.0"
 serde_derive = "1.0"
@@ -31,5 +30,5 @@ sxd-document = "0.3"
 sxd-xpath = "0.4"
 serde-query = "0.1"
 itertools = "0.10"
-teloxide = "0.3"
+tbot = "0.6"
 # sorted-vec = {version = "0.5", features = ["serde"]}
