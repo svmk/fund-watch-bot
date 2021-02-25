@@ -2,10 +2,10 @@ use crate::prelude::*;
 use std::any::Any;
 use crate::repository::model::query::Query;
 
-pub trait QueryComparator<E, Q>: Send + Sync
+pub trait QueryComparator<Q, E>: Send + Sync
     where 
-        E: Any,
         Q: Query,
+        E: Any,
 {
-    fn compare_entity(&self, entity: &E, query: &Q) -> Result<bool, Failure>;
+    fn compare_entity(&self, query: &Q, entity: &E) -> Result<bool, Failure>;
 }
