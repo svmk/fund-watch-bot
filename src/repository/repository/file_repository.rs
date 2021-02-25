@@ -2,11 +2,13 @@ use crate::prelude::*;
 use crate::repository::model::identity::Identity;
 use crate::repository::model::entity::Entity;
 use crate::repository::model::relative_path::RelativePath;
+use crate::repository::model::query::Query;
 use crate::repository::path_resolver::PathResolver;
 use crate::repository::path_resolver_service::path_resolver_instance::PathResolverInstance;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::serializer::service::serializer_instance::SerializerInstance;
 use crate::serializer::serializer::Serializer;
+use futures::stream::Stream;
 use std::marker::PhantomData;
 use async_std::path::Path as AsyncPath;
 use async_std::fs::File;
@@ -77,4 +79,10 @@ impl <I, E> FileRepository<I, E>
         file.write_all(&data).await?;
         return Ok(());
     }
+
+    // pub async fn query<Q>(&self, query: Q) -> impl Stream<Item=Result<E, Failure>> + 'static
+    //     where Q: Query,
+    // {
+    //     unimplemented!()
+    // }
 }
