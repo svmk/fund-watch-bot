@@ -3,6 +3,7 @@ use crate::telegram::service::router::Router;
 use crate::telegram::model::incoming_message::IncomingMessage;
 use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::model::chat::Chat;
+use crate::telegram::model::chat_context::ChatContext;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use typed_di::service::Service;
 use tbot::contexts::Text as TextContext;
@@ -20,14 +21,18 @@ impl MessageHandler {
         self.ensure_chat_exists(context).await?;
         let incoming_message = IncomingMessage::from_str(&context.text.value)?;
         let message_handler = self.router.get_command(incoming_message.get_command())?;
-        // let view = message_handler
-        //     .handle_message(incoming_message).await?;
-        // let bot = &context.bot;
-        // for message in view.iter_messages() {
-        //     let message_text = MessageText::with_plain(message.get_text());
-        //     let bot_message = bot.send_message(context.chat.id, message_text);
-        //     bot_message.call().await?;
-        // }
+        let chat_id = ChatId::from_i64(context.chat.id.0)?;
+        let chat_context = ChatContext {
+            chat_id,
+        };
+        let view = message_handler
+            .handle_message(&chat_context, incoming_message).await?;
+        let bot = &context.bot;
+        for message in view.iter_messages() {
+            let message_text = MessageText::with_plain(message.get_text());
+            let bot_message = bot.send_message(context.chat.id, message_text);
+            bot_message.call().await?;
+        }
         return Ok(());
     }
 

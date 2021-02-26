@@ -1,3 +1,4 @@
+use crate::market::fund_report::model::fund_id::FundId;
 use crate::telegram::model::chat_id::ChatId;
 use crate::repository::model::entity::Entity;
 
@@ -5,13 +6,20 @@ use crate::repository::model::entity::Entity;
 pub struct Chat {
     #[serde(rename="id")]
     id: ChatId,
+    #[serde(rename="fund_subscriptions")]
+    fund_subscriptions: Vec<FundId>,
 }
 
 impl Chat {
     pub fn new(id: ChatId) -> Chat {
         return Chat {
             id,
+            fund_subscriptions: Vec::new(),
         }
+    }
+
+    pub fn get_fund_subscriptions(&self) -> &Vec<FundId> {
+        return &self.fund_subscriptions;
     }
 }
 
