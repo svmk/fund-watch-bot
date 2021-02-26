@@ -11,6 +11,15 @@ pub struct ActionId {
     action_id: EncodedUint,
 }
 
+impl ActionId {
+    pub fn new(action_type: ActionType) -> ActionId {
+        return ActionId {
+            action_type,
+            action_id: EncodedUint::new(),
+        }
+    }
+}
+
 impl fmt::Display for ActionId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}.{}", self.action_type, self.action_id)
