@@ -1,5 +1,5 @@
 use crate::telegram::model::command::Command;
-use crate::telegram::model::command_handler::CommandHandler;
+use crate::telegram::service_handlers::command_handler::CommandHandler;
 use crate::prelude::*;
 use std::collections::BTreeMap;
 

@@ -10,7 +10,8 @@ extern crate derive_new;
 extern crate serde_derive;
 #[macro_use]
 extern crate derive_value_object;
-
+#[macro_use]
+extern crate async_trait;
 
 mod app;
 mod fetching;

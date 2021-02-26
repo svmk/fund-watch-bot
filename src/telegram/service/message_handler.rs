@@ -20,14 +20,14 @@ impl MessageHandler {
         self.ensure_chat_exists(context).await?;
         let incoming_message = IncomingMessage::from_str(&context.text.value)?;
         let message_handler = self.router.get_command(incoming_message.get_command())?;
-        let view = message_handler
-            .handle_message(incoming_message).await?;
-        let bot = &context.bot;
-        for message in view.iter_messages() {
-            let message_text = MessageText::with_plain(message.get_text());
-            let bot_message = bot.send_message(context.chat.id, message_text);
-            bot_message.call().await?;
-        }
+        // let view = message_handler
+        //     .handle_message(incoming_message).await?;
+        // let bot = &context.bot;
+        // for message in view.iter_messages() {
+        //     let message_text = MessageText::with_plain(message.get_text());
+        //     let bot_message = bot.send_message(context.chat.id, message_text);
+        //     bot_message.call().await?;
+        // }
         return Ok(());
     }
 
