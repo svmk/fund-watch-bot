@@ -5,6 +5,7 @@ pub mod outgoing_message;
 pub mod view;
 pub mod chat_id;
 pub mod chat;
+pub mod action_type;
 pub mod action_id;
 pub mod action_ref;
 pub mod action_route;
