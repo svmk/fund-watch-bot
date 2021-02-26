@@ -1,9 +1,12 @@
+use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
 use crate::market::common::model::company_name::CompanyName;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
 
 #[derive(new, Debug, Serialize, Deserialize)]
 pub struct FundRecord {
+    #[serde(rename="outgoing_message_id")]
+    outgoing_message_id: OutgoingMessageId,
     #[serde(rename="fund_id")]
     fund_id: FundId,
     #[serde(rename="company_name")]
@@ -15,10 +18,27 @@ pub struct FundRecord {
 impl FundRecord {
     fn from_fund(fund: &Fund) -> FundRecord {
         return FundRecord {
+            outgoing_message_id: OutgoingMessageId::new(),
             fund_id: fund.get_fund_id().clone(),
             company_name: fund.get_company_name().clone(),
             is_subscribed: false,
         }
+    }
+
+    pub fn get_outgoing_message_id(&self) -> &OutgoingMessageId {
+        return &self.outgoing_message_id;
+    }
+
+    pub fn get_fund_id(&self) -> &FundId {
+        return &self.fund_id;
+    }
+
+    pub fn get_company_name(&self) -> &CompanyName {
+        return &self.company_name;
+    }
+
+    pub fn is_subscribed(&self) -> bool {
+        return self.is_subscribed;
     }
 }
 
