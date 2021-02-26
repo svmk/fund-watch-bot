@@ -11,7 +11,7 @@ use crate::serializer::service::serializer_instance::SerializerInstance;
 use crate::serializer::serializer::Serializer;
 use anyhow::Result;
 use typed_di::service::Service;
-use futures::stream::{Stream, StreamExt, once};
+use futures::stream::{Stream, StreamExt};
 use std::marker::PhantomData;
 use async_std::path::Path as AsyncPath;
 use async_std::fs::File;
