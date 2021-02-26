@@ -5,3 +5,4 @@ pub mod relative_path;
 pub mod abs_file;
 pub mod query;
 pub mod query_type;
+pub mod entity_stream;

@@ -3,6 +3,7 @@ use crate::repository::model::identity::Identity;
 use crate::repository::model::entity::Entity;
 use crate::repository::model::relative_path::RelativePath;
 use crate::repository::model::query::Query;
+use crate::repository::model::entity_stream::EntityStream;
 use crate::repository::path_resolver::PathResolver;
 use crate::repository::path_resolver_service::path_resolver_instance::PathResolverInstance;
 use crate::repository::repository::repository_instance::RepositoryInstance;
@@ -11,7 +12,7 @@ use crate::serializer::service::serializer_instance::SerializerInstance;
 use crate::serializer::serializer::Serializer;
 use anyhow::Result;
 use typed_di::service::Service;
-use futures::stream::{Stream, StreamExt};
+use futures::stream::{StreamExt};
 use std::marker::PhantomData;
 use async_std::path::Path as AsyncPath;
 use async_std::fs::File;
@@ -90,10 +91,12 @@ impl <I, E> FileRepository<I, E>
         return Ok(());
     }
 
-    pub async fn query<Q>(&self, query: Q) -> Result<impl Stream<Item=Result<E, Failure>> + '_, Failure>
+    pub async fn query<Q>(&self, query: Q) -> Result<EntityStream<'_, E>, Failure>
         where 
             Q: Query,
-            E: 'static,
+            Q: Send + Sync,
+            I: Send + Sync,
+            E: Send + Sync + 'static,
     {
         let base_path = self.path_resolver.base_path()?;
         let walkdir_stream = WalkDir::new(base_path)
@@ -129,6 +132,7 @@ impl <I, E> FileRepository<I, E>
                     return result.transpose();
                 }
             });
+        let walkdir_stream = EntityStream::new(walkdir_stream);
         return Ok(walkdir_stream);
     }
 

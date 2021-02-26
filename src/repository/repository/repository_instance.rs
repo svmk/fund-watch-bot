@@ -3,7 +3,7 @@ use crate::repository::model::identity::Identity;
 use crate::repository::model::entity::Entity;
 use crate::repository::model::query::Query;
 use crate::repository::repository::file_repository::FileRepository;
-use futures::stream::Stream;
+use crate::repository::model::entity_stream::EntityStream;
 
 pub enum RepositoryInstance<I, E> {
     FileRepository(FileRepository<I, E>),
@@ -38,10 +38,12 @@ impl <I, E> RepositoryInstance<I, E>
         }
     }
 
-    pub async fn query<Q>(&self, query: Q) -> Result<impl Stream<Item=Result<E, Failure>> + '_, Failure>
+    pub async fn query<Q>(&self, query: Q) -> Result<EntityStream<'_, E>, Failure>
         where 
             Q: Query,
-            E: 'static,
+            Q: Send + Sync,
+            I: Send + Sync,
+            E: Send + Sync + 'static,
     {
         match self {
             RepositoryInstance::FileRepository(ref service) => {
