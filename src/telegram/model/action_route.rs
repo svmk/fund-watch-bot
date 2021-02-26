@@ -12,6 +12,15 @@ pub struct ActionRoute {
     action_ref: ActionRef,
 }
 
+impl ActionRoute {
+    pub fn new(action_id: ActionId) -> ActionRoute {
+        return ActionRoute {
+            action_id,
+            action_ref: ActionRef::new(),
+        }
+    }
+}
+
 impl FromStr for ActionRoute {
     type Err = Failure;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

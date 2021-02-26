@@ -1,10 +1,17 @@
 use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
+use crate::telegram::model::action_id::ActionId;
+use crate::telegram::model::action_type::ActionType;
+use crate::telegram::model::action_route::ActionRoute;
 use crate::market::common::model::company_name::CompanyName;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
 
-#[derive(new, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct FundRecord {
+    #[serde(rename="route_subscribe")]
+    route_subscribe: ActionRoute,
+    #[serde(rename="route_unsubscribe")]
+    route_unsubscribe: ActionRoute,
     #[serde(rename="outgoing_message_id")]
     outgoing_message_id: OutgoingMessageId,
     #[serde(rename="fund_id")]
@@ -16,8 +23,10 @@ pub struct FundRecord {
 }
 
 impl FundRecord {
-    fn from_fund(fund: &Fund) -> FundRecord {
+    fn new(fund: &Fund, action_id: &ActionId) -> FundRecord {
         return FundRecord {
+            route_subscribe: action_id.create_route(),
+            route_unsubscribe: action_id.create_route(),
             outgoing_message_id: OutgoingMessageId::new(),
             fund_id: fund.get_fund_id().clone(),
             company_name: fund.get_company_name().clone(),
@@ -44,6 +53,8 @@ impl FundRecord {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FundListAction {
+    #[serde(rename="action_id")]
+    action_id: ActionId,
     #[serde(rename="current_page_num")]
     current_page_num: usize,
     #[serde(rename="page_size")]
@@ -56,8 +67,15 @@ impl FundListAction {
     const PAGE_SIZE: usize = 10;
 
     pub fn new(funds: &[Fund], subscriptions: &[FundId]) -> FundListAction {
-        let fund_records = funds.iter().map(FundRecord::from_fund).collect();
+        let action_id = ActionId::new(ActionType::FUND_LIST);
+        let fund_records = funds
+            .iter()
+            .map(|fund| {
+                return FundRecord::new(fund, &action_id);
+            })
+            .collect();
         let mut action = FundListAction {
+            action_id,
             current_page_num: 0,
             page_size: Self::PAGE_SIZE,
             fund_records,

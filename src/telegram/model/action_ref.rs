@@ -10,6 +10,10 @@ impl ActionRef {
     fn from_encoded_uint(value: EncodedUint) -> Result<ActionRef, Failure> {
         return Ok(ActionRef(value));
     }
+
+    pub fn new() -> ActionRef {
+        return ActionRef(EncodedUint::new());
+    }
 }
 
 impl Identity for ActionRef {

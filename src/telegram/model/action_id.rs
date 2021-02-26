@@ -1,6 +1,7 @@
 use crate::app::model::encoded_uint::EncodedUint;
 use serde::{Serialize, Serializer, Deserialize, Deserializer, de::Error as SerdeError};
 use crate::telegram::model::action_type::ActionType;
+use crate::telegram::model::action_route::ActionRoute;
 use crate::prelude::*;
 use std::str::FromStr;
 use std::fmt;
@@ -17,6 +18,10 @@ impl ActionId {
             action_type,
             action_id: EncodedUint::new(),
         }
+    }
+
+    pub fn create_route(&self) -> ActionRoute {
+        return ActionRoute::new(self.clone());
     }
 }
 
