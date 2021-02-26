@@ -1,7 +1,9 @@
 use crate::telegram::model::reply_markup::ReplyMarkup;
+use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
 
 #[derive(Debug)]
 pub struct OutgoingMessage {
+    id: OutgoingMessageId,
     text: String,
     reply_markup: Option<ReplyMarkup>,
 }
@@ -9,6 +11,19 @@ pub struct OutgoingMessage {
 impl OutgoingMessage {
     pub fn new(text: String) -> OutgoingMessage {
         return OutgoingMessage {
+            id: OutgoingMessageId::new(),
+            text,
+            reply_markup: None,
+        }
+    }
+
+    pub fn get_id(&self) -> &OutgoingMessageId {
+        return &self.id;
+    }
+
+    pub fn update(id: OutgoingMessageId, text: String) -> OutgoingMessage {
+        return OutgoingMessage {
+            id,
             text,
             reply_markup: None,
         }

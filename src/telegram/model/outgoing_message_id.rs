@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, ValueObject)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, ValueObject)]
 #[value_object(error_type = "Failure", load_fn = "OutgoingMessageId::from_uuid")]
 pub struct OutgoingMessageId(Uuid);
 
