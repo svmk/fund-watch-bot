@@ -6,14 +6,21 @@ use crate::repository::model::query::Query;
 use crate::repository::path_resolver::PathResolver;
 use crate::repository::path_resolver_service::path_resolver_instance::PathResolverInstance;
 use crate::repository::repository::repository_instance::RepositoryInstance;
+use crate::repository::service::query_comparator::QueryComparator;
 use crate::serializer::service::serializer_instance::SerializerInstance;
 use crate::serializer::serializer::Serializer;
-use futures::stream::Stream;
+use anyhow::Result;
+use typed_di::service::Service;
+use futures::stream::{Stream, StreamExt, once};
 use std::marker::PhantomData;
 use async_std::path::Path as AsyncPath;
 use async_std::fs::File;
 use async_std::io::prelude::*;
 use async_std::fs::create_dir_all;
+use async_walkdir::WalkDir;
+use async_walkdir::Filtering;
+use std::path::PathBuf;
+use std::sync::Arc;
 
 pub struct FileRepository<I, E>
 {
@@ -21,6 +28,7 @@ pub struct FileRepository<I, E>
     _entity: PhantomData<E>,
     path_resolver: PathResolverInstance,
     serializer_instance: SerializerInstance,
+    query_comparator: Service<QueryComparator>,
 }
 
 impl <I, E> FileRepository<I, E>
@@ -31,12 +39,14 @@ impl <I, E> FileRepository<I, E>
     pub fn new(
         path_resolver: PathResolverInstance,
         serializer_instance: SerializerInstance,
+        query_comparator: Service<QueryComparator>,
     ) -> RepositoryInstance<I, E> {
         let repository = FileRepository {
             _identity: PhantomData{},
             _entity: PhantomData {},
             path_resolver,
             serializer_instance,
+            query_comparator,
         };
         return RepositoryInstance::FileRepository(repository);
     }
@@ -80,9 +90,62 @@ impl <I, E> FileRepository<I, E>
         return Ok(());
     }
 
-    // pub async fn query<Q>(&self, query: Q) -> impl Stream<Item=Result<E, Failure>> + 'static
-    //     where Q: Query,
-    // {
-    //     unimplemented!()
-    // }
+    pub async fn query<Q>(&self, query: Q) -> Result<impl Stream<Item=Result<E, Failure>> + '_, Failure>
+        where 
+            Q: Query,
+            E: 'static,
+    {
+        let base_path = self.path_resolver.base_path()?;
+        let walkdir_stream = WalkDir::new(base_path)
+            .filter(|entry| {
+                return async move {
+                    let filetype = entry.file_type().await;
+                    let filetype = match filetype {
+                        Ok(filetype) => filetype,
+                        Err(_) => {
+                            return Filtering::Ignore;
+                        },
+                    };
+                    if filetype.is_file() {
+                        return Filtering::Continue;
+                    }
+                    return Filtering::Ignore;
+                }
+            });
+        let query = Arc::new(query);
+        let walkdir_stream = walkdir_stream
+            .filter_map(move |file_path| {
+                let query = query.clone();
+                return async move {
+                    let file_path = file_path
+                        .map(|file_path| {
+                            return file_path.path();
+                        })
+                        .map_err(|error| {
+                            let error: Failure = error.into();
+                            return error;
+                        });
+                    let result = self.process_walkdir_stream(query.as_ref(), file_path).await;
+                    return result.transpose();
+                }
+            });
+        return Ok(walkdir_stream);
+    }
+
+    async fn process_walkdir_stream<Q>(&self, query: &Q, file_path: Result<PathBuf, Failure>) -> Result<Option<E>, Failure>
+        where 
+            Q: Query,
+            E: 'static,
+    {
+        let file_path = file_path?;
+        let mut file = File::open(&file_path).await?;
+        let mut data: Vec<u8> = Vec::new();
+        file.read_to_end(&mut data).await?;
+        let model: E = self.serializer_instance.from_slice(&data)?;
+        let model = match self.query_comparator.compare(query, &model)? {
+            true => Some(model),
+            false => None,
+        };
+        return Ok(model);
+    }
 }

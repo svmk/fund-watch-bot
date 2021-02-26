@@ -71,6 +71,10 @@ impl PathResolverDirectory {
 }
 
 impl PathResolver for PathResolverDirectory {
+    fn base_path(&self) -> Result<PathBuf, Failure> {
+        return Ok(self.config.directory.clone());
+    }
+    
     fn resolve_path(&self, id: &RelativePath) -> Result<PathBuf, Failure> {
         unimplemented!()
         // let mut result = self.config.directory.clone();

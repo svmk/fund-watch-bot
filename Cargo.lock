@@ -53,6 +53,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-fs"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b3ca4f8ff117c37c278a2f7415ce9be55560b846b5bc4412aaa5d29c1c3dae2"
+dependencies = [
+ "async-lock",
+ "blocking",
+ "futures-lite",
+]
+
+[[package]]
 name = "async-global-executor"
 version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -138,6 +149,16 @@ name = "async-task"
 version = "4.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e91831deabf0d6d7ec49552e489aed63b7456a7a3c46cff62adad428110b0af0"
+
+[[package]]
+name = "async-walkdir"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "826d88d73e87e7504b635b6e427561faa6a65f4a2f59e75efcbfa51a0876bb90"
+dependencies = [
+ "async-fs",
+ "futures-lite",
+]
 
 [[package]]
 name = "atomic-waker"
@@ -873,6 +894,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-std",
+ "async-walkdir",
  "chrono",
  "csv",
  "derive-new",

@@ -10,6 +10,13 @@ pub enum PathResolverInstance {
 }
 
 impl PathResolver for PathResolverInstance {
+    fn base_path(&self) -> Result<PathBuf, Failure> {
+        match self {
+            PathResolverInstance::Directory(service) => {
+                return service.base_path();
+            },
+        }
+    }
     fn resolve_path(&self, id: &RelativePath) -> Result<PathBuf, Failure> {
         match self {
             PathResolverInstance::Directory(service) => {
