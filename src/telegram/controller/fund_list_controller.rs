@@ -7,20 +7,18 @@ use futures::stream::{StreamExt};
 use typed_di::service::Service;
 
 #[derive(new)]
-pub struct CompanyListController {
+pub struct FundListController {
     fund_repository: Service<RepositoryInstance<FundId, Fund>>,
 }
 
 
 #[async_trait]
-impl CommandHandler for CompanyListController {
+impl CommandHandler for FundListController {
     async fn handle_message(&self, message: IncomingMessage) -> Result<View, Failure> {
-        // let mut funds = self.fund_repository.query(AllQuery::new()).await?;
-        // let id: String = funds.next().await;
-        // let funds_records: Vec<_> = Vec::new();
-        // while let Some(fund) = funds.next().await? {
-        //     funds_records.push(fund);
-        // }
+        let funds = self
+            .fund_repository
+            .query(AllQuery::new()).await?
+            .to_vec().await?;
 
         unimplemented!()
     }

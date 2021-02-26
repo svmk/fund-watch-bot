@@ -1,6 +1,6 @@
 use std::pin::Pin;
 use std::task::{Context, Poll};
-use futures::stream::Stream;
+use futures::{StreamExt, stream::Stream};
 use crate::prelude::*;
 pub struct EntityStream<'a, E> {
     stream: Box<dyn Stream<Item=Result<E, Failure>> + Send + 'a>,
@@ -12,6 +12,15 @@ impl <'a, E>EntityStream<'a, E> {
             stream: Box::new(stream),
         }
     }
+
+    pub async fn to_vec(&mut self) -> Result<Vec<E>, Failure> {
+        let mut result = Vec::new();
+        while let Some(item) = self.next().await {
+            let item = item?;
+            result.push(item);
+        }
+        return Ok(result);
+    } 
 }
 
 impl <'a, E>Stream for EntityStream<'a, E> {

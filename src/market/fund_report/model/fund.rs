@@ -24,6 +24,10 @@ impl Fund {
     pub fn get_fund_id(&self) -> &FundId {
         return &self.fund_id;
     }
+
+    pub fn get_company_name(&self) -> &CompanyName {
+        return &self.company_name;
+    }
 }
 
 impl Entity<FundId> for Fund {
