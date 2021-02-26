@@ -12,14 +12,22 @@ pub struct FundRecord {
     is_subscribed: bool,
 }
 
+impl FundRecord {
+    fn from_fund(fund: &Fund) -> FundRecord {
+        return FundRecord {
+            fund_id: fund.get_fund_id().clone(),
+            company_name: fund.get_company_name().clone(),
+            is_subscribed: false,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FundListAction {
     #[serde(rename="current_page_num")]
     current_page_num: usize,
     #[serde(rename="page_size")]
     page_size: usize,
-    #[serde(rename="funds_count")]
-    funds_count: usize,
     #[serde(rename="fund_records")]
     fund_records: Vec<FundRecord>,
 }
@@ -28,32 +36,24 @@ impl FundListAction {
     const PAGE_SIZE: usize = 10;
 
     pub fn new(funds: &[Fund], subscriptions: &[FundId]) -> FundListAction {
+        let fund_records = funds.iter().map(FundRecord::from_fund).collect();
         let mut action = FundListAction {
             current_page_num: 0,
             page_size: Self::PAGE_SIZE,
-            funds_count: 0,
-            fund_records: Vec::new(),
+            fund_records,
         };
-        action.update_funds(funds, subscriptions);
+        action.update_subscriptions(subscriptions);
         return action;
     }
 
-    pub fn update_funds(&mut self, funds: &[Fund], subscriptions: &[FundId]) {
-        self.funds_count = funds.len();
-        let funds_iter = funds
-            .iter()
-            .skip(self.current_page_num * self.page_size)
-            .take(self.page_size);
-        let mut fund_records = Vec::with_capacity(funds.len());
-        for fund in funds_iter {
-            let is_subscribed = subscriptions.contains(fund.get_fund_id());
-            let fund_record = FundRecord::new(
-                fund.get_fund_id().clone(),
-                fund.get_company_name().clone(),
-                is_subscribed,
-            );
-            fund_records.push(fund_record);
+    pub fn update_subscriptions(&mut self, subscriptions: &[FundId]) {
+        for fund_record in self.fund_records.iter_mut() {
+            fund_record.is_subscribed = subscriptions.contains(&fund_record.fund_id);
         }
-        self.fund_records = fund_records;
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item=&FundRecord> {
+        let skip = self.current_page_num * self.page_size;
+        return self.fund_records.iter().skip(skip).take(self.page_size);
     }
 }

@@ -6,4 +6,6 @@ pub mod view;
 pub mod chat_id;
 pub mod chat;
 pub mod action_id;
+pub mod action_ref;
+pub mod action_route;
 pub mod chat_context;
