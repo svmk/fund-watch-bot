@@ -8,7 +8,11 @@ pub struct ChatId(i64);
 impl ChatId {
     pub fn from_i64(value: i64) -> Result<ChatId, Failure> {
         return Ok(ChatId(value));
-    } 
+    }
+
+    pub fn to_i64(&self) -> i64 {
+        return self.0;
+    }
 }
 
 impl Identity for ChatId {

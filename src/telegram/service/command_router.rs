@@ -3,13 +3,13 @@ use crate::telegram::service_handlers::command_handler::CommandHandler;
 use crate::prelude::*;
 use std::collections::BTreeMap;
 
-pub struct Router {
+pub struct CommandRouter {
     commands: BTreeMap<Command, Box<dyn CommandHandler>>,
 }
 
-impl Router {
-    pub fn new() -> Router {
-        return Router {
+impl CommandRouter {
+    pub fn new() -> CommandRouter {
+        return CommandRouter {
             commands: BTreeMap::new(),
         };
     }

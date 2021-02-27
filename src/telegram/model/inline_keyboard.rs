@@ -16,6 +16,10 @@ impl InlineKeyboard {
     pub fn push_keyboard_line(&mut self, buttons: Vec<Button>) {
         self.markup.push(buttons);
     }
+
+    pub fn iter_markup(&self) -> impl Iterator<Item=&Vec<Button>> {
+        return self.markup.iter();
+    }
 }
 
 impl Into<ReplyMarkup> for InlineKeyboard {
