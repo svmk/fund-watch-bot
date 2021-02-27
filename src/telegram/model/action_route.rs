@@ -19,6 +19,10 @@ impl ActionRoute {
             action_ref: ActionRef::new(),
         }
     }
+
+    pub fn get_action_id(&self) -> &ActionId {
+        return &self.action_id;
+    }
 }
 
 impl FromStr for ActionRoute {

@@ -19,7 +19,7 @@ impl ActionRouter {
         let _ = self.actions.insert(action, handler);
     }
 
-    pub fn get_action(&self, action: &ActionType) -> Result<&dyn ActionHandler, Failure> {
+    pub fn get_action_handler(&self, action: &ActionType) -> Result<&dyn ActionHandler, Failure> {
         if let Some(action_handler) = self.actions.get(action) {
             return Ok(action_handler.as_ref());
         }

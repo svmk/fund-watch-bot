@@ -23,6 +23,10 @@ impl ActionId {
     pub fn create_route(&self) -> ActionRoute {
         return ActionRoute::new(self.clone());
     }
+
+    pub fn get_action_type(&self) -> &ActionType {
+        return &self.action_type;
+    }
 }
 
 impl fmt::Display for ActionId {

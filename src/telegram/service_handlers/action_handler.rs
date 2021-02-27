@@ -6,7 +6,7 @@ use std::future::Future;
 
 #[async_trait]
 pub trait ActionHandler: Send + Sync {
-    async fn handle_message(&self, context: &ChatContext, message: ActionRoute) -> Result<View, Failure>;
+    async fn handle_action(&self, context: &ChatContext, action_route: ActionRoute) -> Result<View, Failure>;
 }
 
 #[async_trait]
@@ -16,9 +16,9 @@ impl <F, Fut>ActionHandler for F
         F: Send + Sync,
         Fut: Future<Output=Result<View, Failure>> + Send + Sync + 'static,
         {
-            async fn handle_message(&self, context: &ChatContext, message: ActionRoute) -> Result<View, Failure> 
+            async fn handle_action(&self, context: &ChatContext, action_route: ActionRoute) -> Result<View, Failure> 
             {
-                let future = (self)(context, message);
+                let future = (self)(context, action_route);
                 return future.await;
             }
         }

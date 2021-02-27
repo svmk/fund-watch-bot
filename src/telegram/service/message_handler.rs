@@ -8,8 +8,10 @@ use crate::telegram::model::chat::Chat;
 use crate::telegram::model::chat_messages::ChatMessages;
 use crate::telegram::model::chat_context::ChatContext;
 use crate::telegram::model::message_id::MessageId;
+use crate::telegram::model::action_route::ActionRoute;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use typed_di::service::Service;
+use tbot::contexts::DataCallback;
 use tbot::contexts::Text as TextContext;
 use tbot::types::parameters::Text as MessageText;
 use tbot::types::message::Id as TelegramMessageId;
@@ -27,7 +29,7 @@ pub struct MessageHandler {
 
 impl MessageHandler {
     pub async fn handle_text_message(&self, context: &TextContext) -> Result<(), Failure> {
-        self.ensure_chat_exists(context).await?;
+        self.ensure_chat_exists(context.chat.id.clone()).await?;
         let incoming_message = IncomingMessage::from_str(&context.text.value)?;
         let message_handler = self.command_router.get_command(incoming_message.get_command())?;
         let chat_id = ChatId::from_i64(context.chat.id.0)?;
@@ -37,6 +39,22 @@ impl MessageHandler {
         let bot = &context.bot;
         let view = message_handler
             .handle_message(&chat_context, incoming_message).await?;
+        self.send_view(bot.as_ref(), &chat_context, view).await?;
+        return Ok(());
+    }
+
+    pub async fn handle_callback_message(&self, context: &DataCallback) -> Result<(), Failure> {
+        let chat_id = TelegramChatId(context.from.id.0);
+        self.ensure_chat_exists(chat_id).await?;
+        let action_route = ActionRoute::from_str(&context.data)?;
+        let action_type = action_route.get_action_id().get_action_type();
+        let action_handler = self.action_router.get_action_handler(action_type)?;
+        let chat_id = ChatId::from_i64(chat_id.0)?;
+        let chat_context = ChatContext {
+            chat_id,
+        };
+        let bot = &context.bot;
+        let view = action_handler.handle_action(&chat_context, action_route).await?;
         self.send_view(bot.as_ref(), &chat_context, view).await?;
         return Ok(());
     }
@@ -76,8 +94,8 @@ impl MessageHandler {
         return Ok(());
     }
 
-    async fn ensure_chat_exists(&self, context: &TextContext) -> Result<(), Failure> {
-        let chat_id = ChatId::from_i64(context.chat.id.0)?;
+    async fn ensure_chat_exists(&self, chat_id: TelegramChatId) -> Result<(), Failure> {
+        let chat_id = ChatId::from_i64(chat_id.0)?;
         let is_chat_exists = self.chat_repository.find(&chat_id).await?.is_some();
         if !is_chat_exists {
             let chat = Chat::new(chat_id);
