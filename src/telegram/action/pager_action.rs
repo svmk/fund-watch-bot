@@ -1,9 +1,9 @@
 use crate::telegram::model::action_id::ActionId;
 use crate::telegram::model::action_route::ActionRoute;
 use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
-use std::iter::once;
+use crate::prelude::*; 
 
-#[derive(new, Debug, Serialize, Deserialize)]
+#[derive(new, Debug, Clone, Serialize, Deserialize)]
 pub struct Page {
     #[serde(rename="number")]
     number: usize,
@@ -108,5 +108,19 @@ impl PagerAction {
                 }
                 return false;
             });
+    }
+
+    pub fn get_page_by_route(&self, route: &ActionRoute) -> Option<&Page> {
+        return self.pages.iter().find(|page| {
+            return page.get_route() == route;
+        });
+    }
+
+    pub fn select_page(&mut self, page: &Page) -> Result<(), Failure> {
+        let page = page.get_number();
+        if page >= self.pages.len() {
+            return crate::fail!("Unknown page {}", page);
+        }
+        return Ok(());
     }
 }

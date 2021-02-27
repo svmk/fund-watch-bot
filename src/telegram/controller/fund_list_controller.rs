@@ -61,7 +61,12 @@ impl ActionHandler for FundListController {
             FundListActionDecision::UnSubscribe(fund_id) => {
                 chat.unsubscribe(&fund_id);
             },
-            FundListActionDecision::Render => {},
+            FundListActionDecision::SelectPage(page) => {
+                action.select_page(&page)?;
+            },
+            FundListActionDecision::UnknownRoute => {
+                return crate::fail!("Unknown action route {}", action_route);
+            },
         }
         self.action_repository.store(&action).await?;
         self.chat_repository.store(&chat).await?;

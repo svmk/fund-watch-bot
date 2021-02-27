@@ -4,7 +4,7 @@ use crate::telegram::model::action_ref::ActionRef;
 use std::fmt;
 use std::str::FromStr;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ActionRoute {
     #[serde(rename="action_id")]
     action_id: ActionId,

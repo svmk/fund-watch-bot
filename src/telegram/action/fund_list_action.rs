@@ -2,11 +2,12 @@ use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
 use crate::telegram::model::action_id::ActionId;
 use crate::telegram::model::action_type::ActionType;
 use crate::telegram::model::action_route::ActionRoute;
-use crate::telegram::action::pager_action::PagerAction;
+use crate::telegram::action::pager_action::{PagerAction, Page};
 use crate::market::common::model::company_name::CompanyName;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
 use crate::repository::model::entity::Entity;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FundRecord {
@@ -51,6 +52,14 @@ impl FundRecord {
     pub fn is_subscribed(&self) -> bool {
         return self.is_subscribed;
     }
+
+    pub fn get_route_subscribe(&self) -> &ActionRoute {
+        return &self.route_subscribe;
+    }
+
+    pub fn get_route_unsubscribe(&self) -> &ActionRoute {
+        return &self.route_unsubscribe;
+    }
 }
 
 
@@ -58,7 +67,8 @@ impl FundRecord {
 pub enum FundListActionDecision {
     Subscribe(FundId),
     UnSubscribe(FundId),
-    Render,
+    SelectPage(Page),
+    UnknownRoute,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -104,8 +114,23 @@ impl FundListAction {
         return &self.pager;
     }
 
-    pub fn decide(&mut self, action_route: &ActionRoute) -> FundListActionDecision {
-        unimplemented!()
+    pub fn decide(&self, action_route: &ActionRoute) -> FundListActionDecision {
+        for fund_record in self.fund_records.iter() {
+            if fund_record.get_route_subscribe() == action_route {
+                return FundListActionDecision::Subscribe(fund_record.get_fund_id().clone());
+            }
+            if fund_record.get_route_unsubscribe() == action_route {
+                return FundListActionDecision::UnSubscribe(fund_record.get_fund_id().clone());
+            }
+        }
+        if let Some(page) = self.pager.get_page_by_route(action_route) {
+            return FundListActionDecision::SelectPage(page.clone());
+        }
+        return FundListActionDecision::UnknownRoute;
+    }
+
+    pub fn select_page(&mut self, page: &Page) -> Result<(), Failure> {
+        return self.pager.select_page(page);
     }
 }
 
