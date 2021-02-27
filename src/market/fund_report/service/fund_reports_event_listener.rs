@@ -37,8 +37,9 @@ impl FundReportsEventListener {
     }
 }
 
+#[async_trait]
 impl EventListener<NewDailyFundReportEvent> for FundReportsEventListener {
-    fn handle_event(&self, event: EventRecord<NewDailyFundReportEvent>) -> BoxFuture<Result<(), Failure>> {
-        return self.handle_new_daily_fund_report_event(event).boxed();
+    async fn handle_event(&self, event: EventRecord<NewDailyFundReportEvent>) -> Result<(), Failure> {
+        return self.handle_new_daily_fund_report_event(event).await;
     }
 }
