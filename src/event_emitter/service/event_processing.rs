@@ -1,9 +1,9 @@
 use crate::prelude::*;
 use crate::event_emitter::model::event::Event;
-use crate::event_emitter::model::event_listener::EventListener;
+use crate::event_emitter::service_handler::event_listener::EventListener;
 use crate::event_emitter::model::event_category::EventCategory;
 use crate::event_emitter::model::packed_event::PackedEvent;
-use crate::event_emitter::model::packed_event_listener::PackedEventListener;
+use crate::event_emitter::service_handler::packed_event_listener::PackedEventListener;
 use std::collections::HashMap;
 mod event_listener_item;
 use self::event_listener_item::EventListenerItem;

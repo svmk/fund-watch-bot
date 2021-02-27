@@ -3,8 +3,6 @@ use crate::telegram::service::message_handler::MessageHandler;
 use crate::telegram::service::bot_instance::BotInstance;
 use typed_di::service::Service;
 
-
-
 #[derive(new)]
 pub struct TelegramBotTask {
     message_handler: Service<MessageHandler>,

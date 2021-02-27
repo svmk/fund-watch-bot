@@ -1,11 +1,10 @@
 use crate::prelude::*;
 use crate::event_emitter::model::event_record::EventRecord;
 use crate::event_emitter::model::event::Event;
+use crate::event_emitter::model::event_category::EventCategory;
 use futures::future::BoxFuture;
 use std::future::Future;
 use std::pin::Pin;
-
-use super::event_category::EventCategory;
 
 pub trait EventListener<P>: Send + Sync where P: Event {
     fn handle_event(&self, event: EventRecord<P>) -> BoxFuture<Result<(), Failure>>;

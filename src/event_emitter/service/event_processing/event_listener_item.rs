@@ -1,8 +1,8 @@
 use crate::prelude::*;
-use crate::event_emitter::model::event_listener::EventListener;
+use crate::event_emitter::service_handler::event_listener::EventListener;
 use crate::event_emitter::model::event::Event;
 use crate::event_emitter::model::packed_event::PackedEvent;
-use crate::event_emitter::model::packed_event_listener::PackedEventListener;
+use crate::event_emitter::service_handler::packed_event_listener::PackedEventListener;
 use futures::future::{BoxFuture, FutureExt};
 
 pub struct EventListenerItem<P> where P: Event {
