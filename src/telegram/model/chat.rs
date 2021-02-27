@@ -22,8 +22,12 @@ impl Chat {
         return &self.fund_subscriptions;
     }
 
+    pub fn is_subscribed(&self, fund_id: &FundId) -> bool {
+        return self.fund_subscriptions.contains(&fund_id);
+    }
+
     pub fn subscribe(&mut self, fund_id: FundId) {
-        if !self.fund_subscriptions.contains(&fund_id) {
+        if !self.is_subscribed(&fund_id) {
             self.fund_subscriptions.push(fund_id);
         }
     }

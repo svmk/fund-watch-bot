@@ -9,3 +9,15 @@ pub trait QueryComparator<Q, E>: Send + Sync
 {
     fn compare_entity(&self, query: &Q, entity: &E) -> Result<bool, Failure>;
 }
+
+impl <F, Q, E>QueryComparator<Q, E> for F 
+    where 
+        Q: Query,
+        E: Any,
+        F: Fn(&Q, &E) -> Result<bool, Failure>,
+        F: Send + Sync,
+    {
+        fn compare_entity(&self, query: &Q, entity: &E) -> Result<bool, Failure> {
+            return (self)(query, entity);
+        }
+    }
