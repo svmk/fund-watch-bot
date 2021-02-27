@@ -18,6 +18,10 @@ impl Chat {
         }
     }
 
+    pub fn get_id(&self) -> &ChatId {
+        return &self.id;
+    }
+
     pub fn get_fund_subscriptions(&self) -> &Vec<FundId> {
         return &self.fund_subscriptions;
     }

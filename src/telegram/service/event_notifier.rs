@@ -36,7 +36,7 @@ impl EventListener<NewFundChangeEvent> for EventNotifier {
             .get(event.get_payload().get_fund_change_id()).await?;
         let view = fund_change_view(&fund_changes);
         for chat in subscribed_chats.iter() {
-            
+            self.bot_instance.send_view(chat.get_id().clone(), view.clone()).await?;
         }
         return Ok(());
     }

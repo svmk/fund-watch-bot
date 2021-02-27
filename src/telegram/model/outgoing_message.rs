@@ -1,7 +1,7 @@
 use crate::telegram::model::reply_markup::ReplyMarkup;
 use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct OutgoingMessage {
     id: OutgoingMessageId,
     text: String,

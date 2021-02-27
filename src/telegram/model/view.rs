@@ -1,6 +1,6 @@
 use crate::telegram::model::outgoing_message::OutgoingMessage;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct View {
     messages: Vec<OutgoingMessage>,
 }
