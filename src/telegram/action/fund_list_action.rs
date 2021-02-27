@@ -6,6 +6,7 @@ use crate::telegram::action::pager_action::PagerAction;
 use crate::market::common::model::company_name::CompanyName;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
+use crate::repository::model::entity::Entity;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FundRecord {
@@ -52,6 +53,14 @@ impl FundRecord {
     }
 }
 
+
+#[derive(Debug)]
+pub enum FundListActionDecision {
+    Subscribe(FundId),
+    UnSubscribe(FundId),
+    Render,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FundListAction {
     #[serde(rename="action_id")]
@@ -93,5 +102,15 @@ impl FundListAction {
 
     pub fn get_pager(&self) -> &PagerAction {
         return &self.pager;
+    }
+
+    pub fn decide(&mut self, action_route: &ActionRoute) -> FundListActionDecision {
+        unimplemented!()
+    }
+}
+
+impl Entity<ActionId> for FundListAction {
+    fn get_entity_id(&self) -> &ActionId {
+        return &self.action_id;
     }
 }

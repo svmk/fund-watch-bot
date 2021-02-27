@@ -2,6 +2,7 @@ use crate::app::model::encoded_uint::EncodedUint;
 use serde::{Serialize, Serializer, Deserialize, Deserializer, de::Error as SerdeError};
 use crate::telegram::model::action_type::ActionType;
 use crate::telegram::model::action_route::ActionRoute;
+use crate::repository::model::identity::Identity;
 use crate::prelude::*;
 use std::str::FromStr;
 use std::fmt;
@@ -72,4 +73,10 @@ impl <'de>Deserialize<'de> for ActionId {
             let value = ActionId::from_str(&value).map_err(SerdeError::custom)?;
             return Ok(value);
         }
+}
+
+impl Identity for ActionId {
+    fn to_string(&self) -> String {
+        return format!("{}", self);
+    }
 }

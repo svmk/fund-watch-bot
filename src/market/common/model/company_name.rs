@@ -15,4 +15,8 @@ impl CompanyName {
         let id = id.to_string();
         return Ok(CompanyName(id));
     }
+
+    pub fn as_str(&self) -> &str {
+        return &self.0;
+    }
 }
