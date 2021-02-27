@@ -3,6 +3,7 @@ use crate::telegram::model::chat_context::ChatContext;
 use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::model::chat::Chat;
 use crate::telegram::action::fund_list_action::FundListAction;
+use crate::telegram::views::fund_list_view::fund_list_view;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
 use crate::repository::repository::repository_instance::RepositoryInstance;
@@ -25,6 +26,7 @@ impl CommandHandler for FundListController {
             .to_vec().await?;
         let chat = self.chat_repository.get(&context.chat_id).await?;
         let fund_list_action  = FundListAction::new(&funds, chat.get_fund_subscriptions());
-        unimplemented!()
+        let view = fund_list_view(&fund_list_action);
+        return Ok(view);
     }
 }

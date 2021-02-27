@@ -5,7 +5,7 @@ use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
 pub struct OutgoingMessage {
     id: OutgoingMessageId,
     text: String,
-    reply_markup: Option<ReplyMarkup>,
+    reply_markup: ReplyMarkup,
 }
 
 impl OutgoingMessage {
@@ -13,27 +13,32 @@ impl OutgoingMessage {
         return OutgoingMessage {
             id: OutgoingMessageId::new(),
             text,
-            reply_markup: None,
+            reply_markup: ReplyMarkup::None,
         }
+    }
+    
+    pub fn update(id: OutgoingMessageId, text: String) -> OutgoingMessage {
+        return OutgoingMessage {
+            id,
+            text,
+            reply_markup: ReplyMarkup::None,
+        }
+    }
+
+    pub fn with_reply_markup(mut self, reply_markup: impl Into<ReplyMarkup> + 'static) -> OutgoingMessage {
+        self.reply_markup = reply_markup.into();
+        return self;
     }
 
     pub fn get_id(&self) -> &OutgoingMessageId {
         return &self.id;
     }
 
-    pub fn update(id: OutgoingMessageId, text: String) -> OutgoingMessage {
-        return OutgoingMessage {
-            id,
-            text,
-            reply_markup: None,
-        }
-    }
-
     pub fn get_text(&self) -> &String {
         return &self.text;
     }
 
-    pub fn get_reply_markup(&self) -> &Option<ReplyMarkup> {
+    pub fn get_reply_markup(&self) -> &ReplyMarkup {
         return &self.reply_markup;
     }
 }

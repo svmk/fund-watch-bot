@@ -2,6 +2,7 @@ use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
 use crate::telegram::model::action_id::ActionId;
 use crate::telegram::model::action_type::ActionType;
 use crate::telegram::model::action_route::ActionRoute;
+use crate::telegram::action::pager_action::PagerAction;
 use crate::market::common::model::company_name::CompanyName;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
@@ -55,17 +56,13 @@ impl FundRecord {
 pub struct FundListAction {
     #[serde(rename="action_id")]
     action_id: ActionId,
-    #[serde(rename="current_page_num")]
-    current_page_num: usize,
-    #[serde(rename="page_size")]
-    page_size: usize,
+    #[serde(rename="pager")]
+    pager: PagerAction,
     #[serde(rename="fund_records")]
     fund_records: Vec<FundRecord>,
 }
 
 impl FundListAction {
-    const PAGE_SIZE: usize = 10;
-
     pub fn new(funds: &[Fund], subscriptions: &[FundId]) -> FundListAction {
         let action_id = ActionId::new(ActionType::FUND_LIST);
         let fund_records = funds
@@ -74,10 +71,10 @@ impl FundListAction {
                 return FundRecord::new(fund, &action_id);
             })
             .collect();
+        let pager = PagerAction::new(action_id.clone(), funds.len());
         let mut action = FundListAction {
             action_id,
-            current_page_num: 0,
-            page_size: Self::PAGE_SIZE,
+            pager,
             fund_records,
         };
         action.update_subscriptions(subscriptions);
@@ -91,7 +88,10 @@ impl FundListAction {
     }
 
     pub fn iter(&self) -> impl Iterator<Item=&FundRecord> {
-        let skip = self.current_page_num * self.page_size;
-        return self.fund_records.iter().skip(skip).take(self.page_size);
+        return self.pager.iter_records(self.fund_records.iter());
+    }
+
+    pub fn get_pager(&self) -> &PagerAction {
+        return &self.pager;
     }
 }
