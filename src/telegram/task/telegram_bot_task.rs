@@ -1,28 +1,19 @@
-use crate::prelude::*;
+use crate::{prelude::*};
 use crate::telegram::service::message_handler::MessageHandler;
+use crate::telegram::service::bot_instance::BotInstance;
 use typed_di::service::Service;
-use tbot::Bot;
 
-#[derive(Debug)]
-pub struct TelegramBotTaskConfig {
-    token: String,
-}
 
-impl TelegramBotTaskConfig {
-    pub fn get_token(&self) -> &String {
-        return &self.token;
-    }
-}
 
 #[derive(new)]
 pub struct TelegramBotTask {
-    config: TelegramBotTaskConfig,
     message_handler: Service<MessageHandler>,
+    bot_instance: Service<BotInstance>,
 }
 
 impl TelegramBotTask {
     pub async fn run(&self) -> Result<(), Failure> {
-        let bot = Bot::new(self.config.get_token().to_string());
+        let bot = self.bot_instance.get_bot();
         let mut event_loop = bot.event_loop();
         let message_handler = self.message_handler.clone();
         event_loop.text(move |context| {
