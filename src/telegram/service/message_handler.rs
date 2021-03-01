@@ -9,7 +9,7 @@ use crate::telegram::model::chat_context::ChatContext;
 use crate::telegram::model::action_route::ActionRoute;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use typed_di::service::Service;
-use tbot::contexts::DataCallback;
+use tbot::contexts::InlineDataCallback;
 use tbot::contexts::Text as TextContext;
 use tbot::types::chat::Id as TelegramChatId;
 use std::str::FromStr;
@@ -37,7 +37,7 @@ impl MessageHandler {
         return Ok(());
     }
 
-    pub async fn handle_callback_message(&self, context: &DataCallback) -> Result<(), Failure> {
+    pub async fn handle_callback_message(&self, context: &InlineDataCallback) -> Result<(), Failure> {
         let chat_id = TelegramChatId(context.from.id.0);
         self.ensure_chat_exists(chat_id).await?;
         let action_route = ActionRoute::from_str(&context.data)?;

@@ -24,7 +24,7 @@ impl TelegramBotTask {
             };
         });
         let message_handler = self.message_handler.clone();
-        event_loop.data_callback(move |context| {
+        event_loop.inline_data_callback(move |context| {
             let message_handler = message_handler.clone();
             return async move {
                 let result = message_handler.handle_callback_message(&context).await;

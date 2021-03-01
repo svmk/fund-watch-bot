@@ -118,6 +118,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-socks5"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "575663f6d00adcfc4289d3f0825f49856380e062c030e799a2f9f4a275d842d6"
+dependencies = [
+ "async-trait",
+ "thiserror",
+ "tokio 0.2.25",
+]
+
+[[package]]
 name = "async-std"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -840,9 +851,9 @@ dependencies = [
 
 [[package]]
 name = "hyper-proxy"
-version = "0.6.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0cf120ed868e8e0cd22279cc8196c8db126884a5dbb01e0f528018048efd8fee"
+checksum = "f93ec5be69758dfc06b9b29efa9d6e9306e387c85eb362c603912eead2ad98c7"
 dependencies = [
  "bytes 0.5.6",
  "futures",
@@ -854,6 +865,21 @@ dependencies = [
  "tokio-tls",
  "tower-service",
  "typed-headers",
+]
+
+[[package]]
+name = "hyper-socks2"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "100482b5da07f568a53fabd8ca1639ae21d8d94b25f36331613d77b2fb951e52"
+dependencies = [
+ "async-socks5",
+ "futures",
+ "http",
+ "hyper 0.13.10",
+ "hyper-tls 0.4.3",
+ "thiserror",
+ "tokio 0.2.25",
 ]
 
 [[package]]
@@ -1303,22 +1329,9 @@ dependencies = [
 
 [[package]]
 name = "paste"
-version = "0.1.18"
+version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45ca20c77d80be666aef2b45486da86238fabe33e38306bd3118fe4af33fa880"
-dependencies = [
- "paste-impl",
- "proc-macro-hack",
-]
-
-[[package]]
-name = "paste-impl"
-version = "0.1.18"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d95a7db200b97ef370c8e6de0088252f7e0dfff7d047a28528e47456c0fc98b6"
-dependencies = [
- "proc-macro-hack",
-]
+checksum = "c5d65c4d95931acda4498f675e332fcbdc9a06705cd07086c510e9b6009cd1c1"
 
 [[package]]
 name = "percent-encoding"
@@ -1780,12 +1793,11 @@ dependencies = [
 [[package]]
 name = "tbot"
 version = "0.6.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c7c0d75ca3a7da0185c28356cd39f577d373a600986c8345bd5dfc9041f92f1"
 dependencies = [
  "futures",
  "hyper 0.13.10",
  "hyper-proxy",
+ "hyper-socks2",
  "hyper-tls 0.4.3",
  "is-macro",
  "native-tls",
