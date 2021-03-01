@@ -7,13 +7,17 @@ use crate::event_emitter::service_handler::packed_event_listener::PackedEventLis
 use std::collections::HashMap;
 mod event_listener_item;
 use self::event_listener_item::EventListenerItem;
-
-#[derive(new)]
 pub struct EventProcessing {
     event_listeners: HashMap<EventCategory, Vec<Box<dyn PackedEventListener>>>,
 }
 
 impl EventProcessing {
+    pub fn new() -> EventProcessing {
+        return EventProcessing {
+            event_listeners: HashMap::new(),
+        }
+    }
+    
     pub fn add_event_listener<P, L>(&mut self, listener: L) 
         where 
             P: Event,

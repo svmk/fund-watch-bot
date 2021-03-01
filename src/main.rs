@@ -27,6 +27,7 @@ mod openfigi;
 mod yahoo_finance;
 mod telegram;
 mod event_emitter;
+mod system;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
