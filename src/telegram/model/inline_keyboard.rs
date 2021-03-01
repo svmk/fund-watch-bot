@@ -17,6 +17,10 @@ impl InlineKeyboard {
         self.markup.push(buttons);
     }
 
+    pub fn push_single_button(&mut self, button: impl Into<Button>) {
+        self.push_keyboard_line(vec![button.into()]);
+    }
+
     pub fn iter_markup(&self) -> impl Iterator<Item=&Vec<Button>> {
         return self.markup.iter();
     }

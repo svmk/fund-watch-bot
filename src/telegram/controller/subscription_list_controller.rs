@@ -1,48 +1,39 @@
 use crate::telegram::controller::prelude::*;
-use crate::telegram::model::chat_context::ChatContext;
 use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::model::chat::Chat;
-use crate::telegram::action::fund_list_action::{FundListAction, FundListActionDecision};
-use crate::telegram::model::action_id::ActionId;
-use crate::telegram::views::fund_list_view::fund_list_view;
+use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
-use crate::repository::repository::repository_instance::RepositoryInstance;
-use crate::repository::query::all_query::AllQuery;
+use crate::telegram::action::fund_list_action::{FundListAction, FundListActionDecision};
+use crate::telegram::model::action_id::ActionId;
+use crate::telegram::views::subscription_list_view::subscription_list_view;
 use typed_di::service::Service;
 
 #[derive(new)]
-pub struct FundListController {
-    fund_repository: Service<RepositoryInstance<FundId, Fund>>,
+pub struct SubscriptionListController {
     chat_repository: Service<RepositoryInstance<ChatId, Chat>>,
+    fund_repository: Service<RepositoryInstance<FundId, Fund>>,
     action_repository: Service<RepositoryInstance<ActionId, FundListAction>>,
 }
 
-
 #[async_trait]
-impl CommandHandler for FundListController {
-    async fn handle_message(&self, context: &ChatContext, message: IncomingMessage) -> Result<View, Failure> {
-        let mut funds = self
+impl CommandHandler for SubscriptionListController {
+    async fn handle_message(&self, context: &ChatContext, _message: IncomingMessage) -> Result<View, Failure> {
+        let chat = self
+            .chat_repository
+            .get(&context.chat_id).await?;
+        let funds = self
             .fund_repository
-            .query(AllQuery::new()).await?
-            .to_vec().await?;
-        if let Some(argument) = message.get_argument() {
-            let argument = argument.to_lowercase();
-            funds.drain_filter(|fund| {
-                let company_name = fund.get_company_name().as_str().to_lowercase();
-                return !company_name.contains(&argument);
-            }).for_each(|_|{});
-        }
-        let chat = self.chat_repository.get(&context.chat_id).await?;
+            .get_many(chat.get_fund_subscriptions()).await?;
         let fund_list_action  = FundListAction::new_fund_list(&funds, chat.get_fund_subscriptions());
         self.action_repository.store(&fund_list_action).await?;
-        let view = fund_list_view(&fund_list_action);
+        let view = subscription_list_view(&fund_list_action);
         return Ok(view);
     }
 }
 
 #[async_trait]
-impl ActionHandler for FundListController {
+impl ActionHandler for SubscriptionListController {
     async fn handle_action(&self, context: &ChatContext, action_route: ActionRoute) -> Result<View, Failure> {
         let mut chat = self
             .chat_repository
@@ -67,7 +58,7 @@ impl ActionHandler for FundListController {
         }
         self.action_repository.store(&action).await?;
         self.chat_repository.store(&chat).await?;
-        let view = fund_list_view(&action);
+        let view = subscription_list_view(&action);
         return Ok(view);
     }
 }

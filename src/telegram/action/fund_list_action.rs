@@ -82,14 +82,17 @@ pub struct FundListAction {
 }
 
 impl FundListAction {
-    pub fn new(funds: &[Fund], subscriptions: &[FundId]) -> FundListAction {
-        let action_id = ActionId::new(ActionType::FUND_LIST);
-        let fund_records = funds
+    fn new(action_type: ActionType, funds: &[Fund], subscriptions: &[FundId]) -> FundListAction {
+        let action_id = ActionId::new(action_type);
+        let mut fund_records: Vec<FundRecord> = funds
             .iter()
             .map(|fund| {
                 return FundRecord::new(fund, &action_id);
             })
             .collect();
+        fund_records.sort_by_key(|fund_record| {
+            return fund_record.get_company_name().clone();
+        });
         let pager = PagerAction::new(action_id.clone(), funds.len());
         let mut action = FundListAction {
             action_id,
@@ -100,6 +103,14 @@ impl FundListAction {
         return action;
     }
 
+    pub fn new_fund_list(funds: &[Fund], subscriptions: &[FundId]) -> FundListAction {
+        return FundListAction::new(ActionType::FUND_LIST, funds, subscriptions);
+    }
+
+    pub fn new_subscriptions_list(funds: &[Fund], subscriptions: &[FundId]) -> FundListAction {
+        return FundListAction::new(ActionType::SUBSCRIPTION_LIST, funds, subscriptions);
+    }
+
     pub fn update_subscriptions(&mut self, subscriptions: &[FundId]) {
         for fund_record in self.fund_records.iter_mut() {
             fund_record.is_subscribed = subscriptions.contains(&fund_record.fund_id);
@@ -108,6 +119,10 @@ impl FundListAction {
 
     pub fn iter(&self) -> impl Iterator<Item=&FundRecord> {
         return self.pager.iter_records(self.fund_records.iter());
+    }
+
+    pub fn get_funds_count(&self) -> usize {
+        return self.fund_records.len();
     }
 
     pub fn get_pager(&self) -> &PagerAction {

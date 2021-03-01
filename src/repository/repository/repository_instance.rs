@@ -22,10 +22,26 @@ impl <I, E> RepositoryInstance<I, E>
         }
     }
 
+    pub async fn get_many(&self, ids: &[I]) -> Result<Vec<E>, Failure> {
+        match self {
+            RepositoryInstance::FileRepository(ref service) => {
+                return service.get_many(ids).await;
+            },
+        }
+    }
+
     pub async fn find(&self, id: &I) -> Result<Option<E>, Failure> {
         match self {
             RepositoryInstance::FileRepository(ref service) => {
                 return service.find(id).await;
+            },
+        }
+    }
+
+    pub async fn find_many(&self, ids: &[I]) -> Result<Vec<Option<E>>, Failure> {
+        match self {
+            RepositoryInstance::FileRepository(ref service) => {
+                return service.find_many(ids).await;
             },
         }
     }

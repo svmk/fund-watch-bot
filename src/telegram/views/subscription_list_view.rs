@@ -5,12 +5,12 @@ use crate::telegram::action::fund_list_action::FundListAction;
 use crate::telegram::model::callback_button::CallbackButton;
 use crate::telegram::views::pager_view::pager_view;
 
-pub fn fund_list_view(action: &FundListAction) -> View {
+pub fn subscription_list_view(action: &FundListAction) -> View {
     let mut view = View::new();
     if action.get_funds_count() == 0 {
         view.push_message("Ничего не найдено.");
     } else {
-        view.push_message("Список доступных фондов:");
+        view.push_message("Список ваших подписок:");
     }
     for fund_record in action.iter() {
         let message = format!("Фонд: {}\nCIK: {}", fund_record.get_company_name(), fund_record.get_fund_id());

@@ -62,6 +62,15 @@ impl <I, E> FileRepository<I, E>
         return Ok(model);
     }
 
+    pub async fn get_many(&self, ids: &[I]) -> Result<Vec<E>, Failure> {
+        let mut result = Vec::with_capacity(ids.len());
+        for id in ids.iter() {
+            let item = self.get(id).await?;
+            result.push(item);
+        }
+        return Ok(result);
+    }
+
     pub async fn find(&self, id: &I) -> Result<Option<E>, Failure> {
         let path = RelativePath::from_string(id.to_string());
         let path = self.path_resolver.resolve_path(&path)?;
@@ -76,6 +85,15 @@ impl <I, E> FileRepository<I, E>
         file.read_to_end(&mut data).await?;
         let model: E = self.serializer_instance.from_slice(&data)?;
         return Ok(Some(model));
+    }
+
+    pub async fn find_many(&self, ids: &[I]) -> Result<Vec<Option<E>>, Failure> {
+        let mut result = Vec::with_capacity(ids.len());
+        for id in ids.iter() {
+            let opt_item = self.find(id).await?;
+            result.push(opt_item);
+        }
+        return Ok(result);
     }
 
     pub async fn store(&self, model: &E) -> Result<(), Failure> {
