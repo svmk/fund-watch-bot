@@ -8,6 +8,7 @@ use crate::market::fund_report::events::new_fund_change_event::NewFundChangeEven
 use crate::event_emitter::service::event_emitter::EventEmitter;
 use typed_di::service::Service;
 
+#[derive(new)]
 pub struct FundChangesGenerator {
     report_repository: Service<RepositoryInstance<DailyFundReportId, DailyFundReport>>,
     fund_changes_repository: Service<RepositoryInstance<FundChangesId, FundChanges>>,

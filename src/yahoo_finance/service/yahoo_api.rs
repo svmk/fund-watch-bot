@@ -6,8 +6,9 @@ use crate::yahoo_finance::model::common_api::api_request::ApiRequest;
 use crate::yahoo_finance::model::common_api::response::Response;
 use typed_di::service::Service;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct YahooApiConfig {
+    #[serde(rename="base_url")]
     base_url: Url,
 }
 

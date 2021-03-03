@@ -19,10 +19,13 @@ mod find_by_id_request_body;
 use self::find_by_id_request_body::FindByIdRequestBody;
 
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct OpenFigiApiConfig {
+    #[serde(rename="base_url")]
     base_url: Url,
+    #[serde(rename="request_delay")]
     request_delay: Duration,
+    #[serde(rename="auth_token")]
     auth_token: Option<String>,
 }
 
