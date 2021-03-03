@@ -11,8 +11,9 @@ use tbot::types::parameters::Text as MessageText;
 use tbot::types::message::Id as TelegramMessageId;
 use tbot::types::chat::Id as TelegramChatId;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BotInstanceConfig {
+    #[serde(rename="token")]
     token: String,
 }
 

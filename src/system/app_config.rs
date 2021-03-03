@@ -1,6 +1,7 @@
 use crate::fetching::service::http_client::HttpClientConfig;
 use crate::yahoo_finance::service::yahoo_api::YahooApiConfig;
 use crate::openfigi::service::openfigi_api::OpenFigiApiConfig;
+use crate::telegram::service::bot_instance::BotInstanceConfig;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
@@ -10,6 +11,8 @@ pub struct AppConfig {
     yahoo_api: YahooApiConfig,
     #[serde(rename="openfigi_api")]
     openfigi_api: OpenFigiApiConfig,
+    #[serde(rename="bot_instance")]
+    bot_instance: BotInstanceConfig,
 }
 
 impl AppConfig {
@@ -23,5 +26,9 @@ impl AppConfig {
 
     pub fn get_openfigi_api(&self) -> OpenFigiApiConfig {
         return self.openfigi_api.clone();
+    }
+
+    pub fn get_bot_instance(&self) -> BotInstanceConfig {
+        return self.bot_instance.clone();
     }
 }
