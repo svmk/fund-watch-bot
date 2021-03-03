@@ -1,1 +1,2 @@
-pub mod event_emitter_di;
+pub mod di;
+pub mod app_config;
