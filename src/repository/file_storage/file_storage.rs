@@ -3,7 +3,6 @@ use crate::repository::model::file::File;
 use crate::repository::model::relative_path::RelativePath;
 use crate::repository::model::abs_file::AbsFile;
 use crate::repository::path_resolver::PathResolver;
-use crate::repository::path_resolver_service::path_resolver_instance::PathResolverInstance;
 use crate::repository::file_storage::storage_instance::StorageInstance;
 use std::marker::PhantomData;
 use async_std::path::Path as AsyncPath;
@@ -14,7 +13,7 @@ use async_std::fs::OpenOptions as AsyncOpenOptions;
 pub struct FileStorage<F>
 {
     _entity: PhantomData<F>,
-    path_resolver: PathResolverInstance,
+    path_resolver: PathResolver,
 }
 
 impl <F> FileStorage<F>
@@ -22,7 +21,7 @@ impl <F> FileStorage<F>
         F: File,
 {
     pub fn new(
-        path_resolver: PathResolverInstance,
+        path_resolver: PathResolver,
     ) -> StorageInstance<F> {
         let repository = FileStorage {
             _entity: PhantomData {},

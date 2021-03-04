@@ -5,7 +5,6 @@ use crate::repository::model::relative_path::RelativePath;
 use crate::repository::model::query::Query;
 use crate::repository::model::entity_stream::EntityStream;
 use crate::repository::path_resolver::PathResolver;
-use crate::repository::path_resolver_service::path_resolver_instance::PathResolverInstance;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::repository::service::query_comparator::QueryComparator;
 use crate::serializer::service::serializer_instance::SerializerInstance;
@@ -27,7 +26,7 @@ pub struct FileRepository<I, E>
 {
     _identity: PhantomData<I>,
     _entity: PhantomData<E>,
-    path_resolver: PathResolverInstance,
+    path_resolver: PathResolver,
     serializer_instance: SerializerInstance,
     query_comparator: Service<QueryComparator>,
 }
@@ -38,7 +37,7 @@ impl <I, E> FileRepository<I, E>
         E: Entity<I>,
 {
     pub fn new(
-        path_resolver: PathResolverInstance,
+        path_resolver: PathResolver,
         serializer_instance: SerializerInstance,
         query_comparator: Service<QueryComparator>,
     ) -> RepositoryInstance<I, E> {
