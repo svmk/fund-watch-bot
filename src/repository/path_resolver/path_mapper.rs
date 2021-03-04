@@ -1,6 +1,6 @@
 use crate::prelude::*;
-use crate::repository::model::relative_path::RelativePath;
+use std::path::PathBuf;
 
 pub trait PathMapper: Send + Sync {
-    fn map_path(&self, path: RelativePath) -> Result<RelativePath, Failure>;
+    fn map_path(&self, path: PathBuf) -> Result<PathBuf, Failure>;
 }

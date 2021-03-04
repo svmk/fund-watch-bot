@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use std::fmt;
 mod path_mapper;
 mod direct_path_mapper;
+mod file_extension_mapper;
 
 #[derive(new)]
 pub struct PathResolver {
@@ -19,8 +20,8 @@ impl PathResolver {
     }
 
     pub fn resolve_path(&self, path: RelativePath) -> Result<PathBuf, Failure> {
-        let path = self.path_mapper.map_path(path)?;
-        let path = self.base_path.join(path.into_path_buf());
+        let path = self.path_mapper.map_path(path.into_path_buf())?;
+        let path = self.base_path.join(path);
         return Ok(path);
     }
 }
