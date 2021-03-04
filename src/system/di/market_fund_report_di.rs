@@ -1,9 +1,11 @@
 use typed_di::sync_context::sync_container_declaration::SyncContainerDeclaration;
 use typed_di::service_id_resolver::ServiceIdResolver;
 use typed_di::service_id::ServiceId;
+use typed_di::argument_id_resolver::ArgumentIdResolver;
 use typed_di::container_declaration::ContainerDeclaration;
 use typed_di::error::BuildError;
 use crate::system::di;
+use crate::system::app_config::AppConfig;
 use crate::market::fund_report::service::daily_fund_report_importing::DailyFundReportImporting;
 use crate::market::fund_report::service::fund_changes_generator::FundChangesGenerator;
 use crate::market::fund_report::service::fund_reports_event_listener::FundReportsEventListener;
@@ -14,7 +16,10 @@ use crate::market::fund_report::model::fund::Fund;
 use crate::market::fund_report::model::fund_changes::FundChanges;
 use crate::market::fund_report::model::fund_reports::FundReports;
 use crate::market::fund_report::model::fund_changes_id::FundChangesId;
+use crate::market::fund_report::path_resolver::fund_path_resolver::fund_path_resolver;
+use crate::serializer::service::json_serializer::JsonSerializer;
 use crate::repository::repository::repository_instance::RepositoryInstance;
+use crate::repository::repository::file_repository::FileRepository;
 use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
 
 pub const FUND_REPOSITORY: ServiceId<RepositoryInstance<FundId, Fund>> = ServiceIdResolver::SERVICE_ID;
@@ -50,6 +55,17 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Build
         let service = FundReportsEventListener::new(
             resolver.get_service(FUND_CHANGES_GENERATOR)?,
             resolver.get_service(FUND_REPORTS_REPOSITORY)?,
+        );
+        return Ok(service);
+    })?;
+    builder.register(FUND_REPORTS_REPOSITORY, |resolver| {
+        let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
+        let config = config.get_repository();
+        let path = config.get_path();
+        let service = FileRepository::new(
+            fund_path_resolver(path),
+            JsonSerializer::new(),
+            resolver.get_service(di::repository_di::QUERY_COMPARATOR)?,
         );
         return Ok(service);
     })?;
