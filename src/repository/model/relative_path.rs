@@ -9,4 +9,8 @@ impl RelativePath {
         path.push(value);
         return RelativePath(path);
     }
+
+    pub fn into_path_buf(self) -> PathBuf {
+        return self.0;
+    }
 }

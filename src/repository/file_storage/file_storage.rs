@@ -30,15 +30,15 @@ impl <F> FileStorage<F>
         return StorageInstance::FileStorage(repository);
     }
 
-    pub async fn read(&self, relative_path: &RelativePath) -> Result<F, Failure> {
-        let path = self.path_resolver.resolve_path(relative_path)?;
+    pub async fn read(&self, relative_path: RelativePath) -> Result<F, Failure> {
+        let path = self.path_resolver.resolve_path(relative_path.clone())?;
         let file = AsyncFile::open(&path).await?;
         let file = F::new(relative_path.clone(), path, file);
         return Ok(file);
     }
 
-    pub async fn write(&self, relative_path: &RelativePath) -> Result<F, Failure> {
-        let path = self.path_resolver.resolve_path(relative_path)?;
+    pub async fn write(&self, relative_path: RelativePath) -> Result<F, Failure> {
+        let path = self.path_resolver.resolve_path(relative_path.clone())?;
         let mut open_options = AsyncOpenOptions::new();
         open_options.read(true);
         open_options.write(true);
@@ -50,13 +50,13 @@ impl <F> FileStorage<F>
         return Ok(file);
     }
 
-    pub async fn exists(&self, path: &RelativePath) -> Result<bool, Failure> {
+    pub async fn exists(&self, path: RelativePath) -> Result<bool, Failure> {
         let path = self.path_resolver.resolve_path(path)?;
         let async_path = AsyncPath::new(&path);
         return Ok(async_path.exists().await);
     }
 
-    pub async fn replace(&self, path: &RelativePath, file: &dyn AbsFile) -> Result<(), Failure> {
+    pub async fn replace(&self, path: RelativePath, file: &dyn AbsFile) -> Result<(), Failure> {
         let path = self.path_resolver.resolve_path(path)?;
         async_std::fs::copy(file.resolve_abs_path(), path).await?;
         return Ok(());

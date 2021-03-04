@@ -15,23 +15,23 @@ pub struct EdgarCache {
 impl EdgarCache {
     pub async fn find(&self, url: &RelativeUrl) -> Result<Option<EdgarFile>, Failure> {
         let path = Self::get_relative_path(url);
-        let is_exists = self.repository.exists(&path).await?;
+        let is_exists = self.repository.exists(path.clone()).await?;
         if !is_exists {
             return Ok(None);
         }
-        let file = self.repository.read(&path).await?;
+        let file = self.repository.read(path).await?;
         return Ok(Some(file));
     }
 
     pub async fn get(&self, url: &RelativeUrl) -> Result<EdgarFile, Failure> {
         let path = Self::get_relative_path(url);
-        let file = self.repository.read(&path).await?;
+        let file = self.repository.read(path).await?;
         return Ok(file);
     }
 
     pub async fn replace(&self, url: &RelativeUrl, file: &dyn AbsFile) -> Result<(), Failure> {
         let path = Self::get_relative_path(url);
-        self.repository.replace(&path, file).await?;
+        self.repository.replace(path, file).await?;
         return Ok(());
     }
 

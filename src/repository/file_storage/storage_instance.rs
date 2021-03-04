@@ -13,7 +13,7 @@ impl <F> StorageInstance<F>
     where 
         F: File,
 {
-    pub async fn read(&self, path: &RelativePath) -> Result<F, Failure> {
+    pub async fn read(&self, path: RelativePath) -> Result<F, Failure> {
         match self {
             StorageInstance::FileStorage(ref service) => {
                 return service.read(path).await;
@@ -21,7 +21,7 @@ impl <F> StorageInstance<F>
         }
     }
 
-    pub async fn write(&self, path: &RelativePath) -> Result<F, Failure> {
+    pub async fn write(&self, path: RelativePath) -> Result<F, Failure> {
         match self {
             StorageInstance::FileStorage(ref service) => {
                 return service.write(path).await;
@@ -29,7 +29,7 @@ impl <F> StorageInstance<F>
         }
     }
 
-    pub async fn exists(&self, path: &RelativePath) -> Result<bool, Failure> {
+    pub async fn exists(&self, path: RelativePath) -> Result<bool, Failure> {
         match self {
             StorageInstance::FileStorage(ref service) => {
                 return service.exists(path).await;
@@ -37,7 +37,7 @@ impl <F> StorageInstance<F>
         }
     }
 
-    pub async fn replace(&self, path: &RelativePath, file: &dyn AbsFile) -> Result<(), Failure> {
+    pub async fn replace(&self, path: RelativePath, file: &dyn AbsFile) -> Result<(), Failure> {
         match self {
             StorageInstance::FileStorage(ref service) => {
                 return service.replace(path, file).await;
