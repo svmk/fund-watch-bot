@@ -1,11 +1,10 @@
 #![feature(drain_filter)]
 
-#[macro_use]
 extern crate tokio;
 #[macro_use]
 extern crate thiserror;
-// #[macro_use]
-// extern crate derive_more;
+#[macro_use]
+extern crate structopt;
 #[macro_use]
 extern crate derive_new;
 #[macro_use]
@@ -28,19 +27,20 @@ mod yahoo_finance;
 mod telegram;
 mod event_emitter;
 mod system;
+mod console;
+use crate::console::console_application::ConsoleApplication;
+use crate::system::di::application_di::create_di_contaner;
+use crate::system::console_execution::execute_console;
+use structopt::StructOpt;
+
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    use repository::model::file::File;
-    use sec_gov::model::edgar_file::EdgarFile;
-    use crate::repository::model::relative_path::RelativePath;
-    use crate::sec_gov::utils::read_edgar_company_index::read_edgar_company_index;
-    use std::path::PathBuf;
-    let path = PathBuf::from("/home/svmk/Загрузки/company.idx");
-    let file = async_std::fs::File::open(&path).await?;
-    let relative_path = RelativePath::from_string("".into());
-    let file = EdgarFile::new(relative_path, path, file);
-    let index = read_edgar_company_index(file).await?;
-    println!("index = {:#?}", index);
+    let console_argument = ConsoleApplication::from_args();
+    let container = create_di_contaner(&console_argument.config_path)
+        .map_err(|error| {
+            return crate::error!("Unable to create di container: {}", error);
+        })?;
+    execute_console(container, &console_argument).await?;
     return Ok(());
 }

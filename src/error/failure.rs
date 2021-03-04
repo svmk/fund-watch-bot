@@ -13,3 +13,17 @@ macro_rules! fail {
         Err(anyhow::anyhow!($fmt, $($arg)*))
     };
 }
+
+
+#[macro_export]
+macro_rules! error {
+    ($msg:literal $(,)?) => {
+        anyhow::anyhow!($msg)
+    };
+    ($err:expr $(,)?) => {
+        anyhow::anyhow!($err)
+    };
+    ($fmt:expr, $($arg:tt)*) => {
+        anyhow::anyhow!($fmt, $($arg)*)
+    };
+}

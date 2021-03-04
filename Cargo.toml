@@ -1,5 +1,5 @@
 [package]
-name = "index-watch"
+name = "fund-watch-bot"
 version = "0.1.0"
 authors = ["Mikhail Svetov <svmk-tmsk@yandex.ru>"]
 edition = "2018"
@@ -37,4 +37,5 @@ async-trait = "0.1"
 rand = "0.8"
 radix_fmt = "1.0"
 uuid = {version = "0.8", features = ["serde", "v4"]}
+structopt = "0.3"
 # sorted-vec = {version = "0.5", features = ["serde"]}
