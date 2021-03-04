@@ -5,3 +5,4 @@ pub mod file_storage;
 pub mod service;
 pub mod service_handlers;
 pub mod query;
+pub mod path_mapper;

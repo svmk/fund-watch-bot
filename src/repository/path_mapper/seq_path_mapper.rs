@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::repository::path_resolver::path_mapper::PathMapper;
+use crate::repository::path_mapper::path_mapper::PathMapper;
 use std::path::{PathBuf, Path};
 
 pub struct SeqPathMapper {

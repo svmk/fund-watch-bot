@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use std::path::PathBuf;
-use crate::repository::path_resolver::path_mapper::PathMapper;
+use crate::repository::path_mapper::path_mapper::PathMapper;
 
 #[derive(new, Debug)]
 pub struct FileExtensionPathMapper {
