@@ -5,7 +5,9 @@ use std::path::PathBuf;
 use std::fmt;
 mod path_mapper;
 mod direct_path_mapper;
-mod file_extension_mapper;
+mod file_extension_path_mapper;
+mod subdir_path_mapper;
+mod seq_path_mapper;
 
 #[derive(new)]
 pub struct PathResolver {
