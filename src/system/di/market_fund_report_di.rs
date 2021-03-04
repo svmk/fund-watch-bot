@@ -16,7 +16,9 @@ use crate::market::fund_report::model::fund::Fund;
 use crate::market::fund_report::model::fund_changes::FundChanges;
 use crate::market::fund_report::model::fund_reports::FundReports;
 use crate::market::fund_report::model::fund_changes_id::FundChangesId;
+use crate::market::fund_report::path_resolver::fund_reports_path_resolver::fund_reports_path_resolver;
 use crate::market::fund_report::path_resolver::fund_path_resolver::fund_path_resolver;
+use crate::market::fund_report::path_resolver::daily_fund_report_path_resolver::daily_fund_report_path_resolver;
 use crate::serializer::service::json_serializer::JsonSerializer;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::repository::repository::file_repository::FileRepository;
@@ -63,7 +65,29 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Build
         let config = config.get_repository();
         let path = config.get_path();
         let service = FileRepository::new(
+            fund_reports_path_resolver(path),
+            JsonSerializer::new(),
+            resolver.get_service(di::repository_di::QUERY_COMPARATOR)?,
+        );
+        return Ok(service);
+    })?;
+    builder.register(FUND_REPOSITORY, |resolver| {
+        let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
+        let config = config.get_repository();
+        let path = config.get_path();
+        let service = FileRepository::new(
             fund_path_resolver(path),
+            JsonSerializer::new(),
+            resolver.get_service(di::repository_di::QUERY_COMPARATOR)?,
+        );
+        return Ok(service);
+    })?;
+    builder.register(REPORT_REPOSITORY, |resolver| {
+        let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
+        let config = config.get_repository();
+        let path = config.get_path();
+        let service = FileRepository::new(
+            daily_fund_report_path_resolver(path),
             JsonSerializer::new(),
             resolver.get_service(di::repository_di::QUERY_COMPARATOR)?,
         );
