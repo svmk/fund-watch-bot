@@ -24,7 +24,10 @@ impl SubdirPathMapper {
 
     fn map_subdir(&self, directory: &OsStr) -> Result<String, Failure> {
         let directory = directory.to_string_lossy();
-        let end_at = self.start_at + self.length;
+        let mut end_at = self.start_at + self.length;
+        if end_at >= directory.len() {
+            end_at = directory.len();
+        }
         let directory = &directory[self.start_at..end_at];
         if self.fail_when_empty && directory.is_empty() {
             return crate::fail!("Unable to extract subdir from `{}`");

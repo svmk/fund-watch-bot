@@ -8,3 +8,4 @@ pub mod yahoo_finance_di;
 pub mod telegram_di;
 pub mod application_di;
 pub mod console_di;
+pub mod repository_di;

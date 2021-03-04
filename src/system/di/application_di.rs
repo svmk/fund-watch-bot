@@ -19,6 +19,7 @@ pub fn create_di_contaner(path: &Path) -> Result<AsyncDiContainer, BuildError> {
     di::market_data_di::register_services(&mut builder)?;
     di::yahoo_finance_di::register_services(&mut builder)?;
     di::telegram_di::register_services(&mut builder)?;
+    di::repository_di::register_services(&mut builder)?;
     let container = builder.build();
     let container = AsyncDiContainer::new(container);
     return Ok(container);

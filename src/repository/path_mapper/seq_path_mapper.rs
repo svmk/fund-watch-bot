@@ -1,9 +1,10 @@
 use crate::prelude::*;
 use crate::repository::path_mapper::path_mapper::PathMapper;
+use crate::repository::path_mapper::path_mapper_instance::PathMapperInstance;
 use std::path::{PathBuf, Path};
 
 pub struct SeqPathMapper {
-    mappers: Vec<Box<dyn PathMapper>>,
+    mappers: Vec<PathMapperInstance>,
 }
 
 impl SeqPathMapper {
@@ -14,7 +15,7 @@ impl SeqPathMapper {
     }
 
     pub fn push_mapper(mut self, mapper: impl PathMapper + 'static) -> Self {
-        let mapper = Box::new(mapper);
+        let mapper = mapper.into_instance();
         self.mappers.push(mapper);
         return self;
     }
