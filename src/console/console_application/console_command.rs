@@ -2,5 +2,6 @@ use crate::console::command::import_13f_form_command::Import13FFormCommand;
 
 #[derive(Debug, StructOpt)]
 pub enum ConsoleCommand {
+    #[structopt(name = "import-13f-form", about = "Imports 13f form from sec.gov site.")]
     Import13FForm(Import13FFormCommand),
 }

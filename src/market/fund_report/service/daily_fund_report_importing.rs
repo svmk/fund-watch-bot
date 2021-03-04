@@ -1,4 +1,5 @@
 use crate::app::model::year_quartal::YearQuartal;
+use crate::app::model::year_quartal_iterator::YearQuartalIterator;
 use crate::market::common::model::share::Share;
 use crate::market::fund_report::model::daily_fund_report::DailyFundReport;
 use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
@@ -38,6 +39,17 @@ pub struct DailyFundReportImporting {
 }
 
 impl DailyFundReportImporting {
+    pub async fn import_period(&self, begin: YearQuartal, end: YearQuartal) -> Result<(), Failure> {
+        let iterator = YearQuartalIterator::new(begin, end)?;
+        for year_quartal in iterator {
+            let fund_report_refs = self.import_reports(&year_quartal).await?;
+            for fund_report_ref in fund_report_refs.iter() {
+                let _ = self.fetch_daily_fund_report(fund_report_ref).await?;
+            }
+        }
+        return Ok(());
+    }
+
     pub async fn import_reports(
         &self,
         quartal: &YearQuartal,

@@ -12,21 +12,42 @@ use crate::openfigi::model::cusip_cache_record::CusipCacheRecord;
 use crate::serializer::serializer::Serializer;
 use crate::serializer::service::json_serializer::JsonSerializer;
 use crate::serializer::service::serializer_instance::SerializerInstance;
-use std::time::Duration;
+use std::{str::FromStr, time::Duration};
 use async_std::task::sleep;
 use typed_di::service::Service;
 mod find_by_id_request_body;
 use self::find_by_id_request_body::FindByIdRequestBody;
+use std::default::Default;
 
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct OpenFigiApiConfig {
-    #[serde(rename="base_url")]
+    #[serde(rename="base_url", default="OpenFigiApiConfig::default_base_url")]
     base_url: Url,
-    #[serde(rename="request_delay")]
+    #[serde(rename="request_delay", default="OpenFigiApiConfig::default_request_delay")]
     request_delay: Duration,
-    #[serde(rename="auth_token")]
+    #[serde(rename="auth_token", default)]
     auth_token: Option<String>,
+}
+
+impl OpenFigiApiConfig {
+    fn default_base_url() -> Url {
+        return Url::from_str("https://api.openfigi.com/").unwrap();
+    }
+
+    fn default_request_delay() -> Duration {
+        return Duration::from_secs(1);
+    }
+}
+
+impl Default for OpenFigiApiConfig {
+    fn default() -> Self {
+        return OpenFigiApiConfig {
+            base_url: OpenFigiApiConfig::default_base_url(),
+            request_delay: OpenFigiApiConfig::default_request_delay(),
+            auth_token: None,
+        }
+    }
 }
 
 

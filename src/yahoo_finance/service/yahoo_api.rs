@@ -5,11 +5,26 @@ use crate::prelude::*;
 use crate::yahoo_finance::model::common_api::api_request::ApiRequest;
 use crate::yahoo_finance::model::common_api::response::Response;
 use typed_di::service::Service;
+use std::default::Default;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct YahooApiConfig {
-    #[serde(rename="base_url")]
+    #[serde(rename="base_url", default = "YahooApiConfig::default_base_url")]
     base_url: Url,
+}
+
+impl YahooApiConfig {
+    fn default_base_url() -> Url {
+        return Url::parse("https://query2.finance.yahoo.com").unwrap();
+    }
+}
+
+impl Default for YahooApiConfig {
+    fn default() -> Self {
+        return YahooApiConfig {
+            base_url: Self::default_base_url(),
+        }
+    }
 }
 
 #[derive(new)]

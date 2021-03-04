@@ -12,19 +12,25 @@ use crate::sec_gov::utils::read_edgar_company_report_13f::read_edgar_company_rep
 use crate::fetching::model::mime_type::{MIME_APPLICATION_OCTET_STREAM, MIME_TEXT_PLAIN};
 use crate::prelude::*;
 use typed_di::service::Service;
+use std::default::Default;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct EdgarApiConfig {
+    #[serde(rename="base_url", default="EdgarApiConfig::default_base_url")]
     base_url: Url,
 }
 
 impl EdgarApiConfig {
-    pub fn new(
-        base_url: Url,
-    ) -> EdgarApiConfig {
+    fn default_base_url() -> Url {
+        return Url::parse("https://sec.gov").unwrap();
+    }
+}
+
+impl Default for EdgarApiConfig {
+    fn default() -> Self {
         return EdgarApiConfig {
-            base_url,
-        };
+            base_url: Self::default_base_url(),
+        }
     }
 }
 
