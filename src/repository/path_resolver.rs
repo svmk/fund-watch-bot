@@ -5,13 +5,22 @@ use crate::repository::path_mapper::path_mapper::PathMapper;
 use std::path::PathBuf;
 use std::fmt;
 
-#[derive(new)]
 pub struct PathResolver {
     base_path: PathBuf,
     path_mapper: PathMapperInstance,
 }
 
 impl PathResolver {
+    pub fn new(
+        base_path: PathBuf,
+        path_mapper: impl PathMapper + Sized + 'static,
+    ) -> PathResolver {
+        let path_mapper = path_mapper.into_instance();
+        return PathResolver {
+            base_path,
+            path_mapper,
+        }
+    }
     pub fn base_path(&self) -> Result<PathBuf, Failure> {
         let path = self.base_path.clone();
         return Ok(path);

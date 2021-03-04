@@ -7,7 +7,9 @@ use typed_di::error::BuildError;
 use crate::sec_gov::model::edgar_file::EdgarFile;
 use crate::sec_gov::service::edgar_api::EdgarApi;
 use crate::sec_gov::repository::edgar_cache::EdgarCache;
+use crate::sec_gov::path_resolver::edgar_cache_path_resolver::edgar_cache_path_resolver;
 use crate::repository::file_storage::storage_instance::StorageInstance;
+use crate::repository::file_storage::file_storage::FileStorage;
 use crate::system::app_config::AppConfig;
 use crate::system::di;
 
@@ -32,8 +34,13 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Build
         );
         return Ok(service);
     })?;
-    // builder.register(EDGAR_FILE_STORAGE, |resolver| {
-
-    // })?;
+    builder.register(EDGAR_FILE_STORAGE, |resolver| {
+        let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
+        let path = config.get_repository().get_path();
+        let service = FileStorage::new(
+            edgar_cache_path_resolver(path),
+        );
+        return Ok(service);
+    })?;
     return Ok(());
 }

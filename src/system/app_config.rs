@@ -3,6 +3,8 @@ use crate::yahoo_finance::service::yahoo_api::YahooApiConfig;
 use crate::openfigi::service::openfigi_api::OpenFigiApiConfig;
 use crate::telegram::service::bot_instance::BotInstanceConfig;
 use crate::sec_gov::service::edgar_api::EdgarApiConfig;
+mod repository_config;
+pub use self::repository_config::RepositoryConfig;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
@@ -16,6 +18,8 @@ pub struct AppConfig {
     bot_instance: BotInstanceConfig,
     #[serde(rename="edgar_api", default)]
     edgar_api: EdgarApiConfig,
+    #[serde(rename="repository")]
+    repository: RepositoryConfig,
 }
 
 impl AppConfig {
@@ -38,4 +42,9 @@ impl AppConfig {
     pub fn get_edgar_api(&self) -> EdgarApiConfig {
         return self.edgar_api.clone();
     }
+
+    pub fn get_repository(&self) -> RepositoryConfig {
+        return self.repository.clone();
+    }
 }
+
