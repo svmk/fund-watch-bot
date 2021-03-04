@@ -2,19 +2,19 @@ use crate::serializer::serializer::Serializer;
 use crate::serializer::service::serializer_instance::SerializerInstance;
 use crate::prelude::*;
 use serde::{de::DeserializeOwned, Serialize};
-use serde_json::{from_slice, to_vec, from_reader};
+use serde_yaml::{from_slice, to_vec, from_reader};
 use std::io::Read;
 
 #[derive(Debug)]
-pub struct JsonSerializer {} 
+pub struct YamlSerializer {} 
 
-impl JsonSerializer {
+impl YamlSerializer {
     pub fn new() -> SerializerInstance {
-        return SerializerInstance::Json(JsonSerializer{});
+        return SerializerInstance::Yaml(YamlSerializer{});
     }
 }
 
-impl Serializer for JsonSerializer {
+impl Serializer for YamlSerializer {
     fn from_slice<T>(&self, data: &[u8]) -> Result<T, Failure>
         where
             T: DeserializeOwned {

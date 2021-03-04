@@ -6,3 +6,4 @@ pub mod openfigi_di;
 pub mod market_data_di;
 pub mod yahoo_finance_di;
 pub mod telegram_di;
+pub mod application_di;

@@ -12,6 +12,7 @@ use crate::telegram::service::message_handler::MessageHandler;
 use crate::telegram::service::action_router::ActionRouter;
 use crate::telegram::service::bot_instance::BotInstance;
 use crate::telegram::service::event_notifier::EventNotifier;
+use crate::telegram::task::telegram_bot_task::TelegramBotTask;
 use crate::telegram::model::chat::Chat;
 use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::model::chat_messages::ChatMessages;
@@ -23,6 +24,7 @@ pub const BOT_INSTANCE: ServiceId<BotInstance> = ServiceIdResolver::SERVICE_ID;
 pub const CHAT_REPOSITORY: ServiceId<RepositoryInstance<ChatId, Chat>> = ServiceIdResolver::SERVICE_ID;
 pub const MESSAGES_REPOSITORY: ServiceId<RepositoryInstance<ChatId, ChatMessages>> = ServiceIdResolver::SERVICE_ID;
 pub const EVENT_NOTIFIER: ServiceId<EventNotifier> = ServiceIdResolver::SERVICE_ID;
+pub const TELEGRAM_BOT_TASK: ServiceId<TelegramBotTask> = ServiceIdResolver::SERVICE_ID;
 
 pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), BuildError> {
     builder.register(COMMAND_ROUTER, |resolver| {
@@ -56,6 +58,13 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Build
             resolver.get_service(BOT_INSTANCE)?,
             resolver.get_service(CHAT_REPOSITORY)?,
             resolver.get_service(di::market_fund_report_di::FUND_CHANGES_REPOSITORY)?,
+        );
+        return Ok(service);
+    })?;
+    builder.register(TELEGRAM_BOT_TASK, |resolver| {
+        let service = TelegramBotTask::new(
+            resolver.get_service(MESSAGE_HANDLER)?,
+            resolver.get_service(BOT_INSTANCE)?,
         );
         return Ok(service);
     })?;

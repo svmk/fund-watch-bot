@@ -1,12 +1,17 @@
 use crate::prelude::*;
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Serialize};
+use std::io::Read;
 
 pub trait Serializer {
-    fn from_slice<'a, T>(&self, data: &'a [u8]) -> Result<T, Failure>
+    fn from_slice<T>(&self, data: &[u8]) -> Result<T, Failure>
         where
-            T: Deserialize<'a>;
+            T: DeserializeOwned;
 
     fn to_vec<T: ?Sized>(&self, model: &T) -> Result<Vec<u8>, Failure> 
         where
             T: Serialize;
+        
+    fn from_reader<T>(&self, reader: &mut dyn Read) -> Result<T, Failure>
+        where
+            T: DeserializeOwned;
 }
