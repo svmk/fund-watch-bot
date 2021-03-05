@@ -22,7 +22,7 @@ pub struct EdgarApiConfig {
 
 impl EdgarApiConfig {
     fn default_base_url() -> Url {
-        return Url::parse("https://www.sec.gov/Archives/edgar/").unwrap();
+        return Url::parse("https://www.sec.gov/").unwrap();
     }
 }
 
@@ -44,7 +44,7 @@ pub struct EdgarApi {
 impl EdgarApi {
     pub async fn fetch_company_index(&self, year_quartal: &YearQuartal) -> Result<CompanyReportIndex, Failure> {
         let relative_url = format!(
-            "full-index/{}/{}/company.idx",
+            "Archives/edgar/full-index/{}/{}/company.idx",
             year_quartal.get_year(),
             year_quartal.get_quartal().display_long(),
         );

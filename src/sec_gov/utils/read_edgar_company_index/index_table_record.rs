@@ -43,6 +43,7 @@ impl IndexTableRecord {
         let form_type = self.get_field(Self::FORM_TYPE)?;
         let form_type = FormType::from_string(form_type)?;
         let relative_url = self.get_field(Self::FILE_NAME)?;
+        let relative_url = format!("Archives/{}", relative_url);
         let relative_url = RelativeUrl::from_string(relative_url)?;
         let result = CompanyReportRef::new(
             cik,
