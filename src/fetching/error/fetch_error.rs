@@ -7,9 +7,9 @@ pub enum FetchError {
     Download(#[from] reqwest::Error),
     #[error("Wrong status code [{}] when downloading `{}`", format_status_code(.0), format_url(.0))]
     WrongStatusCode(reqwest::Response),
-    #[error("Expected mime types `{}` when received `{provided_mime}`", format_mime_types(.expected_mimes))]
+    #[error("Expected mime types `{}` when received `{provided_mime}` for URL `{}`", format_mime_types(.expected_mimes), format_url(.response))]
     ExpectedMimeType {expected_mimes: Vec<MimeType>, provided_mime: MimeType, response: reqwest::Response},
-    #[error("Mime type not provided when expected `{}`", format_mime_types(.expected_mimes))]
+    #[error("Mime type not provided when expected `{}` for URL `{}`", format_mime_types(.expected_mimes), format_url(.response))]
     MimeTypeNotProvided {expected_mimes: Vec<MimeType>, response: reqwest::Response},
     #[error("{0}")]
     Custom(Failure),

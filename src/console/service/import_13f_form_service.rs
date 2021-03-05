@@ -11,7 +11,7 @@ pub struct Import13Form {
 
 impl Import13Form {
     pub async fn run(&self) -> Result<(), Failure> {
-        let start_at = YearQuartal::from_datetime(DateTime::ymd_start_day(1980, 01, 01));
+        let start_at = YearQuartal::from_datetime(DateTime::ymd_start_day(1993, 1, 1));
         let end_at = YearQuartal::now();
         self.daily_fund_report_importing.import_period(start_at, end_at).await?;
         return Ok(());

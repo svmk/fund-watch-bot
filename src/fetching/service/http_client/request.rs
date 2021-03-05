@@ -39,7 +39,7 @@ impl Request {
     }
 
     pub fn with_mime_type(mut self, mime_type: MimeType) -> Self {
-        self.expected_mimes = vec![mime_type];
+        self.expected_mimes.push(mime_type);
         return self;
     }
 
