@@ -9,6 +9,7 @@ use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::repository::service::query_comparator::QueryComparator;
 use crate::serializer::service::serializer_instance::SerializerInstance;
 use crate::serializer::serializer::Serializer;
+use crate::repository::utils::create_parent_dir::create_parent_dir;
 use anyhow::Result;
 use typed_di::service::Service;
 use futures::stream::{StreamExt};
@@ -16,7 +17,6 @@ use std::marker::PhantomData;
 use async_std::path::Path as AsyncPath;
 use async_std::fs::File;
 use async_std::io::prelude::*;
-use async_std::fs::create_dir_all;
 use async_walkdir::WalkDir;
 use async_walkdir::Filtering;
 use std::path::PathBuf;
@@ -99,9 +99,7 @@ impl <I, E> FileRepository<I, E>
         let id = model.get_entity_id();
         let path = RelativePath::from_string(id.to_string());
         let path = self.path_resolver.resolve_path(path)?;
-        if let Some(dir) = path.parent() {
-            create_dir_all(dir).await?;
-        }
+        create_parent_dir(&path).await?;
         let mut file = File::open(&path).await?;
         let data = self.serializer_instance.to_vec(&model)?;
         file.write_all(&data).await?;
@@ -116,6 +114,7 @@ impl <I, E> FileRepository<I, E>
             E: Send + Sync + 'static,
     {
         let base_path = self.path_resolver.base_path()?;
+        async_std::fs::create_dir_all(&base_path).await?;
         let walkdir_stream = WalkDir::new(base_path)
             .filter(|entry| {
                 return async move {

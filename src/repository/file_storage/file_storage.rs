@@ -4,6 +4,7 @@ use crate::repository::model::relative_path::RelativePath;
 use crate::repository::model::abs_file::AbsFile;
 use crate::repository::path_resolver::PathResolver;
 use crate::repository::file_storage::storage_instance::StorageInstance;
+use crate::repository::utils::create_parent_dir::create_parent_dir;
 use std::marker::PhantomData;
 use async_std::path::Path as AsyncPath;
 use async_std::fs::File as AsyncFile;
@@ -39,6 +40,7 @@ impl <F> FileStorage<F>
 
     pub async fn write(&self, relative_path: RelativePath) -> Result<F, Failure> {
         let path = self.path_resolver.resolve_path(relative_path.clone())?;
+        create_parent_dir(&path).await?;
         let mut open_options = AsyncOpenOptions::new();
         open_options.read(true);
         open_options.write(true);
@@ -58,6 +60,7 @@ impl <F> FileStorage<F>
 
     pub async fn replace(&self, path: RelativePath, file: &dyn AbsFile) -> Result<(), Failure> {
         let path = self.path_resolver.resolve_path(path)?;
+        create_parent_dir(&path).await?;
         async_std::fs::copy(file.resolve_abs_path(), path).await?;
         return Ok(());
     }
