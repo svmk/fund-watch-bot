@@ -73,9 +73,15 @@ impl DailyFundReportImporting {
     pub async fn fetch_daily_fund_report(
         &self,
         report_ref: &DailyFundReportRef,
-    ) -> Result<DailyFundReport, Failure> {
+    ) -> Result<Option<DailyFundReport>, Failure> {
         let report_ref = report_ref.get_company_report_ref();
         let report = self.edgar_api.fetch_compoany_report_13f(report_ref).await?;
+        let report = match report {
+            Some(report) => report,
+            None => {
+                return Ok(None);
+            },
+        };
         let fund_id = FundId::from_cik(report_ref.get_cik().clone())?;
         let fund = match self.fund_repository.find(&fund_id).await? {
             Some(fund) => fund,
@@ -86,7 +92,7 @@ impl DailyFundReportImporting {
             report_ref.get_date().clone(),
         );
         if let Some(result) = self.report_repository.find(&daily_fund_report_id).await? {
-            return Ok(result);
+            return Ok(Some(result));
         }
         let mut result = DailyFundReport::new(daily_fund_report_id);
         let share_sum = report
@@ -121,6 +127,6 @@ impl DailyFundReportImporting {
         }
         self.report_repository.store(&result).await?;
         self.event_emitter.emit_event(NewDailyFundReportEvent::new(result.get_id().clone())).await?;
-        return Ok(result);
+        return Ok(Some(result));
     }
 }

@@ -30,6 +30,12 @@ impl EdgarDocument {
         return Err(Failure::msg("Unable to get edgar document type"));
     }
 
+    pub fn is_xml_document(&self) -> bool {
+        let is_start_contains = self.text.find(Self::XML_START_TAG).is_some();
+        let is_end_contains = self.text.find(Self::XML_END_TAG).is_some();
+        return is_start_contains && is_end_contains;
+    }
+
     pub fn as_xml_document(&self) -> Result<EdgarXmlDocument, Failure> {
         let start = self.text.find(Self::XML_START_TAG).ok_or_else(|| {
             return Failure::msg("Unable to find xml start tag in edgar document");

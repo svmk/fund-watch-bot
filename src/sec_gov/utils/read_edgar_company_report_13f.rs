@@ -28,6 +28,9 @@ fn parse_document_13f(document: &EdgarDocument) -> Result<Option<Form13F>, Failu
     if !document_type.starts_with(DOCUMENT_TYPE_13F_HR) {
         return Ok(None);
     }
+    if !document.is_xml_document() {
+        return Ok(None);
+    }
     let document = document.as_xml_document()?;
     let document = document.root();
     let cik = document.read_xpath_string("//edgarSubmission//headerData//filerInfo//filer//cik")?;
@@ -51,6 +54,9 @@ fn parse_document_information_table(document: &EdgarDocument) -> Result<Option<F
     const DOCUMENT_TYPE_INFORMATION_TABLE: &'static str = "INFORMATION TABLE";
     let document_type = document.get_document_type()?;
     if document_type != DOCUMENT_TYPE_INFORMATION_TABLE {
+        return Ok(None);
+    }
+    if !document.is_xml_document() {
         return Ok(None);
     }
     let document = document.as_xml_document()?;
@@ -81,7 +87,7 @@ fn parse_document_information_table(document: &EdgarDocument) -> Result<Option<F
     return Ok(Some(result));
 }
 
-pub async fn read_edgar_company_report_13f(file: EdgarFile) -> Result<CompanyReport13F, Failure> {
+pub async fn read_edgar_company_report_13f(file: EdgarFile) -> Result<Option<CompanyReport13F>, Failure> {
     let path = file.get_path().clone();
     let file = file.into_file();
     
@@ -96,6 +102,6 @@ pub async fn read_edgar_company_report_13f(file: EdgarFile) -> Result<CompanyRep
             document_reports.set_information_table(report)?;
         }
     }
-    let report = document_reports.create_company_report_13f()?;
+    let report = document_reports.create_company_report_13f();
     return Ok(report);
 }

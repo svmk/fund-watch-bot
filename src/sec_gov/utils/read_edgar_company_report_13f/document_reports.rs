@@ -32,20 +32,10 @@ impl DocumentReports {
         return Ok(());
     }
 
-    pub fn create_company_report_13f(self) -> Result<CompanyReport13F, Failure> {
-        let form_13f = match self.form_13f {
-            Some(form_13f) => form_13f,
-            None => {
-                return Err(Failure::msg("Edgar form 13F not parsed"));
-            },
-        };
-        let information_table = match self.information_table {
-            Some(information_table) => information_table,
-            None => {
-                return Err(Failure::msg("Edgar information table 13F not parsed"));
-            }
-        };
+    pub fn create_company_report_13f(self) -> Option<CompanyReport13F> {
+        let form_13f = self.form_13f?;
+        let information_table = self.information_table?;
         let report = CompanyReport13F::new(form_13f, information_table);
-        return Ok(report);
+        return Some(report);
     }
 }

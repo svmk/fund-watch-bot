@@ -77,7 +77,7 @@ impl EdgarApi {
         return true;
     }
 
-    pub async fn fetch_compoany_report_13f(&self, company_ref: &CompanyReportRef) -> Result<CompanyReport13F, Failure> {
+    pub async fn fetch_compoany_report_13f(&self, company_ref: &CompanyReportRef) -> Result<Option<CompanyReport13F>, Failure> {
         let relative_url = company_ref.get_relative_url();
         let url = self
             .config
