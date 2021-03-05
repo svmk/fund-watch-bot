@@ -4,7 +4,8 @@ use crate::repository::path_mapper::file_extension_path_mapper::FileExtensionPat
 use crate::repository::path_mapper::subdir_path_mapper::SubdirPathMapper;
 use std::path::PathBuf;
 
-pub fn fund_reports_path_resolver(path: PathBuf) -> PathResolver {
+pub fn fund_reports_path_resolver(mut path: PathBuf) -> PathResolver {
+    path.push("fund_reports");
     let path_mapper = IterPathMapper::new()
         .push_mapper(SubdirPathMapper::new(0, 2))
         .push_mapper(SubdirPathMapper::new(2, 2))
