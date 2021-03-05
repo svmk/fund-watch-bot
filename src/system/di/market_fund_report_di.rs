@@ -25,7 +25,7 @@ use crate::repository::repository::file_repository::FileRepository;
 use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
 
 pub const FUND_REPOSITORY: ServiceId<RepositoryInstance<FundId, Fund>> = ServiceIdResolver::SERVICE_ID;
-pub const REPORT_REPOSITORY: ServiceId<RepositoryInstance<DailyFundReportId, DailyFundReport>> = ServiceIdResolver::SERVICE_ID;
+pub const DAILY_FUND_REPORT_REPOSITORY: ServiceId<RepositoryInstance<DailyFundReportId, DailyFundReport>> = ServiceIdResolver::SERVICE_ID;
 pub const CANDLESTICK_PROVIDER: ServiceId<CandlestickProvider> = ServiceIdResolver::SERVICE_ID;
 pub const DAILY_FUND_REPORT_IMPORTING: ServiceId<DailyFundReportImporting> = ServiceIdResolver::SERVICE_ID;
 pub const FUND_CHANGES_GENERATOR: ServiceId<FundChangesGenerator> = ServiceIdResolver::SERVICE_ID;
@@ -39,7 +39,7 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Build
             resolver.get_service(di::sec_gov_di::EDGAR_API)?,
             resolver.get_service(di::openfigi_di::OPENFIGI_API)?,
             resolver.get_service(FUND_REPOSITORY)?,
-            resolver.get_service(REPORT_REPOSITORY)?,
+            resolver.get_service(DAILY_FUND_REPORT_REPOSITORY)?,
             resolver.get_service(CANDLESTICK_PROVIDER)?,
             resolver.get_service(di::event_emitter_di::EVENT_EMITTER)?,
         );
@@ -47,7 +47,7 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Build
     })?;
     builder.register(FUND_CHANGES_GENERATOR, |resolver| {
         let service = FundChangesGenerator::new(
-            resolver.get_service(REPORT_REPOSITORY)?,
+            resolver.get_service(DAILY_FUND_REPORT_REPOSITORY)?,
             resolver.get_service(FUND_CHANGES_REPOSITORY)?,
             resolver.get_service(di::event_emitter_di::EVENT_EMITTER)?,
         );
@@ -82,7 +82,7 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Build
         );
         return Ok(service);
     })?;
-    builder.register(REPORT_REPOSITORY, |resolver| {
+    builder.register(DAILY_FUND_REPORT_REPOSITORY, |resolver| {
         let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
         let config = config.get_repository();
         let path = config.get_path();

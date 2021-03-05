@@ -1,1 +1,1 @@
-pub mod cusip_cache_path_mapper;
+pub mod cusip_cache_path_resolver;

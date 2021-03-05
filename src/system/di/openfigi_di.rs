@@ -9,7 +9,7 @@ use crate::system::app_config::AppConfig;
 use crate::openfigi::service::openfigi_api::OpenFigiApi;
 use crate::market::common::model::cusip::Cusip;
 use crate::openfigi::model::cusip_cache_record::CusipCacheRecord;
-use crate::openfigi::path_resolver::cusip_cache_path_mapper::cusip_cache_path_mapper;
+use crate::openfigi::path_resolver::cusip_cache_path_resolver::cusip_cache_path_resolver;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::repository::repository::file_repository::FileRepository;
 use crate::serializer::service::json_serializer::JsonSerializer;
@@ -33,7 +33,7 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Build
         let config = config.get_repository();
         let path = config.get_path();
         let service = FileRepository::new(
-            cusip_cache_path_mapper(path),
+            cusip_cache_path_resolver(path),
             JsonSerializer::new(),
             resolver.get_service(di::repository_di::QUERY_COMPARATOR)?,
         );

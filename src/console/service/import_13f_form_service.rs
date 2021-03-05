@@ -9,6 +9,7 @@ pub struct Import13Form {
 
 impl Import13Form {
     pub async fn run(&self) -> Result<(), Failure> {
+        // self.daily_fund_report_importing.
         return Ok(());
     }
 }
