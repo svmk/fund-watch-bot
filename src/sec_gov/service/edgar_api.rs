@@ -13,16 +13,23 @@ use crate::fetching::model::mime_type::{MIME_APPLICATION_OCTET_STREAM, MIME_TEXT
 use crate::prelude::*;
 use typed_di::service::Service;
 use std::default::Default;
+use std::time::Duration;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct EdgarApiConfig {
     #[serde(rename="base_url", default="EdgarApiConfig::default_base_url")]
     base_url: Url,
+    #[serde(rename="retry_delay", default="EdgarApiConfig::default_retry_delay")]
+    retry_delay: Option<Duration>,
 }
 
 impl EdgarApiConfig {
     fn default_base_url() -> Url {
         return Url::parse("https://www.sec.gov/").unwrap();
+    }
+
+    fn default_retry_delay() -> Option<Duration> {
+        return Some(Duration::from_millis(500));
     }
 }
 
@@ -30,6 +37,7 @@ impl Default for EdgarApiConfig {
     fn default() -> Self {
         return EdgarApiConfig {
             base_url: Self::default_base_url(),
+            retry_delay: Self::default_retry_delay(),
         }
     }
 }
@@ -60,10 +68,13 @@ impl EdgarApi {
                 return Ok(company_index);
             }
         }
-        let request = FileDownloadRequest::new(
+        let mut request = FileDownloadRequest::new(
             url,
             vec![MIME_APPLICATION_OCTET_STREAM, MIME_TEXT_PLAIN,],
         );
+        if let Some(retry_delay) = self.config.retry_delay {
+            request = request.with_retry_delay(retry_delay.clone());
+        }
         let file = self.http_client.fetch_file(request).await?;
         // {
         //     println!("file = {:?}", file);
@@ -93,10 +104,13 @@ impl EdgarApi {
             let company_report = read_edgar_company_report_13f(cached_file).await?;
             return Ok(company_report);
         }
-        let request = FileDownloadRequest::new(
+        let mut request = FileDownloadRequest::new(
             url,
             vec![MIME_APPLICATION_OCTET_STREAM, MIME_TEXT_PLAIN,],
         );
+        if let Some(retry_delay) = self.config.retry_delay {
+            request = request.with_retry_delay(retry_delay.clone());
+        }
         let file = self.http_client.fetch_file(request).await?;
         self.edgar_cache.replace(&relative_url, &file).await?;
         let file = self.edgar_cache.get(&relative_url).await?;

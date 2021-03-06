@@ -1,6 +1,7 @@
 use crate::fetching::service::http_client::request::Request;
 use crate::fetching::model::url::Url;
 use crate::fetching::model::mime_type::MimeType;
+use std::time::Duration;
 
 #[derive(Debug)]
 pub struct FileDownloadRequest {
@@ -16,5 +17,10 @@ impl FileDownloadRequest {
         return FileDownloadRequest {
             request,
         };
+    }
+
+    pub fn with_retry_delay(mut self, delay: Duration) -> Self {
+        self.request = self.request.with_retry_delay(delay);
+        return self;
     }
 }

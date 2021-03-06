@@ -6,6 +6,7 @@ use crate::fetching::error::fetch_error::FetchError;
 use futures::stream::StreamExt;
 use async_std::fs::File;
 use futures::AsyncWriteExt;
+use async_std::task::sleep;
 use std::str::FromStr;
 mod request;
 pub use self::request::Request;
@@ -57,7 +58,32 @@ impl HttpClient {
         return &self.config;
     }
 
-    pub async fn send(&self, mut request: Request) -> Result<reqwest::Response, FetchError> {
+    pub async fn send(&self, request: Request) -> Result<reqwest::Response, FetchError> {
+        loop {
+            let response_result = self
+                .internal_send(request.clone()).await;
+            let error = match response_result {
+                Ok(response) => {
+                    return Ok(response);
+                },
+                Err(error) => error,
+            };
+            let retry_delay = match error {
+                FetchError::Download(..) => request.get_retry_delay(),
+                FetchError::Custom(..) => request.get_retry_delay(),
+                FetchError::WrongStatusCode(..) => None,
+                FetchError::ExpectedMimeType{..} => None,
+                FetchError::MimeTypeNotProvided {..} => None,
+            };
+            if let Some(retry_delay) = retry_delay {
+                sleep(retry_delay.clone()).await;
+            } else {
+                return Err(error);
+            }
+        }
+    }
+
+    async fn internal_send(&self, mut request: Request) -> Result<reqwest::Response, FetchError> {
         let request_method = match request.get_method() {
             &RequestMethod::Get => {
                 reqwest::Method::GET
