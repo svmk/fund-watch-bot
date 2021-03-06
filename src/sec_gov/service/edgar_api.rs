@@ -53,6 +53,7 @@ impl EdgarApi {
             .config
             .base_url
             .join(relative_url.as_str())?;
+        println!("url = `{}`", url);
         if Self::is_year_quartal_cacheable(year_quartal) {
             if let Some(cached_file) = self.edgar_cache.find(&relative_url).await? {
                 let company_index = read_edgar_company_index(cached_file).await?;
@@ -64,6 +65,11 @@ impl EdgarApi {
             vec![MIME_APPLICATION_OCTET_STREAM, MIME_TEXT_PLAIN,],
         );
         let file = self.http_client.fetch_file(request).await?;
+        // {
+        //     println!("file = {:?}", file);
+        //     let mut buf = String::new();
+        //     let _ = std::io::stdin().read_line(&mut buf).unwrap();
+        // }
         self.edgar_cache.replace(&relative_url, &file).await?;
         let file = self.edgar_cache.get(&relative_url).await?;
         let company_index = read_edgar_company_index(file).await?;

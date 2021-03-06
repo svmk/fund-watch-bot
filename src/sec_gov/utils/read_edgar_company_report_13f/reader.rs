@@ -14,6 +14,7 @@ pub struct Reader {
 
 impl Reader {
     const SEC_HEADER_END_TAG: &'static str = "</SEC-HEADER>";
+    const IMS_HEADER_END_TAG: &'static str = "</IMS-HEADER>";
     const DOCUMENT_START_TAG: &'static str = "<DOCUMENT>";
     const DOCUMENT_END_TAG: &'static str = "</DOCUMENT>";
 
@@ -32,6 +33,10 @@ impl Reader {
             let line = line?;
             let line = line.trim();
             if line == Self::SEC_HEADER_END_TAG {
+                header_was_skipped = true;
+                break;
+            }
+            if line == Self::IMS_HEADER_END_TAG {
                 header_was_skipped = true;
                 break;
             }

@@ -1,9 +1,9 @@
 use crate::prelude::*;
-use futures::stream::StreamExt;
 use crate::fetching::model::content_type::ContentType;
 use crate::fetching::model::downloaded_file::DownloadedFile;
 use crate::fetching::model::url::Url;
 use crate::fetching::error::fetch_error::FetchError;
+use futures::stream::StreamExt;
 use async_std::fs::File;
 use futures::AsyncWriteExt;
 use std::str::FromStr;
@@ -103,7 +103,7 @@ impl HttpClient {
         let mut response_body = response.bytes_stream();
         while let Some(buffer) = response_body.next().await {
             let buffer = buffer?;
-            file.write(&buffer).await.map_err(FetchError::custom)?;
+            file.write_all(&buffer).await.map_err(FetchError::custom)?;
         }
         file.sync_all().await.map_err(FetchError::custom)?;
         return Ok(downloaded_file);

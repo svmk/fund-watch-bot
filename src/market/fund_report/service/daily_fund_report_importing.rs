@@ -58,7 +58,11 @@ impl DailyFundReportImporting {
         let mut report_refs: Vec<_> = edgar_company_index
             .iter()
             .filter(|report_ref| {
-                return report_ref.get_form_type().is_13f();
+                let form_type = report_ref.get_form_type();
+                if form_type.is_13f() {
+                    return true;
+                }
+                return false;
             })
             .map(|report_ref| {
                 return DailyFundReportRef::new(report_ref.clone());
