@@ -94,7 +94,7 @@ pub async fn read_edgar_company_report_13f(file: EdgarFile) -> Result<Option<Com
     let mut reader = Reader::new(path, file);
     // reader.skip_header().await?;
     let mut document_reports = DocumentReports::new();
-    while let Some(document) = reader.read_document().await? {
+    while let Some(document) = reader.read_document().await.unwrap_or(None) {
         if let Some(report) = parse_document_13f(&document)? {
             document_reports.set_form_13f(report)?;
         }
