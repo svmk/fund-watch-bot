@@ -5,7 +5,7 @@ use crate::market::fund_report::events::new_daily_fund_report_event::NewDailyFun
 use crate::market::fund_report::model::fund_reports::FundReports;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::event_emitter::prelude::*;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct FundReportsEventListener {

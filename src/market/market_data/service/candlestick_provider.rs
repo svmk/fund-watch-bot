@@ -7,7 +7,7 @@ use crate::market::market_data::model::quartal_price::QuartalPrice;
 use crate::market::market_data::model::day_price_id::DayPriceId;
 use crate::market::market_data::model::day_price::DayPrice;
 use crate::app::model::datetime::DateTime;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 use crate::prelude::*;
 
 

@@ -14,7 +14,7 @@ use crate::serializer::service::json_serializer::JsonSerializer;
 use crate::serializer::service::serializer_instance::SerializerInstance;
 use std::{str::FromStr, time::Duration};
 use async_std::task::sleep;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 mod find_by_id_request_body;
 use self::find_by_id_request_body::FindByIdRequestBody;
 use std::default::Default;

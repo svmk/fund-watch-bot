@@ -1,12 +1,13 @@
-use typed_di::{argument_id_resolver::ArgumentIdResolver, container_declaration::ContainerDeclaration};
-use typed_di::async_di_container::AsyncDiContainer;
-use typed_di::error::BuildError;
+use typed_di::argument::argument_id_resolver::ArgumentIdResolver;
+use typed_di::async_di::container_declaration::ContainerDeclaration;
+use typed_di::async_di::container::Container;
 use std::path::Path;
+use crate::prelude::*;
 use crate::system::di;
 use crate::system::app_config::AppConfig;
 use crate::system::app_config_loader::app_config_from_path;
 
-pub fn create_di_contaner(path: &Path) -> Result<AsyncDiContainer, BuildError> {
+pub fn create_di_contaner(path: &Path) -> Result<Container, Failure> {
     let config = app_config_from_path(path)?;
     let mut builder = ContainerDeclaration::new();
     builder.add_argument(AppConfig::ARGUMENT_ID, config)?;
@@ -21,6 +22,5 @@ pub fn create_di_contaner(path: &Path) -> Result<AsyncDiContainer, BuildError> {
     di::telegram_di::register_services(&mut builder)?;
     di::repository_di::register_services(&mut builder)?;
     let container = builder.build();
-    let container = AsyncDiContainer::new(container);
     return Ok(container);
 }

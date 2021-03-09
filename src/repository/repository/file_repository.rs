@@ -11,7 +11,7 @@ use crate::serializer::service::serializer_instance::SerializerInstance;
 use crate::serializer::serializer::Serializer;
 use crate::repository::utils::create_parent_dir::create_parent_dir;
 use anyhow::Result;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 use futures::stream::{StreamExt};
 use std::marker::PhantomData;
 use async_std::path::Path as AsyncPath;

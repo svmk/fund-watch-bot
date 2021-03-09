@@ -2,7 +2,7 @@ use crate::prelude::*;
 use crate::event_emitter::model::event::Event;
 use crate::event_emitter::model::packed_event::PackedEvent;
 use crate::event_emitter::service::event_processing::EventProcessing;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct EventEmitter {

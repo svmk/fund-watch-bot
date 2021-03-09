@@ -7,7 +7,7 @@ use crate::market::fund_report::model::fund::Fund;
 use crate::telegram::action::fund_list_action::{FundListAction, FundListActionDecision};
 use crate::telegram::model::action_id::ActionId;
 use crate::telegram::views::subscription_list_view::subscription_list_view;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct SubscriptionListController {

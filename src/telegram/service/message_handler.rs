@@ -8,7 +8,7 @@ use crate::telegram::model::chat::Chat;
 use crate::telegram::model::chat_context::ChatContext;
 use crate::telegram::model::action_route::ActionRoute;
 use crate::repository::repository::repository_instance::RepositoryInstance;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 use tbot::contexts::InlineDataCallback;
 use tbot::contexts::Text as TextContext;
 use tbot::types::chat::Id as TelegramChatId;

@@ -1,9 +1,9 @@
-use typed_di::sync_context::sync_container_declaration::SyncContainerDeclaration;
-use typed_di::service_id_resolver::ServiceIdResolver;
-use typed_di::argument_id_resolver::ArgumentIdResolver;
-use typed_di::service_id::ServiceId;
-use typed_di::container_declaration::ContainerDeclaration;
-use typed_di::error::BuildError;
+
+use typed_di::service::service_id_resolver::ServiceIdResolver;
+use typed_di::argument::argument_id_resolver::ArgumentIdResolver;
+use typed_di::service::service_id::ServiceId;
+use typed_di::async_di::container_declaration::ContainerDeclaration;
+use typed_di::error::Error;
 use crate::sec_gov::model::edgar_file::EdgarFile;
 use crate::sec_gov::service::edgar_api::EdgarApi;
 use crate::sec_gov::repository::edgar_cache::EdgarCache;
@@ -17,24 +17,24 @@ pub const EDGAR_API: ServiceId<EdgarApi> = EdgarApi::SERVICE_ID;
 pub const EDGAR_CACHE: ServiceId<EdgarCache> = EdgarCache::SERVICE_ID;
 pub const EDGAR_FILE_STORAGE: ServiceId<StorageInstance<EdgarFile>> = ServiceIdResolver::SERVICE_ID;
 
-pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), BuildError> {
-    builder.register(EDGAR_API, |resolver| {
+pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error> {
+    builder.register(EDGAR_API, async move |resolver| {
         let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
         let config = config.get_edgar_api();
         let service = EdgarApi::new(
             config,
-            resolver.get_service(di::fetching_di::HTTP_CLIENT)?,
-            resolver.get_service(EDGAR_CACHE)?,
+            resolver.get_service(di::fetching_di::HTTP_CLIENT).await?,
+            resolver.get_service(EDGAR_CACHE).await?,
         );
         return Ok(service);
     })?;
-    builder.register(EDGAR_CACHE, |resolver| {
+    builder.register(EDGAR_CACHE, async move |resolver| {
         let service = EdgarCache::new(
-            resolver.get_service(EDGAR_FILE_STORAGE)?,
+            resolver.get_service(EDGAR_FILE_STORAGE).await?,
         );
         return Ok(service);
     })?;
-    builder.register(EDGAR_FILE_STORAGE, |resolver| {
+    builder.register(EDGAR_FILE_STORAGE, async move |resolver| {
         let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
         let path = config.get_repository().get_path();
         let service = FileStorage::new(

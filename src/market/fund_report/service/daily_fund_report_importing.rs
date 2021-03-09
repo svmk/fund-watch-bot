@@ -15,7 +15,7 @@ use crate::prelude::*;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::sec_gov::model::company_report_ref::CompanyReportRef;
 use crate::sec_gov::service::edgar_api::EdgarApi;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 
 #[derive(new, Debug)]
 pub struct DailyFundReportRef {

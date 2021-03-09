@@ -9,7 +9,7 @@ use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::repository::query::all_query::AllQuery;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct FundListController {

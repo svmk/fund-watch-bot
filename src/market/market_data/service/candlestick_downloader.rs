@@ -14,7 +14,7 @@ use crate::app::model::year_quartal_iterator::YearQuartalIterator;
 use crate::app::model::timestamp::TimeStamp;
 use crate::app::model::date::Date;
 use crate::prelude::*;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 mod candlestick_request;
 pub use self::candlestick_request::CandlestickRequest;
 

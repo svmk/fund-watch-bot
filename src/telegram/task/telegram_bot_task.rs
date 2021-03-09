@@ -1,7 +1,7 @@
 use crate::{prelude::*};
 use crate::telegram::service::message_handler::MessageHandler;
 use crate::telegram::service::bot_instance::BotInstance;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct TelegramBotTask {

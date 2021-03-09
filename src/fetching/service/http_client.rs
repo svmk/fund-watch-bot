@@ -17,7 +17,7 @@ pub use self::request_method::RequestMethod;
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct HttpClientConfig {
-    #[serde(default)]
+    #[serde(default = "HttpClientConfig::default_user_agent")]
     pub user_agent: String,
     #[serde(default)]
     pub proxy: Option<Url>,
@@ -28,6 +28,10 @@ impl HttpClientConfig {
         let mut config = self.clone();
         config.proxy = Some(url);
         return config;
+    }
+
+    fn default_user_agent() -> String {
+        format!("{}/{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"))
     }
 }
 

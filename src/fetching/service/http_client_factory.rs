@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 use crate::fetching::service::http_client::HttpClient;
 use crate::fetching::service::pubproxy_client::PubProxyClient;
 

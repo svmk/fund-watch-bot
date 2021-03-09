@@ -11,7 +11,7 @@ use crate::sec_gov::utils::read_edgar_company_index::read_edgar_company_index;
 use crate::sec_gov::utils::read_edgar_company_report_13f::read_edgar_company_report_13f;
 use crate::fetching::model::mime_type::{MIME_APPLICATION_OCTET_STREAM, MIME_TEXT_PLAIN};
 use crate::prelude::*;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 use std::default::Default;
 use std::time::Duration;
 

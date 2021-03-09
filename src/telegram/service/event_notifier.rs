@@ -9,7 +9,7 @@ use crate::telegram::query::chat_subscribed_to_fund_query::ChatSubscribedToFundQ
 use crate::telegram::views::fund_change_view::fund_change_view;
 use crate::event_emitter::prelude::*;
 use crate::prelude::*;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct EventNotifier {

@@ -5,7 +5,7 @@ use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::model::chat_messages::ChatMessages;
 use crate::telegram::utils::telegram_create_reply_markup::telegram_create_reply_markup;
 use crate::repository::repository::repository_instance::RepositoryInstance;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 use tbot::Bot;
 use tbot::types::parameters::Text as MessageText;
 use tbot::types::message::Id as TelegramMessageId;

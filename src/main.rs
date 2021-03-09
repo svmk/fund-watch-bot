@@ -1,3 +1,4 @@
+#![feature(async_closure)]
 #![feature(drain_filter)]
 
 extern crate tokio;

@@ -2,7 +2,7 @@ use crate::prelude::*;
 use crate::market::fund_report::service::daily_fund_report_importing::DailyFundReportImporting;
 use crate::app::model::year_quartal::YearQuartal;
 use crate::app::model::datetime::DateTime;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct Import13Form {

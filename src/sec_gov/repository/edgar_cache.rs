@@ -4,7 +4,7 @@ use crate::repository::model::abs_file::AbsFile;
 use crate::sec_gov::model::edgar_file::EdgarFile;
 use crate::sec_gov::model::relative_url::RelativeUrl;
 use crate::prelude::*;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 
 
 #[derive(new, Debug)]

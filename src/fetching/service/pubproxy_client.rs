@@ -4,7 +4,7 @@ use crate::fetching::service::http_client::{HttpClient, Request};
 use crate::fetching::model::url::Url;
 use crate::fetching::model::mime_type::MIME_APPLICATION_JSON;
 use crate::fetching::record::pubproxy_random_proxy_response::PubProxyRandomProxyResponse;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 use crate::prelude::*;
 
 

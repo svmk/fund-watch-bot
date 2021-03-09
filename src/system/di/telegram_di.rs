@@ -1,9 +1,9 @@
-use typed_di::sync_context::sync_container_declaration::SyncContainerDeclaration;
-use typed_di::service_id_resolver::ServiceIdResolver;
-use typed_di::argument_id_resolver::ArgumentIdResolver;
-use typed_di::service_id::ServiceId;
-use typed_di::container_declaration::ContainerDeclaration;
-use typed_di::error::BuildError;
+
+use typed_di::service::service_id_resolver::ServiceIdResolver;
+use typed_di::argument::argument_id_resolver::ArgumentIdResolver;
+use typed_di::service::service_id::ServiceId;
+use typed_di::async_di::container_declaration::ContainerDeclaration;
+use typed_di::error::Error;
 use crate::system::di;
 use crate::system::app_config::AppConfig;
 use crate::repository::repository::repository_instance::RepositoryInstance;
@@ -26,45 +26,45 @@ pub const MESSAGES_REPOSITORY: ServiceId<RepositoryInstance<ChatId, ChatMessages
 pub const EVENT_NOTIFIER: ServiceId<EventNotifier> = ServiceIdResolver::SERVICE_ID;
 pub const TELEGRAM_BOT_TASK: ServiceId<TelegramBotTask> = ServiceIdResolver::SERVICE_ID;
 
-pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), BuildError> {
-    builder.register(COMMAND_ROUTER, |resolver| {
+pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error> {
+    builder.register(COMMAND_ROUTER, async move |resolver| {
         let service = CommandRouter::new();
         return Ok(service);
     })?;
-    builder.register(MESSAGE_HANDLER, |resolver| {
+    builder.register(MESSAGE_HANDLER, async move |resolver| {
         let service = MessageHandler::new(
-            resolver.get_service(COMMAND_ROUTER)?,
-            resolver.get_service(ACTION_ROUTER)?,
-            resolver.get_service(CHAT_REPOSITORY)?,
-            resolver.get_service(BOT_INSTANCE)?,
+            resolver.get_service(COMMAND_ROUTER).await?,
+            resolver.get_service(ACTION_ROUTER).await?,
+            resolver.get_service(CHAT_REPOSITORY).await?,
+            resolver.get_service(BOT_INSTANCE).await?,
         );
         return Ok(service);
     })?;
-    builder.register(ACTION_ROUTER, |_resolver| {
+    builder.register(ACTION_ROUTER, async move |_resolver| {
         let service = ActionRouter::new();
         return Ok(service);
     })?;
-    builder.register(BOT_INSTANCE, |resolver| {
+    builder.register(BOT_INSTANCE, async move |resolver| {
         let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
         let config = config.get_bot_instance();
         let service = BotInstance::new(
             config,
-            resolver.get_service(MESSAGES_REPOSITORY)?,
+            resolver.get_service(MESSAGES_REPOSITORY).await?,
         );
         return Ok(service);
     })?;
-    builder.register(EVENT_NOTIFIER, |resolver| {
+    builder.register(EVENT_NOTIFIER, async move |resolver| {
         let service = EventNotifier::new(
-            resolver.get_service(BOT_INSTANCE)?,
-            resolver.get_service(CHAT_REPOSITORY)?,
-            resolver.get_service(di::market_fund_report_di::FUND_CHANGES_REPOSITORY)?,
+            resolver.get_service(BOT_INSTANCE).await?,
+            resolver.get_service(CHAT_REPOSITORY).await?,
+            resolver.get_service(di::market_fund_report_di::FUND_CHANGES_REPOSITORY).await?,
         );
         return Ok(service);
     })?;
-    builder.register(TELEGRAM_BOT_TASK, |resolver| {
+    builder.register(TELEGRAM_BOT_TASK, async move |resolver| {
         let service = TelegramBotTask::new(
-            resolver.get_service(MESSAGE_HANDLER)?,
-            resolver.get_service(BOT_INSTANCE)?,
+            resolver.get_service(MESSAGE_HANDLER).await?,
+            resolver.get_service(BOT_INSTANCE).await?,
         );
         return Ok(service);
     })?;

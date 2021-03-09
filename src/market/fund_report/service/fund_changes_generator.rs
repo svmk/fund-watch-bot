@@ -6,7 +6,7 @@ use crate::market::fund_report::model::fund_changes::FundChanges;
 use crate::market::fund_report::model::fund_changes_id::FundChangesId;
 use crate::market::fund_report::events::new_fund_change_event::NewFundChangeEvent;
 use crate::event_emitter::service::event_emitter::EventEmitter;
-use typed_di::service::Service;
+use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct FundChangesGenerator {
