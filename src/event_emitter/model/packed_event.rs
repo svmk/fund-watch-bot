@@ -4,6 +4,7 @@ use crate::event_emitter::model::event_category::EventCategory;
 use crate::prelude::*;
 use std::any::{Any, type_name};
 use std::sync::Arc;
+use std::fmt;
 
 #[derive(Clone)]
 pub struct PackedEvent {
@@ -40,5 +41,13 @@ impl PackedEvent {
         };
         let event = EventRecord::new(self.event_category.clone(), payload.clone());
         return Ok(event);
+    }
+}
+
+impl fmt::Debug for PackedEvent {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct(type_name::<Self>())
+            .field("event_category", &self.event_category)
+            .finish()
     }
 }

@@ -19,7 +19,7 @@ pub struct EventNotifier {
 }
 
 #[async_trait]
-impl EventListener<NewFundChangeEvent> for EventNotifier {
+impl EventHandler<NewFundChangeEvent> for EventNotifier {
     async fn handle_event(&self, event: EventRecord<NewFundChangeEvent>) -> Result<(), Failure> {
         let fund_id = event
             .get_payload()

@@ -38,7 +38,7 @@ impl FundReportsEventListener {
 }
 
 #[async_trait]
-impl EventListener<NewDailyFundReportEvent> for FundReportsEventListener {
+impl EventHandler<NewDailyFundReportEvent> for FundReportsEventListener {
     async fn handle_event(&self, event: EventRecord<NewDailyFundReportEvent>) -> Result<(), Failure> {
         return self.handle_new_daily_fund_report_event(event).await;
     }

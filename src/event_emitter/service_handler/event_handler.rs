@@ -5,7 +5,7 @@ use crate::event_emitter::model::event_category::EventCategory;
 use std::future::Future;
 
 #[async_trait]
-pub trait EventListener<P>: Send + Sync where P: Event {
+pub trait EventHandler<P>: Send + Sync where P: Event {
     async fn handle_event(&self, event: EventRecord<P>) -> Result<(), Failure>;
     fn event_category() -> EventCategory where Self: Sized {
         return P::event_category();
@@ -14,7 +14,7 @@ pub trait EventListener<P>: Send + Sync where P: Event {
 
 
 #[async_trait]
-impl <P, F, Fut> EventListener<P> for F 
+impl <P, F, Fut> EventHandler<P> for F 
     where
         P: Event,
         Fut: Future<Output=Result<(), Failure>> + Send + Sync + Unpin + 'static,

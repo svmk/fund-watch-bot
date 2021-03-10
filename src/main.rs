@@ -1,3 +1,4 @@
+#![feature(const_fn)]
 #![feature(async_closure)]
 #![feature(drain_filter)]
 

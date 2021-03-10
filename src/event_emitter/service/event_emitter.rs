@@ -1,12 +1,12 @@
 use crate::prelude::*;
 use crate::event_emitter::model::event::Event;
 use crate::event_emitter::model::packed_event::PackedEvent;
-use crate::event_emitter::service::event_processing::EventProcessing;
+use crate::event_emitter::service::event_listener::EventListener;
 use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct EventEmitter {
-    event_processing: Service<EventProcessing>,
+    event_listener: Service<EventListener>,
 }
 
 impl EventEmitter {
@@ -14,6 +14,6 @@ impl EventEmitter {
         where E: Event
     {
         let event = PackedEvent::new(E::event_category(), payload);
-        return self.event_processing.emit_event(event).await;
+        return self.event_listener.emit_event(event).await;
     }
 }
