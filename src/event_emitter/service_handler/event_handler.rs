@@ -17,7 +17,7 @@ pub trait EventHandler<P>: Send + Sync where P: Event {
 impl <P, F, Fut> EventHandler<P> for F 
     where
         P: Event,
-        Fut: Future<Output=Result<(), Failure>> + Send + Sync + Unpin + 'static,
+        Fut: Future<Output=Result<(), Failure>> + Send + Sync + 'static,
         F: Fn(EventRecord<P>) -> Fut,
         F: Send + Sync,
         {

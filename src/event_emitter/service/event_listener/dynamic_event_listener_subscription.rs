@@ -10,16 +10,31 @@ use crate::event_emitter::model::event_category::EventCategory;
 use crate::event_emitter::model::raw_event_handler_id::RawEventHandlerId;
 use crate::event_emitter::model::event::Event;
 use std::collections::HashMap;
+use std::marker::PhantomData;
 
-#[derive(new)]
-pub struct DynamicEventListenerSubscription<'a> {
+pub struct DynamicEventListenerSubscription<'a, E> {
     event_handler: &'a EventListener,
     event_category: EventCategory,
     event_handler_id: RawEventHandlerId,
+    _type: PhantomData<E>,
 }
 
-impl DynamicEventListenerSubscription<'_> {
-    pub async fn consume<T>(&self) -> Result<EventConsumer<T>, Failure> {
+impl <'a, E>DynamicEventListenerSubscription<'a, E> 
+    where E: Event 
+{
+    pub fn new(
+        event_handler: &'a EventListener,
+        event_category: EventCategory,
+        event_handler_id: RawEventHandlerId,
+    ) -> DynamicEventListenerSubscription<'a, E> {
+        return DynamicEventListenerSubscription {
+            event_handler,
+            event_category,
+            event_handler_id,
+            _type: PhantomData{},
+        }
+    }
+    pub async fn consume(&self) -> Result<EventConsumer<E>, Failure> {
         let mut handlers = self
             .event_handler
             .dynamic_event_handlers
@@ -35,15 +50,14 @@ impl DynamicEventListenerSubscription<'_> {
                 return crate::fail!("Already subscribed to listener with id `{:?}`", self.event_handler_id);
             }
         }
-        let (consumer_sender, consumer_listener) = EventConsumerSender::new::<T>();
+        let (consumer_sender, consumer_listener) = EventConsumerSender::new::<E>();
         let _ = handlers.insert(self.event_handler_id.clone(), DynamicEventListener::EventConsumer(consumer_sender));
         return Ok(consumer_listener);
     }
 
-    pub async fn within_sender_context<L, E>(&self, handler: L) -> Result<EventExecutorHandle, Failure> 
+    pub async fn within_sender_context<L>(&self, handler: L) -> Result<EventExecutorHandle, Failure> 
         where 
             L: EventHandler<E> + Send + Sync + 'static,
-            E: Event,
     {
         let mut handlers = self
             .event_handler
@@ -67,10 +81,9 @@ impl DynamicEventListenerSubscription<'_> {
         return Ok(event_executor_handle);
     }
 
-    pub async fn within_receiver_context<L, E>(&self, handler: L) -> Result<EventProcessing, Failure> 
+    pub async fn within_receiver_context<L>(&self, handler: L) -> Result<EventProcessing, Failure> 
         where 
             L: EventHandler<E> + Send + Sync + 'static,
-            E: Event,
     {
         let mut handlers = self
             .event_handler

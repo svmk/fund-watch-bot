@@ -7,6 +7,7 @@ use crate::event_emitter::service::event_emitter::EventEmitter;
 use crate::event_emitter::service::event_listener::EventListener;
 
 pub const EVENT_EMITTER: ServiceId<EventEmitter> = ServiceIdResolver::SERVICE_ID;
+pub const EVENT_LISTENER: ServiceId<EventListener> = ServiceIdResolver::SERVICE_ID;
 pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error> {
     builder.register(EventListener::SERVICE_ID, async move |resolver| {
         let service = EventListener::new();

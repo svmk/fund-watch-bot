@@ -34,7 +34,7 @@ impl EventListener {
         }
     }
 
-    pub fn listen<P>(&self, handler_id: EventHandlerId<P>) -> DynamicEventListenerSubscription<'_>
+    pub fn listen<P>(&self, handler_id: EventHandlerId<P>) -> DynamicEventListenerSubscription<'_, P>
         where P: Event 
     {
         return DynamicEventListenerSubscription::new(

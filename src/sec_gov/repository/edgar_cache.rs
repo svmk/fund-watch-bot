@@ -35,6 +35,7 @@ impl EdgarCache {
     }
 
     pub async fn replace(&self, url: &RelativeUrl, file: &dyn AbsFile) -> Result<(), Failure> {
+        self.event_emitter.emit_event(EdgarCacheAccessEvent::new(url.clone())).await?;
         let path = Self::get_relative_path(url);
         self.repository.replace(path, file).await?;
         return Ok(());
