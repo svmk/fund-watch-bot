@@ -1,6 +1,7 @@
 use crate::fetching::model::url::Url;
-use crate::fetching::service::http_client::{HttpClient, Request};
+use crate::fetching::service::http_client::HttpClient;
 use crate::fetching::model::mime_type::MIME_APPLICATION_JSON;
+use crate::fetching::model::request::Request;
 use crate::prelude::*;
 use crate::yahoo_finance::model::common_api::api_request::ApiRequest;
 use crate::yahoo_finance::model::common_api::response::Response;

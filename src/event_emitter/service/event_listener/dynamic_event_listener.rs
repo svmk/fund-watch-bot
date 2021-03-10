@@ -25,7 +25,7 @@ impl DynamicEventListener {
         }
     }
 
-    pub async fn exeucte(&self, event: PackedEvent) -> Result<(), Failure> {
+    pub async fn handle_event(&self, event: PackedEvent) -> Result<(), Failure> {
         match self {
             DynamicEventListener::EventConsumer(service) => {
                 return service.send(event);

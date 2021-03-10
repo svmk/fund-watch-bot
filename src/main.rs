@@ -1,4 +1,5 @@
 #![feature(const_fn)]
+#![feature(hash_drain_filter)]
 #![feature(async_closure)]
 #![feature(drain_filter)]
 

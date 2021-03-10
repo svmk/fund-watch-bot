@@ -1,5 +1,6 @@
-use crate::fetching::service::http_client::{HttpClient, FileDownloadRequest};
+use crate::fetching::service::http_client::HttpClient;
 use crate::fetching::model::url::Url;
+use crate::fetching::model::file_download_request::FileDownloadRequest;
 use crate::sec_gov::model::year_quartal::YearQuartal;
 use crate::sec_gov::model::year::Year;
 use crate::sec_gov::model::relative_url::RelativeUrl;
@@ -42,7 +43,7 @@ impl Default for EdgarApiConfig {
     }
 }
 
-#[derive(new, Debug)]
+#[derive(new)]
 pub struct EdgarApi {
     config: EdgarApiConfig,
     http_client: Service<HttpClient>,
@@ -61,7 +62,6 @@ impl EdgarApi {
             .config
             .base_url
             .join(relative_url.as_str())?;
-        println!("url = `{}`", url);
         if Self::is_year_quartal_cacheable(year_quartal) {
             if let Some(cached_file) = self.edgar_cache.find(&relative_url).await? {
                 let company_index = read_edgar_company_index(cached_file).await?;

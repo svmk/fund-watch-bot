@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use crate::fetching::model::url::Url;
 use crate::fetching::model::mime_type::MimeType;
-use crate::fetching::service::http_client::request_method::RequestMethod;
+use crate::fetching::model::request_method::RequestMethod;
 use reqwest::header::HeaderMap;
 use reqwest::header::HeaderValue;
 use std::time::Duration;

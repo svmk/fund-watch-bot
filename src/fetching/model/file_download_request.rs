@@ -1,4 +1,4 @@
-use crate::fetching::service::http_client::request::Request;
+use crate::fetching::model::request::Request;
 use crate::fetching::model::url::Url;
 use crate::fetching::model::mime_type::MimeType;
 use std::time::Duration;

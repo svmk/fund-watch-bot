@@ -3,17 +3,17 @@ use crate::fetching::model::content_type::ContentType;
 use crate::fetching::model::downloaded_file::DownloadedFile;
 use crate::fetching::model::url::Url;
 use crate::fetching::error::fetch_error::FetchError;
+use crate::event_emitter::service::event_emitter::EventEmitter;
+use crate::fetching::model::request::Request;
+use crate::fetching::model::file_download_request::FileDownloadRequest;
+use crate::fetching::model::request_method::RequestMethod;
+use crate::fetching::events::send_request_event::SendRequestEvent;
+use typed_di::service::service::Service;
 use futures::stream::StreamExt;
 use async_std::fs::File;
 use futures::AsyncWriteExt;
 use async_std::task::sleep;
 use std::str::FromStr;
-mod request;
-pub use self::request::Request;
-mod file_download_request;
-pub use self::file_download_request::FileDownloadRequest;
-mod request_method;
-pub use self::request_method::RequestMethod;
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct HttpClientConfig {
@@ -35,14 +35,17 @@ impl HttpClientConfig {
     }
 }
 
-#[derive(Debug)]
 pub struct HttpClient {
     client: reqwest::Client,
     config: HttpClientConfig,
+    event_emitter: Service<EventEmitter>,
 }
 
 impl HttpClient {
-    pub fn new(config: HttpClientConfig) -> Result<HttpClient, Failure> {
+    pub fn new(
+        config: HttpClientConfig,
+        event_emitter: Service<EventEmitter>,
+    ) -> Result<HttpClient, Failure> {
         let mut builder = reqwest::ClientBuilder::new();
         if !config.user_agent.is_empty() {
             builder = builder.user_agent(config.user_agent.clone());
@@ -54,6 +57,7 @@ impl HttpClient {
         let service = HttpClient {
             client: builder.build()?,
             config,
+            event_emitter,
         };
         return Ok(service);
     }
@@ -88,6 +92,11 @@ impl HttpClient {
     }
 
     async fn internal_send(&self, mut request: Request) -> Result<reqwest::Response, FetchError> {
+        self
+            .event_emitter
+            .emit_event(SendRequestEvent::new(request.clone()))
+            .await
+            .map_err(FetchError::custom)?;
         let request_method = match request.get_method() {
             &RequestMethod::Get => {
                 reqwest::Method::GET

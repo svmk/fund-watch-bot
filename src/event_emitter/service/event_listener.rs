@@ -68,6 +68,36 @@ impl EventListener {
                     event_handler.handle_event(event.clone()).await?;
                 }
         }
+
+        let dynamic_event_handlers = self
+            .dynamic_event_handlers
+            .read()
+            .await;
+        let mut need_cleanup = false;
+        if let Some(event_handlers) = dynamic_event_handlers.get(event.get_event_category()) {
+                for event_handler in event_handlers.values() {
+                    if event_handler.is_closed() {
+                        need_cleanup = true;
+                    } else {
+                        event_handler.handle_event(event.clone()).await?;
+                    }
+                }
+        }
+        if need_cleanup {
+            self.cleanup().await;
+        }
         return Ok(());
+    }
+
+    async fn cleanup(&self) {
+        let mut event_handlers = self
+            .dynamic_event_handlers
+            .write().await;
+        for category_event_handlers in event_handlers.values_mut() {
+            let iterator = category_event_handlers.drain_filter(|_, event_listener| {
+                return event_listener.is_closed();
+            });
+            for _ in iterator {}
+        }
     }
 }

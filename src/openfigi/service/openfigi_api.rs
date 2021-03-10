@@ -1,6 +1,7 @@
 use crate::prelude::*;
 use crate::fetching::model::url::Url;
-use crate::fetching::service::http_client::{HttpClient, Request};
+use crate::fetching::model::request::Request;
+use crate::fetching::service::http_client::HttpClient;
 use crate::fetching::error::fetch_error::FetchError;
 use crate::market::common::model::cusip::Cusip;
 use crate::market::common::model::ticker::Ticker;

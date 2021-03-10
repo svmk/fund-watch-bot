@@ -31,6 +31,7 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
     builder.register(EDGAR_CACHE, async move |resolver| {
         let service = EdgarCache::new(
             resolver.get_service(EDGAR_FILE_STORAGE).await?,
+            resolver.get_service(di::event_emitter_di::EVENT_EMITTER).await?,
         );
         return Ok(service);
     })?;
