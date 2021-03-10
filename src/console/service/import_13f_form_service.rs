@@ -16,13 +16,14 @@ pub struct Import13Form {
 
 impl Import13Form {
     pub async fn run(&self) -> Result<(), Failure> {
-        let _ = self
+        let _event1 = self
             .event_listener
             .listen(WATCH_EDGAR_CACHE_ACCESS)
             .within_sender_context(async move |event: EventRecord<EdgarCacheAccessEvent>| {
                 println!("Processing `{}`", event.get_payload().get_url());
                 return Ok(());
-            });
+            }).await?;
+        println!("Started!");
         let start_at = YearQuartal::from_datetime(DateTime::ymd_start_day(1993, 1, 1));
         let end_at = YearQuartal::now();
         self.daily_fund_report_importing.import_period(start_at, end_at).await?;
