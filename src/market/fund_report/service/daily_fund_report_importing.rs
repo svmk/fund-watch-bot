@@ -1,5 +1,6 @@
 use crate::app::model::year_quartal::YearQuartal;
 use crate::app::model::year_quartal_iterator::YearQuartalIterator;
+use crate::app::model::date::Date;
 use crate::market::common::model::share::Share;
 use crate::market::fund_report::model::daily_fund_report::DailyFundReport;
 use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
@@ -39,11 +40,34 @@ pub struct DailyFundReportImporting {
 }
 
 impl DailyFundReportImporting {
-    pub async fn import_period(&self, begin: YearQuartal, end: YearQuartal) -> Result<(), Failure> {
-        let iterator = YearQuartalIterator::new(begin, end)?;
+    pub async fn import_period(&self, started_at: Date, ended_at: Option<Date>) -> Result<(), Failure> {
+        let start_quartal = YearQuartal::from_date(started_at.clone());
+        let end_quartal = match ended_at {
+            Some(ref ended_at) => {
+                YearQuartal::from_date(ended_at.clone())
+            },
+            None => {
+                YearQuartal::now()
+            },
+        };
+        let iterator = YearQuartalIterator::new(start_quartal, end_quartal)?;
         for year_quartal in iterator {
             let fund_report_refs = self.import_reports(&year_quartal).await?;
-            for fund_report_ref in fund_report_refs.iter() {
+            let fund_report_refs_iterator = fund_report_refs
+                .iter()
+                .filter(|fund_report_ref| {
+                    let datetime = fund_report_ref.get_company_report_ref().get_date();
+                    if datetime < &started_at {
+                        return false;
+                    }
+                    if let Some(ended_at) = ended_at.as_ref() {
+                        if &datetime > &ended_at {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
+            for fund_report_ref in fund_report_refs_iterator {
                 let _ = self.fetch_daily_fund_report(fund_report_ref).await?;
             }
         }

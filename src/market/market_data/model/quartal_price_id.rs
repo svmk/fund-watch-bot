@@ -11,7 +11,7 @@ pub struct QuartalPriceId {
 
 impl QuartalPriceId {
     pub fn from_ticker_and_date(ticker: Ticker, datetime: DateTime) -> QuartalPriceId {
-        let period = YearQuartal::from_datetime(datetime);
+        let period = YearQuartal::from_date(datetime.to_date());
         return QuartalPriceId {
             ticker,
             period,

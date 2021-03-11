@@ -1,5 +1,6 @@
 use crate::prelude::*;
 use crate::app::model::year::Year;
+use crate::app::model::month::Month;
 use crate::app::model::datetime::DateTime;
 use crate::prelude::*;
 use chrono::Date as ChronoDate;
@@ -13,6 +14,12 @@ use std::str::FromStr;
 pub struct Date(ChronoDate<Utc>);
 
 impl Date {
+    pub fn from_ymd(year: i32, month: u32, day: u32) -> Date {
+        let date = NaiveDate::from_ymd(year, month, day);
+        let date = ChronoDate::from_utc(date, Utc{});
+        return Date(date);
+    }
+
     pub fn from_chrono_date(date: ChronoDate<Utc>) -> Date {
         return Date(date);
     }
@@ -23,6 +30,10 @@ impl Date {
 
     pub fn get_year(&self) -> Year {
         return Year::from_i32(self.0.year()).unwrap();
+    }
+
+    pub fn get_month(&self) -> Month {
+        return Month::from_u32(self.0.month()).unwrap();
     }
 
     pub fn parse_mdy(text: &str) -> Result<Date, Failure> {

@@ -1,3 +1,4 @@
+use crate::prelude::*;
 use chrono::{DateTime as ChronoDateTime, TimeZone};
 use chrono::offset::Utc;
 use chrono::naive::NaiveDateTime;
@@ -8,6 +9,7 @@ use crate::app::model::date::Date;
 use chrono::Datelike;
 use serde::{Serialize, Deserialize, Serializer, Deserializer};
 use chrono::Duration;
+use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, derive_more::Display)]
 pub struct DateTime(ChronoDateTime<Utc>);
@@ -78,4 +80,14 @@ impl <'de>Deserialize<'de> for DateTime {
             let value = DateTime(value);
             return Ok(value);
         }
+}
+
+impl FromStr for DateTime {
+    type Err = Failure;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let value = ChronoDateTime::parse_from_rfc3339(s)?;
+        let value = value.with_timezone(&Utc{});
+        let value = DateTime(value);
+        return Ok(value);       
+    }
 }

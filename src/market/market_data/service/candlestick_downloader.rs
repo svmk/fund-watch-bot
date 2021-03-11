@@ -71,8 +71,8 @@ impl CandlestickDownloader {
     }
 
     fn is_ticker_price_cached(&self, request: &CandlestickRequest, ticker_price: &TickerPrice) -> Result<bool, Failure> {
-        let started_at = YearQuartal::from_datetime(request.get_started_at().clone());
-        let ended_at = YearQuartal::from_datetime(request.get_ended_at().clone());
+        let started_at = YearQuartal::from_date(request.get_started_at().to_date());
+        let ended_at = YearQuartal::from_date(request.get_ended_at().to_date());
         let year_quartal_iterator = YearQuartalIterator::new(started_at, ended_at)?;
         for year_quartal in year_quartal_iterator {
             let quartal_price = QuartalPriceId::from_ticker_and_year_quartal(

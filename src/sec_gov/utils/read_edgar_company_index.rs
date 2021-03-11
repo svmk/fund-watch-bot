@@ -11,12 +11,13 @@ use self::index_table_schema::IndexTableSchema;
 pub async fn read_edgar_company_index(file: EdgarFile) -> Result<CompanyReportIndex, Failure> {
     let file = file.into_file();
     let file = BufReader::new(file);
-    let mut lines = file.lines();
+    let mut lines = file.split(b'\n');
     let mut previous_line = String::new();
     let mut table_schema: Option<IndexTableSchema> = None;
     let mut result = CompanyReportIndex::new();
     while let Some(line) = lines.next().await {
         let line = line?;
+        let line = String::from_utf8_lossy(&line).to_string();
         if let Some(ref table_schema) = table_schema {
             let record = table_schema.create_record(&line)?;
             let report_ref = record.create_company_report_ref()?;

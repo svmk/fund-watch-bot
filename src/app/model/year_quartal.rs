@@ -1,6 +1,6 @@
 use crate::app::model::year::Year;
 use crate::app::model::quartal::Quartal;
-use crate::app::model::datetime::DateTime;
+use crate::app::model::date::Date;
 use crate::prelude::*;
 use std::fmt;
 use std::str::FromStr;
@@ -13,9 +13,9 @@ pub struct YearQuartal {
 }
 
 impl YearQuartal {
-    pub fn from_datetime(datetime: DateTime) -> YearQuartal {
-        let year = datetime.get_year();
-        let month = datetime.get_month();
+    pub fn from_date(date: Date) -> YearQuartal {
+        let year = date.get_year();
+        let month = date.get_month();
         let quartal = Quartal::from_month(month);
         return YearQuartal {
             year,
@@ -32,8 +32,8 @@ impl YearQuartal {
     }
 
     pub fn now() -> YearQuartal {
-        let now = DateTime::now();
-        let now = YearQuartal::from_datetime(now);
+        let now = Date::today();
+        let now = YearQuartal::from_date(now);
         return now;
     }
 
