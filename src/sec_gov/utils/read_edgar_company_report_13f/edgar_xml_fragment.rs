@@ -43,4 +43,15 @@ impl <'a>EdgarXmlFragment<'a> {
             .collect();
         return Ok(nodes);
     }
+
+    pub fn exists(&self, selector: &str) -> Result<bool, Failure> {
+        let nodes = evaluate_xpath(&self.document, selector)?;
+        let nodes = match nodes {
+            XPathValue::Nodeset(nodes) => nodes,
+            _ => {
+                return Err(Failure::msg(format!("Expected nodeset for selecor `{}`", selector)));
+            }
+        };
+        return Ok(nodes.size() >= 1);
+    }
 }

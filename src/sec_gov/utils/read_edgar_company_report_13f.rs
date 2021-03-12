@@ -16,23 +16,18 @@ mod document_reports;
 mod edgar_xml_fragment;
 mod edgar_xml_document;
 mod edgar_document;
+mod edgar_fragment;
 mod reader;
-use self::edgar_document::EdgarDocument;
+use self::edgar_xml_document::EdgarXmlDocument;
 use self::reader::Reader;
 use self::document_reports::DocumentReports;
 
 
-fn parse_document_13f(document: &EdgarDocument) -> Result<Option<Form13F>, Failure> {
-    const DOCUMENT_TYPE_13F_HR: &'static str = "13F";
-    let document_type = document.get_document_type()?;
-    if !document_type.starts_with(DOCUMENT_TYPE_13F_HR) {
-        return Ok(None);
-    }
-    if !document.is_xml_document() {
-        return Ok(None);
-    }
-    let document = document.as_xml_document()?;
+fn parse_document_13f(document: &EdgarXmlDocument) -> Result<Option<Form13F>, Failure> {
     let document = document.root();
+    if !document.exists("//edgarSubmission")? {
+        return Ok(None);
+    }
     let cik = document.read_xpath_string("//edgarSubmission//headerData//filerInfo//filer//cik")?;
     let cik = Cik::from_str(&cik)?;
     let company_name = document.read_xpath_string("//edgarSubmission//formData//coverPage//filingManager//name")?;
@@ -50,17 +45,11 @@ fn parse_document_13f(document: &EdgarDocument) -> Result<Option<Form13F>, Failu
     return Ok(Some(report));
 }
 
-fn parse_document_information_table(document: &EdgarDocument) -> Result<Option<Form13FComponentTable>, Failure> {
-    const DOCUMENT_TYPE_INFORMATION_TABLE: &'static str = "INFORMATION TABLE";
-    let document_type = document.get_document_type()?;
-    if document_type != DOCUMENT_TYPE_INFORMATION_TABLE {
-        return Ok(None);
-    }
-    if !document.is_xml_document() {
-        return Ok(None);
-    }
-    let document = document.as_xml_document()?;
+fn parse_document_information_table(document: &EdgarXmlDocument) -> Result<Option<Form13FComponentTable>, Failure> {
     let document = document.root();
+    if !document.exists("//informationTable")? {
+        return Ok(None);
+    }
     let info_tables = document.list("//ns1:informationTable//ns1:infoTable")?;
     let mut result = Form13FComponentTable::new();
     for info_table in info_tables.iter() {
@@ -92,9 +81,8 @@ pub async fn read_edgar_company_report_13f(file: EdgarFile) -> Result<Option<Com
     let file = file.into_file();
     
     let mut reader = Reader::new(path, file);
-    // reader.skip_header().await?;
     let mut document_reports = DocumentReports::new();
-    while let Some(document) = reader.read_document().await.unwrap_or(None) {
+    while let Some(document) = reader.read_xml().await? {
         if let Some(report) = parse_document_13f(&document)? {
             document_reports.set_form_13f(report)?;
         }

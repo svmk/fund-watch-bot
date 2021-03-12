@@ -1,6 +1,6 @@
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum Result<T> {
+pub enum ResponseResult<T> {
     Ok {
         #[serde(rename="result")]
         result: T,

@@ -10,21 +10,21 @@ use itertools::izip;
 
 #[derive(Debug, serde_query::Deserialize)]
 pub struct ChartResponse {
-    #[query(".splits")]
+    #[query(".events.splits")]
     splits: HashMap<String, ChartSplit>,
-    #[query(".dividends")]
+    #[query(".events.dividends")]
     dividends: HashMap<String, ChartDividend>,
-    #[query(".timestamps")]
+    #[query(".timestamp")]
     timestamps: Vec<TimeStamp>,
-    #[query(".open")]
+    #[query(".indicators.[0].quote.open")]
     open: Vec<ActualPrice>,
-    #[query(".close")]
+    #[query(".indicators.[0].quote.close")]
     close: Vec<ActualPrice>,
-    #[query(".high")]
+    #[query(".indicators.[0].quote.high")]
     high: Vec<ActualPrice>,
-    #[query(".low")]
+    #[query(".indicators.[0].quote.low")]
     low: Vec<ActualPrice>,
-    #[query(".volume")]
+    #[query(".indicators.[0].quote.volume")]
     volume: Vec<ActualVolume>,
 }
 
