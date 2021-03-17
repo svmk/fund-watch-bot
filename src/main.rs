@@ -1,3 +1,5 @@
+#![feature(arbitrary_self_types)]
+#![feature(raw)]
 #![feature(const_fn)]
 #![feature(hash_drain_filter)]
 #![feature(async_closure)]
@@ -32,7 +34,7 @@ mod event_emitter;
 mod system;
 mod console;
 use crate::console::console_application::ConsoleApplication;
-use crate::system::di::application_di::create_di_contaner;
+use crate::system::di::application_di::{create_di_contaner, configure_services};
 use crate::system::console_execution::execute_console;
 use structopt::StructOpt;
 
@@ -44,6 +46,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map_err(|error| {
             return crate::error!("Unable to create di container: {}", error);
         })?;
+    configure_services(&container).await?;
     execute_console(container, &console_argument).await?;
     return Ok(());
 }

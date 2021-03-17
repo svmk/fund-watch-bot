@@ -24,3 +24,8 @@ pub fn create_di_contaner(path: &Path) -> Result<Container, Failure> {
     let container = builder.build();
     return Ok(container);
 }
+
+pub async fn configure_services(container: &Container) -> Result<(), Failure> {
+    di::market_fund_report_di::configure_services(container).await?;
+    return Ok(());
+}

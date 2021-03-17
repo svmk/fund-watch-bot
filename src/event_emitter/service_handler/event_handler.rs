@@ -17,7 +17,7 @@ pub trait EventHandler<P>: Send + Sync where P: Event {
 impl <P, F, Fut> EventHandler<P> for F 
     where
         P: Event,
-        Fut: Future<Output=Result<(), Failure>> + Send + Sync + 'static,
+        Fut: Future<Output=Result<(), Failure>> + Send + 'static,
         F: Fn(EventRecord<P>) -> Fut,
         F: Send + Sync,
         {
@@ -25,3 +25,13 @@ impl <P, F, Fut> EventHandler<P> for F
                 return (self)(event).await;
             }
         }
+
+// #[async_trait]
+// impl <P> EventHandler<P> for Service<&'static dyn EventHandler<P>>
+//     where 
+//         P: Event,
+//         {
+//             async fn handle_event(&self, event: EventRecord<P>) -> Result<(), Failure> {
+//                 return self.deref().handle_event(event).await;
+//             }
+//         }

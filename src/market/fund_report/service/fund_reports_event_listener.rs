@@ -14,7 +14,7 @@ pub struct FundReportsEventListener {
 }
 
 impl FundReportsEventListener {
-    async fn handle_new_daily_fund_report_event(&self, event: EventRecord<NewDailyFundReportEvent>) -> Result<(), Failure> {
+    pub async fn handle_new_daily_fund_report_event(self: Service<Self>, event: EventRecord<NewDailyFundReportEvent>) -> Result<(), Failure> {
         let daily_fund_report_id = event
             .get_payload()
             .get_daily_fund_report_id()
@@ -34,12 +34,5 @@ impl FundReportsEventListener {
             let _ = self.fund_changes_generator.generate_fund_changes(fund_change_id).await?;
         }
         return Ok(());
-    }
-}
-
-#[async_trait]
-impl EventHandler<NewDailyFundReportEvent> for FundReportsEventListener {
-    async fn handle_event(&self, event: EventRecord<NewDailyFundReportEvent>) -> Result<(), Failure> {
-        return self.handle_new_daily_fund_report_event(event).await;
     }
 }

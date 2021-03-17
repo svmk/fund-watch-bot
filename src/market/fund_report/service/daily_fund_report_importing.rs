@@ -9,6 +9,7 @@ use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund_component::FundComponent;
 use crate::market::fund_report::model::weight::Weight;
 use crate::market::fund_report::events::new_daily_fund_report_event::NewDailyFundReportEvent;
+use crate::market::fund_report::service::fund_reports_event_listener::FundReportsEventListener;
 use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
 use crate::event_emitter::service::event_emitter::EventEmitter;
 use crate::openfigi::service::openfigi_api::OpenFigiApi;

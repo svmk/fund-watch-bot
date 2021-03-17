@@ -37,7 +37,6 @@ impl HttpClientConfig {
 
 pub struct HttpClient {
     client: reqwest::Client,
-    config: HttpClientConfig,
     event_emitter: Service<EventEmitter>,
 }
 
@@ -56,14 +55,9 @@ impl HttpClient {
         }
         let service = HttpClient {
             client: builder.build()?,
-            config,
             event_emitter,
         };
         return Ok(service);
-    }
-
-    pub fn get_config(&self) -> &HttpClientConfig {
-        return &self.config;
     }
 
     pub async fn send(&self, request: Request) -> Result<reqwest::Response, FetchError> {

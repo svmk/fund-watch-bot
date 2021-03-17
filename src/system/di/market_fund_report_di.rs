@@ -1,8 +1,9 @@
-
+use crate::prelude::*;
 use typed_di::service::service_id_resolver::ServiceIdResolver;
 use typed_di::service::service_id::ServiceId;
 use typed_di::argument::argument_id_resolver::ArgumentIdResolver;
 use typed_di::async_di::container_declaration::ContainerDeclaration;
+use typed_di::async_di::container::Container;
 use typed_di::error::Error;
 use crate::system::di;
 use crate::system::app_config::AppConfig;
@@ -19,6 +20,7 @@ use crate::market::fund_report::model::fund_changes_id::FundChangesId;
 use crate::market::fund_report::path_resolver::fund_reports_path_resolver::fund_reports_path_resolver;
 use crate::market::fund_report::path_resolver::fund_path_resolver::fund_path_resolver;
 use crate::market::fund_report::path_resolver::daily_fund_report_path_resolver::daily_fund_report_path_resolver;
+use crate::market::fund_report::path_resolver::fund_changes_path_resolver::fund_changes_path_resolver;
 use crate::serializer::service::json_serializer::JsonSerializer;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::repository::repository::file_repository::FileRepository;
@@ -93,5 +95,25 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         );
         return Ok(service);
     })?;
+    builder.register(FUND_CHANGES_REPOSITORY, async move |resolver| {
+        let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
+        let config = config.get_repository();
+        let path = config.get_path();
+        let service = FileRepository::new(
+            fund_changes_path_resolver(path),
+            JsonSerializer::new(),
+            resolver.get_service(di::repository_di::QUERY_COMPARATOR).await?,
+        );
+        return Ok(service);
+    })?;
+    return Ok(());
+}
+
+pub async fn configure_services(container: &Container) -> Result<(), Failure> {
+    let event_processing = container.get_service(di::event_emitter_di::EVENT_LISTENER).await?;
+    let event_listener = container.get_service(FUND_REPORTS_EVENT_LISTENER).await?;
+    event_processing.register_static_listener_fn(move |event| {
+        return event_listener.clone().handle_new_daily_fund_report_event(event);
+    });
     return Ok(());
 }

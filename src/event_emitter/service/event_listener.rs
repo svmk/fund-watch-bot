@@ -5,6 +5,7 @@ use crate::event_emitter::model::raw_event_handler_id::RawEventHandlerId;
 use crate::event_emitter::service_handler::event_handler::EventHandler;
 use crate::event_emitter::model::event_category::EventCategory;
 use crate::event_emitter::model::packed_event::PackedEvent;
+use crate::event_emitter::model::event_record::EventRecord;
 use crate::event_emitter::service_handler::packed_event_handler::PackedEventHandler;
 use std::collections::HashMap;
 mod event_unpacker;
@@ -20,16 +21,17 @@ pub use self::event_executor::EventExecutor;
 mod dynamic_event_listener_subscription;
 pub use self::dynamic_event_listener_subscription::DynamicEventListenerSubscription;
 use tokio::sync::RwLock;
+use std::future::Future;
 
 pub struct EventListener {
-    static_event_handlers: HashMap<EventCategory, Vec<Box<dyn PackedEventHandler>>>,
+    static_event_handlers: RwLock<HashMap<EventCategory, Vec<Box<dyn PackedEventHandler>>>>,
     dynamic_event_handlers: RwLock<HashMap<EventCategory, HashMap<RawEventHandlerId, DynamicEventListener>>>,
 }
 
 impl EventListener {
     pub fn new() -> EventListener {
         return EventListener {
-            static_event_handlers: HashMap::new(),
+            static_event_handlers: RwLock::new(HashMap::new()),
             dynamic_event_handlers: RwLock::new(HashMap::new()),
         }
     }
@@ -44,25 +46,39 @@ impl EventListener {
         );
     }
     
-    pub fn register_static_listener<P, L>(&mut self, handler: L) 
+    pub async fn register_static_listener<P, L>(&self, handler: L) 
         where 
             P: Event,
             L: EventHandler<P>,
-            L: Send + Sync + 'static,
+            L: Send + 'static,
         {
             let category = L::event_category();
             let handler = EventUnpacker::new(handler);
-            if !self.static_event_handlers.contains_key(&category) {
-                let _ = self.static_event_handlers.insert(category.clone(), Vec::new());
+            let mut static_event_handlers = self
+                .static_event_handlers
+                .write().await;
+            if !static_event_handlers.contains_key(&category) {
+                let _ = static_event_handlers.insert(category.clone(), Vec::new());
             }
-            let categories = self.static_event_handlers.get_mut(&category).unwrap();
+            let categories = static_event_handlers.get_mut(&category).unwrap();
             categories.push(Box::new(handler));
+    }
+
+    pub fn register_static_listener_fn<P, F, Fut>(&self, function: F)
+        where
+            F: Fn(EventRecord<P>) -> Fut + Send + Sync + 'static,
+            Fut: Future<Output=Result<(), Failure>> + Send + 'static,
+            P: Event,
+    {
+        self.register_static_listener(function);
     }
 
     pub async fn emit_event(&self, event: PackedEvent) -> Result<(), Failure> 
     {
-        if let Some(event_handlers) = self
+        let static_event_handlers = self
             .static_event_handlers
+            .read().await;
+        if let Some(event_handlers) = static_event_handlers
             .get(event.get_event_category()) {
                 for event_handler in event_handlers.iter() {
                     event_handler.handle_event(event.clone()).await?;

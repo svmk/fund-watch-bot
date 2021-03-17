@@ -18,9 +18,8 @@ pub struct EventNotifier {
     fund_changes_repository: Service<RepositoryInstance<FundChangesId, FundChanges>>,
 }
 
-#[async_trait]
-impl EventHandler<NewFundChangeEvent> for EventNotifier {
-    async fn handle_event(&self, event: EventRecord<NewFundChangeEvent>) -> Result<(), Failure> {
+impl EventNotifier {
+    pub async fn handle_new_fund_change_event(&self, event: EventRecord<NewFundChangeEvent>)  -> Result<(), Failure> {
         let fund_id = event
             .get_payload()
             .get_fund_change_id()
