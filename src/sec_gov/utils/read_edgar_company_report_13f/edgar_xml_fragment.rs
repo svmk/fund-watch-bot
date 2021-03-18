@@ -1,57 +1,84 @@
 use crate::prelude::*;
 use sxd_document::dom::Document;
-use sxd_xpath::evaluate_xpath;
 use sxd_xpath::Value as XPathValue;
-#[derive(new)]
+use sxd_xpath::Context as XPathContext;
+use sxd_xpath::Factory as XPathFactory;
+use std::collections::HashMap;
+
+#[derive(Debug)]
 pub struct EdgarXmlFragment<'a> {
     document: Document<'a>,
+    namespaces: HashMap<String, String>,
 }
 
 impl <'a>EdgarXmlFragment<'a> {
+    pub fn new(document: Document<'a>) -> EdgarXmlFragment<'a> {
+        return EdgarXmlFragment {
+            document,
+            namespaces: HashMap::new(),
+        }
+    }
+
+    fn new_like(&self, document: Document<'a>) -> EdgarXmlFragment<'a> {
+        return EdgarXmlFragment {
+            document,
+            namespaces: self.namespaces.clone(),
+        }
+    }
+
+    pub fn with_namespace(mut self, prefix: String, ns_uri: String) -> EdgarXmlFragment<'a> {
+        let _ = self.namespaces.insert(prefix, ns_uri);
+        return self;
+    }
+
     pub fn read_xpath_string(&self, selector: &str) -> Result<String, Failure> {
-        let value = evaluate_xpath(&self.document, selector)?;
-        let value = match value {
-            XPathValue::String(value) => {
-                value
-            },
-            XPathValue::Boolean(..) => {
-                return Err(Failure::msg(format!("Invalid type boolean for selecor `{}`", selector)));
-            },
-            XPathValue::Number(..) => {
-                return Err(Failure::msg(format!("Invalid type number for selecor `{}`", selector)));
-            },
-            XPathValue::Nodeset(..) => {
-                return Err(Failure::msg(format!("Invalid type nodeset for selecor `{}`", selector)));
-            },
-        };
+        let value = self.evaluate_xpath( selector)?;
+        let value = value.string();
         return Ok(value);
     }
 
     pub fn list(&self, selector: &str) -> Result<Vec<EdgarXmlFragment>, Failure> {
-        let nodes = evaluate_xpath(&self.document, selector)?;
+        let nodes = self.evaluate_xpath( selector)?;
         let nodes = match nodes {
             XPathValue::Nodeset(nodes) => nodes,
             _ => {
-                return Err(Failure::msg(format!("Expected nodeset for selecor `{}`", selector)));
+                return Err(Failure::msg(format!("Expected nodeset for selector `{}`", selector)));
             }
         };
         let nodes: Vec<_> = nodes
             .iter()
             .map(|node| {
-                return EdgarXmlFragment::new(node.document());
+                return self.new_like(node.document());
             })
             .collect();
         return Ok(nodes);
     }
 
     pub fn exists(&self, selector: &str) -> Result<bool, Failure> {
-        let nodes = evaluate_xpath(&self.document, selector)?;
+        let nodes = self.evaluate_xpath( selector)?;
         let nodes = match nodes {
             XPathValue::Nodeset(nodes) => nodes,
             _ => {
-                return Err(Failure::msg(format!("Expected nodeset for selecor `{}`", selector)));
+                return Err(Failure::msg(format!("Expected nodeset for selector `{}`", selector)));
             }
         };
         return Ok(nodes.size() >= 1);
+    }
+
+    fn evaluate_xpath(&self, selector: &str) -> Result<XPathValue, Failure> {
+        let mut context = XPathContext::new();
+        for (prefix, ns_uri) in self.namespaces.iter() {
+            context.set_namespace(prefix, ns_uri);
+        }
+        let factory = XPathFactory::new();
+        let xpath = factory.build(selector)?;
+        let xpath = match xpath {
+            Some(xpath) => xpath,
+            None => {
+                return crate::fail!("Unable to compile xpath `{}`", selector);
+            },
+        };
+        let value = xpath.evaluate(&context, self.document.root())?;
+        return Ok(value);
     }
 }

@@ -6,11 +6,12 @@ pub struct Cusip(String);
 
 impl Cusip {
     pub fn from_string(value: String) -> Result<Cusip, Failure> {
-        if value.len() != 6 {
-            return Err(Failure::msg("Cusip lenght is not equal 6"));
+        if value.len() != 9 {
+            return Err(Failure::msg("Cusip length is not equal 9"));
         }
         for c in value.chars() {
-            if !c.is_digit(10) {
+            let is_valid_char = c.is_digit(10) || c.is_uppercase() && c.is_alphabetic();
+            if !is_valid_char {
                 return Err(Failure::msg("Invalid cusip format"));
             }
         }

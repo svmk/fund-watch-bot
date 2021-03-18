@@ -76,11 +76,6 @@ impl EdgarApi {
             request = request.with_retry_delay(retry_delay.clone());
         }
         let file = self.http_client.fetch_file(request).await?;
-        // {
-        //     println!("file = {:?}", file);
-        //     let mut buf = String::new();
-        //     let _ = std::io::stdin().read_line(&mut buf).unwrap();
-        // }
         self.edgar_cache.replace(&relative_url, &file).await?;
         let file = self.edgar_cache.get(&relative_url).await?;
         let company_index = read_edgar_company_index(file).await?;

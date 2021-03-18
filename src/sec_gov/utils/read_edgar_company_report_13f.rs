@@ -22,19 +22,24 @@ use self::edgar_xml_document::EdgarXmlDocument;
 use self::reader::Reader;
 use self::document_reports::DocumentReports;
 
+const EDGAR_NS_PREIFX: &'static str = "edgar";
+const EDGAR_NS_13F_URI: &'static str = "http://www.sec.gov/edgar/thirteenffiler";
+const EDGAR_NS_INFORMATION_TABLE_URI: &'static str = "http://www.sec.gov/edgar/document/thirteenf/informationtable";
+
 
 fn parse_document_13f(document: &EdgarXmlDocument) -> Result<Option<Form13F>, Failure> {
     let document = document.root();
-    if !document.exists("//edgarSubmission")? {
+    let document = document.with_namespace(EDGAR_NS_PREIFX.to_string(), EDGAR_NS_13F_URI.to_string());
+    if !document.exists("//edgar:edgarSubmission")? {
         return Ok(None);
     }
-    let cik = document.read_xpath_string("//edgarSubmission//headerData//filerInfo//filer//cik")?;
+    let cik = document.read_xpath_string("//edgar:edgarSubmission/edgar:headerData/edgar:filerInfo/edgar:filer/edgar:credentials/edgar:cik")?;
     let cik = Cik::from_str(&cik)?;
-    let company_name = document.read_xpath_string("//edgarSubmission//formData//coverPage//filingManager//name")?;
+    let company_name = document.read_xpath_string("//edgar:edgarSubmission/edgar:formData/edgar:coverPage/edgar:filingManager/edgar:name")?;
     let company_name = CompanyName::from_string(company_name)?;
-    let period_of_report = document.read_xpath_string("//edgarSubmission//headerData//filerInfo//periodOfReport")?;
+    let period_of_report = document.read_xpath_string("//edgar:edgarSubmission/edgar:headerData/edgar:filerInfo/edgar:periodOfReport")?;
     let period_of_report = Date::parse_mdy(&period_of_report)?;
-    let report_calendar_or_quarter = document.read_xpath_string("//edgarSubmission//formData//coverPage//reportCalendarOrQuarter")?;
+    let report_calendar_or_quarter = document.read_xpath_string("//edgar:edgarSubmission/edgar:formData/edgar:coverPage/edgar:reportCalendarOrQuarter")?;
     let report_calendar_or_quarter = Date::parse_mdy(&report_calendar_or_quarter)?;
     let report = Form13F::new(
         cik,
@@ -47,21 +52,22 @@ fn parse_document_13f(document: &EdgarXmlDocument) -> Result<Option<Form13F>, Fa
 
 fn parse_document_information_table(document: &EdgarXmlDocument) -> Result<Option<Form13FComponentTable>, Failure> {
     let document = document.root();
-    if !document.exists("//informationTable")? {
+    let document = document.with_namespace(EDGAR_NS_PREIFX.to_string(), EDGAR_NS_INFORMATION_TABLE_URI.to_string());
+    if !document.exists("//edgar:informationTable")? {
         return Ok(None);
     }
-    let info_tables = document.list("//ns1:informationTable//ns1:infoTable")?;
+    let info_tables = document.list("//edgar:informationTable//edgar:infoTable")?;
     let mut result = Form13FComponentTable::new();
     for info_table in info_tables.iter() {
-        let company_name = info_table.read_xpath_string("//ns1:nameOfIssuer")?;
+        let company_name = info_table.read_xpath_string("//edgar:nameOfIssuer")?;
         let company_name = CompanyName::from_string(company_name)?;
-        let cusip = info_table.read_xpath_string("//ns1:cusip")?;
+        let cusip = info_table.read_xpath_string("//edgar:cusip")?;
         let cusip = Cusip::from_string(cusip)?;
-        let investment_discretion = info_table.read_xpath_string("//ns1:investmentDiscretion")?;
+        let investment_discretion = info_table.read_xpath_string("//edgar:investmentDiscretion")?;
         let investment_discretion = InvestmentDiscretion::from_str(&investment_discretion)?;
-        let share = info_table.read_xpath_string("//ns1:shrsOrPrnAmt/ns1:sshPrnamt")?;
+        let share = info_table.read_xpath_string("//edgar:shrsOrPrnAmt/edgar:sshPrnamt")?;
         let share = Share::from_str(&share)?;
-        let share_type = info_table.read_xpath_string("//ns1:shrsOrPrnAmt/ns1:sshPrnamtType")?;
+        let share_type = info_table.read_xpath_string("//edgar:shrsOrPrnAmt/edgar:sshPrnamtType")?;
         if share_type != "SH" {
             return Err(Failure::msg(format!("Unknown share type {}", share_type)));
         }
@@ -80,7 +86,7 @@ pub async fn read_edgar_company_report_13f(file: EdgarFile) -> Result<Option<Com
     let path = file.get_path().clone();
     let file = file.into_file();
     
-    let mut reader = Reader::new(path, file);
+    let mut reader = Reader::new(path.clone(), file);
     let mut document_reports = DocumentReports::new();
     while let Some(document) = reader.read_xml().await? {
         if let Some(report) = parse_document_13f(&document)? {

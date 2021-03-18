@@ -114,6 +114,6 @@ pub async fn configure_services(container: &Container) -> Result<(), Failure> {
     let event_listener = container.get_service(FUND_REPORTS_EVENT_LISTENER).await?;
     event_processing.register_static_listener_fn(move |event| {
         return event_listener.clone().handle_new_daily_fund_report_event(event);
-    });
+    }).await;
     return Ok(());
 }

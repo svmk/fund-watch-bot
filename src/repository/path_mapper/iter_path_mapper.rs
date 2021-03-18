@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use crate::repository::path_mapper::path_mapper::PathMapper;
 use crate::repository::path_mapper::path_mapper_instance::PathMapperInstance;
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 
 pub struct IterPathMapper {
     mappers: Vec<PathMapperInstance>,
@@ -22,10 +22,16 @@ impl IterPathMapper {
 }
 
 impl PathMapper for IterPathMapper {
-    fn map_path(&self, mut path: PathBuf) -> Result<PathBuf, Failure> {
-        for path_mapper in self.mappers.iter() {
-            path = path_mapper.map_path(path)?;
+    fn map_path(&self, path: PathBuf) -> Result<PathBuf, Failure> {
+        let mut result = PathBuf::new();
+        for (mapper_id, path_part) in path.iter().enumerate() {
+            let path_part = Path::new(path_part);
+            let mut path_part = path_part.to_path_buf();
+            if let Some(path_mapper) = self.mappers.get(mapper_id) {
+                path_part = path_mapper.map_path(path_part)?;
+            }
+            result.push(path_part);
         }
-        return Ok(path);
+        return Ok(result);
     }
 }

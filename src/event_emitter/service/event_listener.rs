@@ -64,13 +64,13 @@ impl EventListener {
             categories.push(Box::new(handler));
     }
 
-    pub fn register_static_listener_fn<P, F, Fut>(&self, function: F)
+    pub async fn register_static_listener_fn<P, F, Fut>(&self, function: F)
         where
             F: Fn(EventRecord<P>) -> Fut + Send + Sync + 'static,
             Fut: Future<Output=Result<(), Failure>> + Send + 'static,
             P: Event,
     {
-        self.register_static_listener(function);
+        self.register_static_listener(function).await;
     }
 
     pub async fn emit_event(&self, event: PackedEvent) -> Result<(), Failure> 

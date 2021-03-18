@@ -28,12 +28,12 @@ impl SubdirPathMapper {
         if end_at >= directory.len() {
             end_at = directory.len();
         }
-        let directory = &directory[self.start_at..end_at];
-        if self.fail_when_empty && directory.is_empty() {
-            return crate::fail!("Unable to extract subdir from `{}`");
+        let subdir = &directory[self.start_at..end_at];
+        if self.fail_when_empty && subdir.is_empty() {
+            return crate::fail!("Unable to extract subdir from `{}` with range {}..{}", directory, self.start_at, end_at);
         }
-        let directory = directory.to_string();
-        return Ok(directory);
+        let subdir = subdir.to_string();
+        return Ok(subdir);
     }
 }
 

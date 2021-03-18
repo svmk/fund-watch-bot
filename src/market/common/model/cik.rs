@@ -8,11 +8,15 @@ impl Cik {
         if value.len() == 0 {
             return crate::fail!("Cik cannot be empty");
         }
+        if value.len() > 10 {
+            return crate::fail!("Cik must be 10 chars length or less");
+        }
         for c in value.chars() {
             if !c.is_digit(10) {
                 return crate::fail!("Cik contain invalid chars");
             }
         }
+        let value = format!("{:010}", value);
         return Ok(Cik(value));
     }
 }
