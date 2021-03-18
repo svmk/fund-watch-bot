@@ -2,7 +2,7 @@ use crate::market::common::model::ticker::Ticker;
 use crate::prelude::*;
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FigiRecord {
     #[serde(rename = "ticker")]
     ticker: Option<Ticker>,

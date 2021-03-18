@@ -8,7 +8,7 @@ pub fn daily_price_path_resolver(mut path: PathBuf) -> PathResolver {
     path.push("daily_prices");
     let path_mapper = IterPathMapper::new()
         .push_mapper(SubdirPathMapper::new(0, 2))
-        .push_mapper(SubdirPathMapper::new(2, 2))
-        .push_mapper(FileExtensionPathMapper::json());
+        .push_mapper(SubdirPathMapper::new(2, 2));
+    let path_mapper = FileExtensionPathMapper::json(path_mapper);
     return PathResolver::new(path, path_mapper);
 }

@@ -55,7 +55,7 @@ impl CandlestickDownloader {
                 ticker_price.add_split(split)?;
             }
         }
-        let quartal_candlesticks = chart_response.get_candlesticks();
+        let quartal_candlesticks = chart_response.get_candlesticks()?;
         let quartal_candlesticks = ticker_price.calculate_historical_candlesticks(quartal_candlesticks)?;
         let year_quartal = YearQuartal::now();
         for quartal_candlestick in quartal_candlesticks {
@@ -119,7 +119,7 @@ impl CandlestickDownloader {
         );
         let chart_response = self.yahoo_api.send(chart_request).await?;
         let chart_response = chart_response.get_charts()?;
-        let daily_candlesticks = chart_response.get_candlesticks();
+        let daily_candlesticks = chart_response.get_candlesticks()?;
         let daily_candlesticks = ticker_price.calculate_historical_candlesticks(daily_candlesticks)?;
         let date_now = Date::today();
         for daily_candlestick in daily_candlesticks {

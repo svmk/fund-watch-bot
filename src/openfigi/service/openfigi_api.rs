@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use crate::fetching::model::url::Url;
-use crate::fetching::model::request::Request;
+use crate::fetching::model::request::{Request, CONTENT_TYPE};
 use crate::fetching::service::http_client::HttpClient;
 use crate::fetching::error::fetch_error::FetchError;
 use crate::market::common::model::cusip::Cusip;
@@ -85,7 +85,9 @@ impl OpenFigiApi {
         if let Some(ref auth_token) = self.config.auth_token {
             request = request.with_header(Self::OPENFIGI_AUTH_HEADER, auth_token)?;
         }
+        request = request.with_header(CONTENT_TYPE, MIME_APPLICATION_JSON.as_ref())?;
         let body = FindByIdRequestBody::new_request_cusip(cusip.clone());
+        let body = vec![body];
         let body = self.serializer.to_vec(&body)?;
         request = request.with_mime_type(MIME_APPLICATION_JSON);
         request = request.with_body(body)?;
@@ -107,17 +109,13 @@ impl OpenFigiApi {
                 }
             }
         };
-        let responses: Vec<Response<FigiRecord>> = response.json().await?;
+        let response = response.bytes().await?;
+        let response = response.to_vec();
+        let responses: Vec<Response<Vec<FigiRecord>>> = self.serializer.from_slice(&response)?;
         let mut records = Vec::with_capacity(responses.len());
         for response in responses {
-            match response {
-                Response::Data {data} => {
-                    records.push(data);
-                },
-                Response::Error {error} => {
-                    return Err(Failure::msg(format!("Cusip fetch error: {}", error)));
-                },
-            }
+            let response_records = response.into_result()?;
+            records.extend_from_slice(response_records.as_slice());
         }
         let cache_record = CusipCacheRecord::new(cusip.clone(), records);
         self.cache_repository.store(&cache_record).await?;

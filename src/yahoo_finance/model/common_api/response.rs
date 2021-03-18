@@ -5,18 +5,23 @@ use crate::prelude::*;
 #[derive(Debug, Deserialize)]
 pub struct Response {
     #[serde(rename="chart")]
-    chart: Option<ResponseResult<ChartResponse>>,
+    chart: Option<ResponseResult<Vec<ChartResponse>>>,
 }
 
 impl Response {
     pub fn get_charts(&self) -> Result<&ChartResponse, Failure> {
         let chart = match &self.chart {
-            Some(ResponseResult::Ok {result}) => result,
-            Some(ResponseResult::Error {error}) => {
-                return crate::fail!("Unable to get chart from response: {}", error);
+            Some(chart) => {
+                chart.get_result()?
             },
             None => {
                 return crate::fail!("Unable to get chart from response");
+            },
+        };
+        let chart = match chart.first() {
+            Some(chart) => {chart},
+            None => {
+                return crate::fail!("Unable to get chart from response: chart field is empty");
             },
         };
         return Ok(chart);

@@ -100,7 +100,7 @@ impl <I, E> FileRepository<I, E>
         let path = RelativePath::from_string(id.to_string());
         let path = self.path_resolver.resolve_path(path)?;
         create_parent_dir(&path).await?;
-        let mut file = File::open(&path).await?;
+        let mut file = File::create(&path).await?;
         let data = self.serializer_instance.to_vec(&model)?;
         file.write_all(&data).await?;
         return Ok(());

@@ -5,6 +5,8 @@ use crate::fetching::model::request_method::RequestMethod;
 use reqwest::header::HeaderMap;
 use reqwest::header::HeaderValue;
 use std::time::Duration;
+pub use reqwest::header::CONTENT_TYPE;
+use reqwest::header::IntoHeaderName;
 
 #[derive(Debug, Clone)]
 pub struct Request {
@@ -55,7 +57,7 @@ impl Request {
         return Ok(self);
     }
 
-    pub fn with_header(mut self, key: &'static str, value: &str) -> Result<Self, Failure> {
+    pub fn with_header(mut self, key: impl IntoHeaderName, value: &str) -> Result<Self, Failure> {
         let value = HeaderValue::from_str(value)?;
         let _ = self.headers.insert(key, value);
         return Ok(self);
