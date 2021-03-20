@@ -1,17 +1,17 @@
-use crate::market::common::model::historical_price::HistoricalPrice;
+use crate::market::common::model::original_price::OriginalPrice;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PriceChange {
     #[serde(rename = "from")]
-    from: HistoricalPrice,
+    from: OriginalPrice,
     #[serde(rename = "to")]
-    to: HistoricalPrice,
+    to: OriginalPrice,
 }
 
 impl PriceChange {
     pub fn new(
-        from: HistoricalPrice,
-        to: HistoricalPrice,
+        from: OriginalPrice,
+        to: OriginalPrice,
     ) -> Option<PriceChange> {
         if from == to {
             return None;

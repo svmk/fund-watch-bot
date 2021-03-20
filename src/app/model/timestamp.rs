@@ -19,7 +19,11 @@ impl TimeStamp {
         return DateTime::now().to_timestamp();
     }
 
-    pub fn to_datetime(&self) -> DateTime {
-        return DateTime::from_timestamp(self.0);
+    pub fn to_datetime(&self) -> Result<DateTime, Failure> {
+        if self.0 == 0 {
+            return crate::fail!("Timestamp is equals to zero");
+        }
+        let datetime = DateTime::from_timestamp(self.0);
+        return Ok(datetime);
     }
 }

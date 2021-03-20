@@ -1,10 +1,13 @@
-use crate::market::common::model::ticker::Ticker;
+use crate::{app::model::{datetime::DateTime, year_quartal_iterator::YearQuartalIterator}, market::common::model::ticker::Ticker};
+use crate::app::model::year_quartal::YearQuartal;
+use crate::app::model::year::Year;
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
 use crate::market::market_data::model::split::Split;
 use crate::market::market_data::model::split_rules::SplitRules;
-use crate::market::common::model::historical_candlestick::HistoricalCandleStick;
+use crate::market::market_data::model::actual_chart_period::ActualChartPeriod;
+use crate::market::market_data::model::chart::Chart;
+use crate::market::common::model::original_candlestick::OriginalCandleStick;
 use crate::market::common::model::actual_candlestick::ActualCandleStick;
-use crate::app::model::datetime::DateTime;
 use crate::repository::model::entity::Entity;
 use crate::prelude::*;
 
@@ -12,26 +15,23 @@ use crate::prelude::*;
 pub struct TickerPrice {
     #[serde(rename = "ticker")]
     ticker: Ticker,
-    // candlestick: HistoricalCandleStick,
+    #[serde(rename = "chart")]
+    chart: Chart<YearQuartal>,
     #[serde(rename = "split_rules")]
     split_rules: SplitRules,
-    #[serde(rename = "quartal_prices")]
-    quartal_prices: Vec<QuartalPriceId>,
-    #[serde(rename = "quartal_prices")]
-    incomplete_quartal_prices: Vec<QuartalPriceId>,
+    #[serde(rename = "actual_chart_period")]
+    actual_chart_period: ActualChartPeriod,
 }
 
 impl TickerPrice {
     pub fn new(
         ticker: Ticker, 
-        // candlestick: HistoricalCandleStick,
     ) -> TickerPrice {
         return TickerPrice {
             ticker,
-            // candlestick,
+            chart: Chart::new(),
             split_rules: SplitRules::new(),
-            quartal_prices: Vec::new(),
-            incomplete_quartal_prices: Vec::new(),
+            actual_chart_period: ActualChartPeriod::new_uncached(),
         };
     }
 
@@ -43,38 +43,54 @@ impl TickerPrice {
         return self.split_rules.add_split(split);
     }
 
-    pub fn get_ticker(&self) -> &Ticker {
-        return &self.ticker;
+    pub fn need_update_chart_price(&self, id: &QuartalPriceId, price: &OriginalCandleStick) -> bool {
+        return self.chart.need_update_chart_price(id.get_period(), price);
     }
 
-    pub fn calculate_historical_candlesticks(&self, actual_candlesticks: Vec<ActualCandleStick>) -> Result<Vec<HistoricalCandleStick>, Failure> {
-        return self.split_rules.calculate_historical_candlesticks(actual_candlesticks);
+    pub fn update_chart_price(&mut self, id: &QuartalPriceId, price: OriginalCandleStick) {
+        self.chart.update_chart_price(id.get_period(), price);
     }
 
-    pub fn create_quartal_price_id(&self, datetime: DateTime) -> QuartalPriceId {
-        return QuartalPriceId::from_ticker_and_date(self.ticker.clone(), datetime);
+    pub fn calculate_original_candlesticks(&self, actual_candlesticks: Vec<ActualCandleStick>) -> Result<Vec<OriginalCandleStick>, Failure> {
+        return self.split_rules.calculate_original_candlesticks(actual_candlesticks);
     }
 
-    pub fn push_quartal_price_once(&mut self, quartal_price: QuartalPriceId) {
-        if !self.contains_quartal_price(&quartal_price) {
-            self.quartal_prices.push(quartal_price);
+    pub fn calculate_actual_candlestick(&self, original_candlestick: &OriginalCandleStick) -> Result<ActualCandleStick, Failure> {
+        return self.split_rules.calculate_actual_candlestick(original_candlestick);
+    }
+
+    pub fn iter_quartal_price_ids(&self) -> Result<impl Iterator<Item=QuartalPriceId>, Failure> {
+        let mut result = Vec::new();
+        if let Some(chart_period) = self.actual_chart_period.get_period() {
+            let begin_quartal = YearQuartal::from_date(chart_period.get_start().to_date());
+            let end_quartal = YearQuartal::from_date(chart_period.get_end().to_date());
+            let iterator = YearQuartalIterator::new(begin_quartal, end_quartal)?;
+            let iterator = iterator.map(|quartal_price_id| {
+                return QuartalPriceId::new(
+                    self.ticker.clone(),
+                    quartal_price_id,
+                );
+            });
+            result = iterator.collect();
         }
-        self.quartal_prices.sort();
+        return Ok(result.into_iter());
     }
 
-    pub fn contains_quartal_price(&self, quartal_price: &QuartalPriceId) -> bool {
-        return self.quartal_prices.binary_search(quartal_price).is_ok();
+    pub fn get_actual_chart_period(&self) -> &ActualChartPeriod {
+        return &self.actual_chart_period;
     }
 
-    pub fn push_incomplete_quartal_price_once(&mut self, quartal_price: QuartalPriceId) {
-        if !self.contains_incomplete_quartal_price(&quartal_price) {
-            self.incomplete_quartal_prices.push(quartal_price);
-        }
-        self.incomplete_quartal_prices.sort();
+    pub fn update_chart_period(&mut self, chart_period: ActualChartPeriod) {
+        self.actual_chart_period = chart_period;
     }
 
-    pub fn contains_incomplete_quartal_price(&self, quartal_price: &QuartalPriceId) -> bool {
-        return self.incomplete_quartal_prices.binary_search(quartal_price).is_ok();
+    pub fn year_candlestick(&self, year: Year) -> Option<OriginalCandleStick> {
+        let iterator = self.chart.iter_candlesticks();
+        let timestamp = DateTime::from_year_start_day(year.clone());
+        let iterator = iterator.filter(|candlestick| {
+            return candlestick.get_timestamp().get_year() == year;
+        });
+        return OriginalCandleStick::group_from_iterator(timestamp, iterator);
     }
 }
 

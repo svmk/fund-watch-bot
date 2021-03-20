@@ -9,7 +9,7 @@ use chrono::NaiveDate;
 use serde::{Serialize, Deserialize, Serializer, Deserializer};
 use std::str::FromStr;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, derive_more::Display)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, derive_more::Display)]
 pub struct Date(ChronoDate<Utc>);
 
 impl Date {
@@ -44,6 +44,11 @@ impl Date {
     pub fn next(&self) -> Date {
         let date = self.0.succ();
         return Date(date);
+    }
+
+    pub fn start_of_day(&self) -> DateTime {
+        let datetime = self.0.and_hms(00, 00, 00);
+        return DateTime::from_chrono_datetime(datetime);
     }
 
     pub fn end_of_day(&self) -> DateTime {

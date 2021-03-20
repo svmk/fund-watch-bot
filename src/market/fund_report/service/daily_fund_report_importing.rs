@@ -2,6 +2,7 @@ use crate::app::model::year_quartal::YearQuartal;
 use crate::app::model::year_quartal_iterator::YearQuartalIterator;
 use crate::app::model::date::Date;
 use crate::market::common::model::share::Share;
+use crate::market::market_data::model::time_frame::TimeFrame;
 use crate::market::fund_report::model::daily_fund_report::DailyFundReport;
 use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
 use crate::market::fund_report::model::fund::Fund;
@@ -144,12 +145,12 @@ impl DailyFundReportImporting {
             let weight = Weight::from_f64(weight)?;
             let candlestick = self
                 .candlestick_provider
-                .fetch_historical_candlestick(ticker.clone(), report_datetime.clone())
+                .fetch_last_candlestick(ticker.clone(), report_datetime.clone())
                 .await?;
             let fund_component = FundComponent::new(
                 ticker.clone(),
                 fund_component.get_share().clone(),
-                candlestick.get_daily().get_close().clone(),
+                candlestick.get_orignal().get_close().clone(),
                 weight,
             );
             result.add_fund_component(fund_component);

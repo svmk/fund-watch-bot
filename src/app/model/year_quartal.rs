@@ -1,12 +1,13 @@
 use crate::app::model::year::Year;
 use crate::app::model::quartal::Quartal;
 use crate::app::model::date::Date;
+use crate::app::model::datetime::DateTime;
 use crate::prelude::*;
 use std::fmt;
 use std::str::FromStr;
 use serde::{Serialize, Deserialize, Serializer, Deserializer};
 
-#[derive(new, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(new, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct YearQuartal {
     year: Year,
     quartal: Quartal,
@@ -21,6 +22,16 @@ impl YearQuartal {
             year,
             quartal,
         };
+    }
+
+    pub fn get_start(&self) -> DateTime {
+        let (month, day) = self.quartal.start();
+        return DateTime::ymd_start_day(self.year.clone(), month, day);
+    }
+
+    pub fn get_end(&self) -> DateTime {
+        let (month, day) = self.quartal.end();
+        return DateTime::ymd_end_day(self.year.clone(), month, day);
     }
 
     pub fn get_year(&self) -> &Year {
@@ -69,7 +80,7 @@ impl FromStr for YearQuartal {
         }
         let year = &s[0..4];
         let year = Year::from_str(year)?;
-        if &s[5..6] != "-" {
+        if &s[4..5] != "-" {
             return Err(Failure::msg("Invalid year quartal value"));
         }
         let quartal = &s[5..7];

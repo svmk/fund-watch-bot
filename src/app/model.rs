@@ -8,3 +8,4 @@ pub mod month;
 pub mod year_quartal_iterator;
 pub mod date_iterator;
 pub mod encoded_uint;
+pub mod day;

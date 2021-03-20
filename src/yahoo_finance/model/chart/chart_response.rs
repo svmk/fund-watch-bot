@@ -1,5 +1,7 @@
 use crate::prelude::*;
 use crate::market::market_data::model::split::Split;
+use crate::market::market_data::model::chart_period::ChartPeriod;
+use crate::market::market_data::model::actual_chart_period::ActualChartPeriod;
 use crate::yahoo_finance::model::chart::chart_split::ChartSplit;
 use crate::yahoo_finance::model::chart::chart_dividiend::ChartDividend;
 use crate::app::model::timestamp::TimeStamp;
@@ -58,21 +60,25 @@ pub struct ChartResponse {
 }
 
 impl ChartResponse {
-    pub fn get_splits(&self) -> Vec<Split> {
+    pub fn get_splits(&self) -> Result<Vec<Split>, Failure> {
         let splits = self.events.as_ref().and_then(|events| {
             return events.splits.as_ref();
         });
         if let Some(ref splits) = splits {
-            let mut splits: Vec<Split> = splits
+            let splits_iterator = splits
             .values()
-            .map(ChartSplit::create_split)
-            .collect();
-            splits.sort_by_key(|item| {
+            .map(ChartSplit::create_split);
+            let mut splits_result = Vec::new();
+            for split in splits_iterator {
+                let split = split?;
+                splits_result.push(split);
+            }
+            splits_result.sort_by_key(|item| {
                 return item.get_datetime().clone();
             });
-            return splits;
+            return Ok(splits_result);
         }
-        return Vec::new();
+        return Ok(Vec::new());
     }
 
     pub fn get_candlesticks(&self) -> Result<Vec<ActualCandleStick>, Failure> {
@@ -89,7 +95,7 @@ impl ChartResponse {
         for item in iterator {
             let (timestamp, open, close, high, low, volume) = item;
             let candlestick = ActualCandleStick::new(
-                timestamp.to_datetime(),
+                timestamp.to_datetime()?,
                 open.clone(),
                 close.clone(),
                 low.clone(),
@@ -99,5 +105,22 @@ impl ChartResponse {
             result.push(candlestick);
         }
         return Ok(result);
+    }
+
+    pub fn get_chart_period(&self) -> Result<ActualChartPeriod, Failure> {
+        let first_timestamp = self.timestamps.first();
+        let last_timestamp = self.timestamps.last();
+        match (first_timestamp, last_timestamp) {
+            (Some(first_timestamp), Some(last_timestamp)) => {
+                let first_timestamp = first_timestamp.to_datetime()?;
+                let last_timestamp = last_timestamp.to_datetime()?;
+                let chart_period = ChartPeriod::new(first_timestamp, last_timestamp);
+                let chart_period = ActualChartPeriod::new(chart_period);
+                return Ok(chart_period);
+            },
+            _ => {
+                return Ok(ActualChartPeriod::new_uncached());
+            }
+        }
     }
 }

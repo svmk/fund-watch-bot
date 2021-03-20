@@ -54,7 +54,10 @@ impl <I, E> FileRepository<I, E>
     pub async fn get(&self, id: &I) -> Result<E, Failure> {
         let path = RelativePath::from_string(id.to_string());
         let path = self.path_resolver.resolve_path(path)?;
-        let mut file = File::open(&path).await?;
+        let mut file = File::open(&path).await
+            .map_err(|error| {
+                return crate::error!("Unable to open id `{}`: {}", id.to_string(), error);
+            })?;
         let mut data: Vec<u8> = Vec::new();
         file.read_to_end(&mut data).await?;
         let model: E = self.serializer_instance.from_slice(&data)?;

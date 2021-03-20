@@ -5,7 +5,7 @@ use crate::prelude::*;
 pub struct ActualVolume(f64);
 
 impl ActualVolume {
-    fn from_f64(value: f64) -> Result<ActualVolume, Failure> {
+    pub fn from_f64(value: f64) -> Result<ActualVolume, Failure> {
         return Ok(ActualVolume(value));
     }
 

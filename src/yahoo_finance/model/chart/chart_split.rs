@@ -1,3 +1,4 @@
+use crate::prelude::*;
 use crate::app::model::timestamp::TimeStamp;
 use crate::market::market_data::model::split::Split;
 use std::num::NonZeroU32;
@@ -13,11 +14,12 @@ pub struct ChartSplit {
 }
 
 impl ChartSplit {
-    pub fn create_split(&self) -> Split {
-        return Split::new(
-            self.date.to_datetime(),
+    pub fn create_split(&self) -> Result<Split, Failure> {
+        let split = Split::new(
+            self.date.to_datetime()?,
             self.numerator,
             self.denominator,
         );
+        return Ok(split);
     }
 }

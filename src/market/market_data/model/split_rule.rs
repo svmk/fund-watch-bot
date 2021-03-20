@@ -29,9 +29,15 @@ impl SplitRule {
         return true;
     }
 
-    pub fn calculate(&self, value: f64) -> f64 {
+    pub fn calculate_from_actual_to_original(&self, value: f64) -> f64 {
         let value = value / self.nominator.get() as f64;
         let value = value * self.denominator.get() as f64;
+        return value;
+    }
+
+    pub fn calculate_from_original_to_actual(&self, value: f64) -> f64 {
+        let value = value / self.denominator.get() as f64;
+        let value = value * self.nominator.get() as f64;
         return value;
     }
 }

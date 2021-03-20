@@ -1,8 +1,9 @@
 use crate::app::model::month::Month;
+use crate::app::model::day::Day;
 use crate::prelude::*;
 use std::fmt;
 use std::str::FromStr;
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Quartal {
     #[serde(rename = "Q1")]
     Q1,
@@ -31,6 +32,7 @@ impl Quartal {
             Month::Dec => Quartal::Q4,
         }
     }
+
     pub fn display_long(&self) -> &str {
         match self {
             Quartal::Q1 => {
@@ -44,6 +46,40 @@ impl Quartal {
             },
             Quartal::Q4 => {
                 return "QTR4";
+            },
+        }
+    }
+
+    pub fn start(&self) -> (Month, Day) {
+        return match self {
+            Quartal::Q1 => {
+                (Month::Jan, Day::DAY_1)
+            },
+            Quartal::Q2 => {
+                (Month::Apr, Day::DAY_1)
+            },
+            Quartal::Q3 => {
+                (Month::Jul, Day::DAY_1)
+            },
+            Quartal::Q4 => {
+                (Month::Oct, Day::DAY_1)
+            },
+        }
+    }
+
+    pub fn end(&self) -> (Month, Day) {
+        return match self {
+            Quartal::Q1 => {
+                (Month::Mar, Day::DAY_31)
+            },
+            Quartal::Q2 => {
+                (Month::Jun, Day::DAY_30)
+            },
+            Quartal::Q3 => {
+                (Month::Sep, Day::DAY_30)
+            },
+            Quartal::Q4 => {
+                (Month::Dec, Day::DAY_31)
             },
         }
     }

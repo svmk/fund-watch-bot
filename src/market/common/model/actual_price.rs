@@ -16,7 +16,7 @@ impl ActualPrice {
 }
 
 impl ActualPrice {
-    fn from_f64(value: f64) -> Result<ActualPrice, PriceParseError> {
+    pub fn from_f64(value: f64) -> Result<ActualPrice, PriceParseError> {
         if value < 0.0 {
             return Err(PriceParseError::Negative);
         }

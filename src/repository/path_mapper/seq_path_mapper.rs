@@ -3,13 +3,13 @@ use crate::repository::path_mapper::path_mapper::PathMapper;
 use crate::repository::path_mapper::path_mapper_instance::PathMapperInstance;
 use std::path::{PathBuf, Path};
 
-pub struct IterPathMapper {
+pub struct SeqPathMapper {
     mappers: Vec<PathMapperInstance>,
 }
 
-impl IterPathMapper {
-    pub fn new() -> IterPathMapper {
-        return IterPathMapper {
+impl SeqPathMapper {
+    pub fn new() -> SeqPathMapper {
+        return SeqPathMapper {
             mappers: Vec::new(),
         }
     }
@@ -21,14 +21,17 @@ impl IterPathMapper {
     }
 }
 
-impl PathMapper for IterPathMapper {
+impl PathMapper for SeqPathMapper {
     fn map_path(&self, path: PathBuf) -> Result<PathBuf, Failure> {
         let mut result = PathBuf::new();
-        for path_mapper in self.mappers.iter() {
-            let path_item = path_mapper.map_path(path.clone())?;
-            result.push(path_item);
+        for (mapper_id, path_part) in path.iter().enumerate() {
+            let path_part = Path::new(path_part);
+            let mut path_part = path_part.to_path_buf();
+            if let Some(path_mapper) = self.mappers.get(mapper_id) {
+                path_part = path_mapper.map_path(path_part)?;
+            }
+            result.push(path_part);
         }
-        result.push(path);
         return Ok(result);
     }
 }

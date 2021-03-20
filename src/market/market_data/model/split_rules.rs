@@ -1,9 +1,11 @@
 use std::{convert::TryFrom, num::NonZeroU32};
 
-use crate::market::{common::model::{actual_candlestick::ActualCandleStick, historical_candlestick::{HistoricalCandleStick}}, market_data::model::split_rule::SplitRule};
+use crate::market::{common::model::{actual_candlestick::ActualCandleStick, original_candlestick::{OriginalCandleStick}}, market_data::model::split_rule::SplitRule};
+use crate::market::common::model::actual_price::ActualPrice;
+use crate::market::common::model::actual_volume::ActualVolume;
 use crate::market::market_data::model::split::Split;
-use crate::market::common::model::historical_volume::HistoricalVolume;
-use crate::market::common::model::historical_price::HistoricalPrice;
+use crate::market::common::model::original_volume::OriginalVolume;
+use crate::market::common::model::original_price::OriginalPrice;
 use crate::app::model::datetime::DateTime;
 use crate::prelude::*;
 
@@ -76,37 +78,58 @@ impl SplitRules {
         return Ok(split_rules);
     }
 
-    fn calculate_historical_candlestick(&self, actual_candlestick: &ActualCandleStick) -> Result<HistoricalCandleStick, Failure> {
+    fn calculate_original_candlestick(&self, actual_candlestick: &ActualCandleStick) -> Result<OriginalCandleStick, Failure> {
         let mut candlestick_open = actual_candlestick.get_open().into_f64();
         let mut candlestick_close = actual_candlestick.get_close().into_f64();
         let mut candlestick_high = actual_candlestick.get_high().into_f64();
         let mut candlestick_low = actual_candlestick.get_low().into_f64();
         let mut candlestick_volume = actual_candlestick.get_volume().into_f64();
         for split_rule in self.split_rules.iter().rev() {
-            candlestick_open = split_rule.calculate(candlestick_open);
-            candlestick_close = split_rule.calculate(candlestick_close);
-            candlestick_high = split_rule.calculate(candlestick_high);
-            candlestick_low = split_rule.calculate(candlestick_low);
-            candlestick_volume = split_rule.calculate(candlestick_volume);
-            if split_rule.is_match_datetime(actual_candlestick.get_timestamp()) {
-                break;
-            }
+            candlestick_open = split_rule.calculate_from_actual_to_original(candlestick_open);
+            candlestick_close = split_rule.calculate_from_actual_to_original(candlestick_close);
+            candlestick_high = split_rule.calculate_from_actual_to_original(candlestick_high);
+            candlestick_low = split_rule.calculate_from_actual_to_original(candlestick_low);
+            candlestick_volume = split_rule.calculate_from_actual_to_original(candlestick_volume);
         }
-        let historical_candlestick = HistoricalCandleStick::new(
+        let original_candlestick = OriginalCandleStick::new(
             actual_candlestick.get_timestamp().clone(),
-            HistoricalPrice::from_f64(candlestick_open)?,
-            HistoricalPrice::from_f64(candlestick_close)?,
-            HistoricalPrice::from_f64(candlestick_low)?,
-            HistoricalPrice::from_f64(candlestick_high)?,
-            HistoricalVolume::from_f64(candlestick_volume)?,
+            OriginalPrice::from_f64(candlestick_open)?,
+            OriginalPrice::from_f64(candlestick_close)?,
+            OriginalPrice::from_f64(candlestick_low)?,
+            OriginalPrice::from_f64(candlestick_high)?,
+            OriginalVolume::from_f64(candlestick_volume)?,
         );
-        return Ok(historical_candlestick);
+        return Ok(original_candlestick);
     }
 
-    pub fn calculate_historical_candlesticks(&self, actual_candlesticks: Vec<ActualCandleStick>) -> Result<Vec<HistoricalCandleStick>, Failure> {
+    pub fn calculate_actual_candlestick(&self, original_candlestick: &OriginalCandleStick) -> Result<ActualCandleStick, Failure> {
+        let mut candlestick_open = original_candlestick.get_open().into_f64();
+        let mut candlestick_close = original_candlestick.get_close().into_f64();
+        let mut candlestick_high = original_candlestick.get_high().into_f64();
+        let mut candlestick_low = original_candlestick.get_low().into_f64();
+        let mut candlestick_volume = original_candlestick.get_volume().into_f64();
+        for split_rule in self.split_rules.iter() {
+            candlestick_open = split_rule.calculate_from_original_to_actual(candlestick_open);
+            candlestick_close = split_rule.calculate_from_original_to_actual(candlestick_close);
+            candlestick_high = split_rule.calculate_from_original_to_actual(candlestick_high);
+            candlestick_low = split_rule.calculate_from_original_to_actual(candlestick_low);
+            candlestick_volume = split_rule.calculate_from_original_to_actual(candlestick_volume);
+        }
+        let actual_candlestick = ActualCandleStick::new(
+            original_candlestick.get_timestamp().clone(),
+            ActualPrice::from_f64(candlestick_open)?,
+            ActualPrice::from_f64(candlestick_close)?,
+            ActualPrice::from_f64(candlestick_low)?,
+            ActualPrice::from_f64(candlestick_high)?,
+            ActualVolume::from_f64(candlestick_volume)?,
+        );
+        return Ok(actual_candlestick);
+    }
+
+    pub fn calculate_original_candlesticks(&self, actual_candlesticks: Vec<ActualCandleStick>) -> Result<Vec<OriginalCandleStick>, Failure> {
         let mut result = Vec::with_capacity(actual_candlesticks.len());
         for actual_candlestick in actual_candlesticks.iter() {
-            let actual_candlestick = self.calculate_historical_candlestick(actual_candlestick)?;
+            let actual_candlestick = self.calculate_original_candlestick(actual_candlestick)?;
             result.push(actual_candlestick);
         }
         return Ok(result);

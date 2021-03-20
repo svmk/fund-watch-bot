@@ -18,32 +18,35 @@ impl SubdirPathMapper {
         return SubdirPathMapper {
             start_at,
             length,
-            fail_when_empty: true,
+            fail_when_empty: false,
         }
     }
 
-    fn map_subdir(&self, directory: &OsStr) -> Result<String, Failure> {
+    fn map_subdir(&self, directory: &OsStr) -> Result<Option<String>, Failure> {
         let directory = directory.to_string_lossy();
         let mut end_at = self.start_at + self.length;
         if end_at >= directory.len() {
             end_at = directory.len();
         }
         let subdir = &directory[self.start_at..end_at];
-        if self.fail_when_empty && subdir.is_empty() {
-            return crate::fail!("Unable to extract subdir from `{}` with range {}..{}", directory, self.start_at, end_at);
+        if subdir.is_empty() {
+            if self.fail_when_empty {
+                return crate::fail!("Unable to extract subdir from `{}` with range {}..{}", directory, self.start_at, end_at);
+            } else {
+                return Ok(None);                
+            }
         }
         let subdir = subdir.to_string();
-        return Ok(subdir);
+        return Ok(Some(subdir));
     }
 }
 
 impl PathMapper for SubdirPathMapper {
     fn map_path(&self, path: PathBuf) -> Result<PathBuf, Failure> {
+        let path = self.map_subdir(path.as_os_str())?;
         let mut result = PathBuf::new();
-        for part in path.iter() {
-            let mapped_part = self.map_subdir(part)?;
-            result.push(mapped_part);
-            result.push(part);
+        if let Some(path) = path {
+            result.push(path);
         }
         return Ok(result);
     }

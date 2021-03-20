@@ -2,7 +2,7 @@ use crate::prelude::*;
 use std::fmt;
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Month {
     Jan,
     Feb,

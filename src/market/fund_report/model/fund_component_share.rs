@@ -1,5 +1,5 @@
 use crate::market::common::model::share::Share;
-use crate::market::common::model::historical_price::HistoricalPrice;
+use crate::market::common::model::original_price::OriginalPrice;
 use crate::market::fund_report::model::weight::Weight;
 
 #[derive(new, Debug, Clone, Serialize, Deserialize)]
@@ -7,7 +7,7 @@ pub struct FundComponentShare {
     #[serde(rename = "share")]
     share: Share,
     #[serde(rename = "price")]
-    price: HistoricalPrice,
+    price: OriginalPrice,
     #[serde(rename = "weight")]
     weight: Weight,
 }
@@ -17,7 +17,7 @@ impl FundComponentShare {
         return &self.share;
     }
 
-    pub fn get_price(&self) -> &HistoricalPrice {
+    pub fn get_price(&self) -> &OriginalPrice {
         return &self.price;
     }
 

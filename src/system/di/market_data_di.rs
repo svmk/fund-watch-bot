@@ -14,18 +14,14 @@ use crate::market::common::model::ticker::Ticker;
 use crate::market::market_data::model::ticker_price::TickerPrice;
 use crate::market::market_data::model::quartal_price::QuartalPrice;
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
-use crate::market::market_data::model::day_price_id::DayPriceId;
-use crate::market::market_data::model::day_price::DayPrice;
 use crate::market::market_data::path_resolver::ticker_price_path_resolver::ticker_price_path_resolver;
 use crate::market::market_data::path_resolver::quartal_price_path_resolver::quartal_price_path_resolver;
-use crate::market::market_data::path_resolver::daily_price_path_resolver::daily_price_path_resolver;
 
 
 pub const CANDLESTICK_DOWNLOADER: ServiceId<CandlestickDownloader> = ServiceIdResolver::SERVICE_ID;
 pub const CANDLESTICK_PROVIDER: ServiceId<CandlestickProvider> = ServiceIdResolver::SERVICE_ID;
 pub const TICKER_PRICE_REPOSITORY: ServiceId<RepositoryInstance<Ticker, TickerPrice>> = ServiceIdResolver::SERVICE_ID;
 pub const QUARTAL_PRICE_REPOSITORY: ServiceId<RepositoryInstance<QuartalPriceId, QuartalPrice>> = ServiceIdResolver::SERVICE_ID;
-pub const DAILY_PRICE_REPOSITORY: ServiceId<RepositoryInstance<DayPriceId, DayPrice>> = ServiceIdResolver::SERVICE_ID;
 
 pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error> {
     builder.register(CANDLESTICK_DOWNLOADER, async move |resolver| {
@@ -33,15 +29,14 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
             resolver.get_service(di::yahoo_finance_di::YAHOO_API).await?,
             resolver.get_service(TICKER_PRICE_REPOSITORY).await?,
             resolver.get_service(QUARTAL_PRICE_REPOSITORY).await?,
-            resolver.get_service(DAILY_PRICE_REPOSITORY).await?,
         );
         return Ok(service);
     })?;
     builder.register(CANDLESTICK_PROVIDER, async move |resolver| {
         let service = CandlestickProvider::new(
             resolver.get_service(CANDLESTICK_DOWNLOADER).await?,
+            resolver.get_service(TICKER_PRICE_REPOSITORY).await?,
             resolver.get_service(QUARTAL_PRICE_REPOSITORY).await?,
-            resolver.get_service(DAILY_PRICE_REPOSITORY).await?,
         );
         return Ok(service);
     })?;
@@ -62,17 +57,6 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         let path = config.get_path();
         let service = FileRepository::new(
             quartal_price_path_resolver(path),
-            JsonSerializer::new(),
-            resolver.get_service(di::repository_di::QUERY_COMPARATOR).await?,
-        );
-        return Ok(service);
-    })?;
-    builder.register(DAILY_PRICE_REPOSITORY, async move |resolver|{
-        let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
-        let config = config.get_repository();
-        let path = config.get_path();
-        let service = FileRepository::new(
-            daily_price_path_resolver(path),
             JsonSerializer::new(),
             resolver.get_service(di::repository_di::QUERY_COMPARATOR).await?,
         );

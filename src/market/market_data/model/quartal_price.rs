@@ -1,58 +1,81 @@
+use crate::{app::model::{date::Date, datetime::DateTime, day::Day, month::Month}, sec_gov::model::year::Year};
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
-use crate::market::market_data::model::day_price_id::DayPriceId;
-use crate::market::common::model::historical_candlestick::HistoricalCandleStick;
+use crate::market::market_data::model::chart::Chart;
+use crate::market::common::model::original_candlestick::OriginalCandleStick;
 use crate::repository::model::entity::Entity;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QuartalPrice {
     #[serde(rename="id")]
     id: QuartalPriceId,
-    #[serde(rename="candlestick")]
-    candlestick: HistoricalCandleStick,
-    #[serde(rename="daily_prices")]
-    daily_prices: Vec<DayPriceId>,
-    #[serde(rename="incomplete_daily_prices")]
-    incomplete_daily_prices: Vec<DayPriceId>,
+    #[serde(rename="chart")]
+    chart: Chart<Date>,
+    #[serde(rename="is_actual")]
+    is_actual: bool,
 }
 
 impl QuartalPrice {
-    pub fn new(id: QuartalPriceId, candlestick: HistoricalCandleStick) -> QuartalPrice {
+    pub fn new(id: QuartalPriceId) -> QuartalPrice {
         return QuartalPrice {
             id,
-            candlestick,
-            daily_prices: Vec::new(),
-            incomplete_daily_prices: Vec::new(),
+            chart: Chart::new(),
+            is_actual: false,
         };
     }
 
-    pub fn is_candlestick_equals(&self, candelstick: &HistoricalCandleStick) -> bool {
-        return &self.candlestick == candelstick;
+    pub fn get_id(&self) -> &QuartalPriceId {
+        return &self.id;
     }
 
-    pub fn contains_daily_price(&self, daily_price: &DayPriceId) -> bool {
-        return self.daily_prices.binary_search(daily_price).is_ok();
+    pub fn is_actual(&self) -> bool {
+        return self.is_actual;
     }
 
-    pub fn push_daily_price_once(&mut self, daily_price: DayPriceId) {
-        if !self.contains_daily_price(&daily_price) {
-            self.daily_prices.push(daily_price);
-        }
-        self.daily_prices.sort();
+    pub fn update_chart_price(&mut self, date: &Date, price: OriginalCandleStick) {
+        self.chart.update_chart_price(&date, price);
     }
 
-    pub fn contains_incomplete_daily_price(&self, incomplete_daily_price: &DayPriceId) -> bool {
-        return self.incomplete_daily_prices.binary_search(incomplete_daily_price).is_ok();
-    }
-    
-    pub fn push_incomplete_daily_price_once(&mut self, incomplete_daily_price: DayPriceId) {
-        if !self.contains_incomplete_daily_price(&incomplete_daily_price) {
-            self.incomplete_daily_prices.push(incomplete_daily_price);
-        }
-        self.incomplete_daily_prices.sort();
+    pub fn mark_actual(&mut self) {
+        self.is_actual = true;
     }
 
-    pub fn get_candlestick(&self) -> &HistoricalCandleStick {
-        return &self.candlestick;
+    pub fn quartal_candlestick(&self) -> Option<OriginalCandleStick> {
+        let iterator = self.chart.iter_candlesticks();
+        let timestamp = self.id.get_period().get_start();
+        return OriginalCandleStick::group_from_iterator(timestamp, iterator);
+    }
+
+    pub fn month_candlestick(&self, year: Year, month: Month) -> Option<OriginalCandleStick> {
+        let timestamp = DateTime::ymd_start_day(year.clone(), month.clone(), Day::DAY_1);
+        let iterator = self.chart.iter_candlesticks();
+        let iterator = iterator.filter(|candlestick| {
+            let timestamp = candlestick.get_timestamp();
+            if timestamp.get_year() != year {
+                return false;
+            }
+            if timestamp.get_month() != month {
+                return false;
+            }
+            return true;
+        });
+        return OriginalCandleStick::group_from_iterator(timestamp, iterator);
+    }
+
+    pub fn day_candlestick(&self, date: Date) -> Option<OriginalCandleStick> {
+        let timestamp = date.start_of_day();
+        let iterator = self.chart.iter_candlesticks();
+        let iterator = iterator.filter(|candlestick| {
+            let timestamp = candlestick.get_timestamp();
+            if timestamp.to_date() != date {
+                return false;
+            }
+            return true;
+        });
+        return OriginalCandleStick::group_from_iterator(timestamp, iterator);
+    }
+
+    pub fn get_candlestick_by_date(&self, date: &Date) -> Option<&OriginalCandleStick> {
+        return self.chart.get(date);
     }
 }
 

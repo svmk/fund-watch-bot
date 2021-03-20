@@ -4,9 +4,8 @@ use crate::market::common::model::ticker::Ticker;
 use crate::market::market_data::model::ticker_price::TickerPrice;
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
 use crate::market::market_data::model::quartal_price::QuartalPrice;
-use crate::market::market_data::model::day_price_id::DayPriceId;
-use crate::market::market_data::model::day_price::DayPrice;
-use crate::market::common::model::historical_candlestick::HistoricalCandleStick;
+use crate::market::market_data::model::chart_period::ChartPeriod;
+use crate::market::common::model::original_candlestick::OriginalCandleStick;
 use crate::yahoo_finance::service::yahoo_api::YahooApi;
 use crate::yahoo_finance::model::chart::chart_request::ChartRequest;
 use crate::yahoo_finance::model::common_api::interval::Interval;
@@ -17,161 +16,124 @@ use crate::prelude::*;
 use typed_di::service::service::Service;
 mod candlestick_request;
 pub use self::candlestick_request::CandlestickRequest;
+mod update_decision;
+use self::update_decision::UpdateDecision;
 
 #[derive(new)]
 pub struct CandlestickDownloader {
     yahoo_api: Service<YahooApi>,
     ticker_price_repository: Service<RepositoryInstance<Ticker, TickerPrice>>,
     quartal_price_repository: Service<RepositoryInstance<QuartalPriceId, QuartalPrice>>,
-    daily_price_repository: Service<RepositoryInstance<DayPriceId, DayPrice>>,
 }
 
 impl CandlestickDownloader {
-    pub async fn fetch_by_ticker(&self, request: &CandlestickRequest) -> Result<TickerPrice, Failure> {
+    pub async fn fetch_by_ticker(&self, request: &CandlestickRequest) -> Result<(), Failure> {
+        let mut ticker_price = self.fetch_ticker_price(request).await?;
+        let quartal_price_ids_iterator = ticker_price.as_ref().iter_quartal_price_ids()?;
+        let quartal_price_ids_iterator = quartal_price_ids_iterator.filter(|quartal_price_id| {
+            return request.get_chart_period().intersects_year_quartal(quartal_price_id.get_period());
+        });
+        let mut quartal_prices = Vec::new();
+        for quartal_price_id in quartal_price_ids_iterator {
+            let quartal_price = self.fetch_quartal_price(&ticker_price, quartal_price_id).await?;
+            quartal_prices.push(quartal_price);
+        }
+        self.update_ticker_chart(&mut ticker_price, &quartal_prices);
+        // Saving changes.
+        for quartal_price in quartal_prices {
+            if quartal_price.is_need_update() {
+                self.quartal_price_repository.store(quartal_price.as_ref()).await?;
+            }
+        }
+        if ticker_price.is_need_update() {
+            self.ticker_price_repository.store(ticker_price.as_ref()).await?;
+        }
+        return Ok(());
+    }
+
+    async fn fetch_ticker_price(&self, request: &CandlestickRequest) -> Result<UpdateDecision<TickerPrice>, Failure> {
         let ticker_price = self
             .ticker_price_repository
             .find(request.get_ticker()).await?;
-        if let Some(ref ticker_price) = ticker_price {
-            if self.is_ticker_price_cached(request, ticker_price)? {
-                return Ok(ticker_price.clone());
-            }
-        }
-        let mut ticker_price = match ticker_price {
-            Some(ticker_price) => ticker_price,
-            None => {
-                TickerPrice::new(request.get_ticker().clone())
+        let (is_acutal, mut ticker_price) = match ticker_price {
+            Some(ticker_price) => {
+                let is_acutal = ticker_price
+                    .get_actual_chart_period()
+                    .is_actual(request.get_chart_period());
+                (is_acutal, ticker_price)
             },
+            None => {(false, TickerPrice::new(request.get_ticker().clone()))},
         };
-        let chart_request = ChartRequest::new(
-            ticker_price.get_ticker().clone(),
-            Interval::ThreeMonths,
-            TimeStamp::zero(),
-            TimeStamp::now(),
-        );
-        let chart_response = self.yahoo_api.send(chart_request).await?;
-        let chart_response = chart_response.get_charts()?;
-        for split in chart_response.get_splits() {
-            if ticker_price.can_add_split(&split) {
-                ticker_price.add_split(split)?;
-            }
-        }
-        let quartal_candlesticks = chart_response.get_candlesticks()?;
-        let quartal_candlesticks = ticker_price.calculate_historical_candlesticks(quartal_candlesticks)?;
-        let year_quartal = YearQuartal::now();
-        for quartal_candlestick in quartal_candlesticks {
-            let quartal_price = self.fetch_by_quartal(request, &ticker_price, quartal_candlestick).await?;
-            let is_now_quartal_price  = quartal_price.get_period() == &year_quartal;
-            if is_now_quartal_price {
-                ticker_price.push_incomplete_quartal_price_once(quartal_price.clone());
-            }
-            ticker_price.push_quartal_price_once(quartal_price);
-        }
-        self.ticker_price_repository.store(&ticker_price).await?;
-        return Ok(ticker_price);
-    }
-
-    fn is_ticker_price_cached(&self, request: &CandlestickRequest, ticker_price: &TickerPrice) -> Result<bool, Failure> {
-        let started_at = YearQuartal::from_date(request.get_started_at().to_date());
-        let ended_at = YearQuartal::from_date(request.get_ended_at().to_date());
-        let year_quartal_iterator = YearQuartalIterator::new(started_at, ended_at)?;
-        for year_quartal in year_quartal_iterator {
-            let quartal_price = QuartalPriceId::from_ticker_and_year_quartal(
-                ticker_price.get_ticker().clone(), 
-                year_quartal,
+        if !is_acutal {
+            let chart_request = ChartRequest::new(
+                request.get_ticker().clone(), 
+                Interval::ThreeMonths, 
+                TimeStamp::zero(),
+                TimeStamp::now(),
             );
-            if !ticker_price.contains_quartal_price(&quartal_price) {
-                return Ok(false);
+            let chart_response = self.yahoo_api.send(chart_request).await?;
+            let chart_response = chart_response.get_charts()?;
+            for split in chart_response.get_splits()? {
+                if ticker_price.can_add_split(&split) {
+                    ticker_price.add_split(split)?;
+                }
             }
-            if !ticker_price.contains_incomplete_quartal_price(&quartal_price) {
-                return Ok(false);
-            }
+            let chart_period = chart_response.get_chart_period()?;
+            ticker_price.update_chart_period(chart_period);
+            return Ok(UpdateDecision::update(ticker_price));
         }
-        return Ok(true);
+        return Ok(UpdateDecision::nothing(ticker_price));
     }
 
-    async fn fetch_by_quartal(&self, request: &CandlestickRequest, ticker_price: &TickerPrice, candlestick: HistoricalCandleStick) -> Result<QuartalPriceId, Failure> {
-        let quartal_price_id = QuartalPriceId::from_ticker_and_date(
-            request.get_ticker().clone(), 
-            candlestick.get_timestamp().clone(),
-        );
-        if !request.need_fetch(candlestick.get_timestamp()) {
-            return Ok(quartal_price_id);
+    fn update_ticker_chart(&self, ticker_price: &mut UpdateDecision<TickerPrice>, quartal_prices: &[UpdateDecision<QuartalPrice>]) {
+        for quartal_price in quartal_prices.iter() {
+            if let Some(candlestick) = quartal_price.quartal_candlestick() {
+                if ticker_price.need_update_chart_price(quartal_price.get_id(), &candlestick) {
+                    ticker_price.as_mut().update_chart_price(quartal_price.get_id(), candlestick);
+                }
+            }
         }
+    }
+
+    async fn fetch_quartal_price(&self, ticker_price: &TickerPrice, quartal_price_id: QuartalPriceId) -> Result<UpdateDecision<QuartalPrice>, Failure> {
         let quartal_price = self
             .quartal_price_repository
             .find(&quartal_price_id).await?;
-        if let Some(ref quartal_price) = quartal_price {
-            if self.is_quartal_price_cached(request, quartal_price, &candlestick)? {
-                return Ok(quartal_price_id);
-            }
-        }
-        let mut quartal_price = match quartal_price {
-            Some(quartal_price) => quartal_price,
+        let (is_actual, mut quartal_price) = match quartal_price {
+            Some(quartal_price) => {
+                let is_actual = quartal_price.is_actual();
+                (is_actual, quartal_price)
+            },
             None => {
-                QuartalPrice::new(quartal_price_id.clone(), candlestick.clone())
+                let quartal_price = QuartalPrice::new(quartal_price_id);
+                (false, quartal_price)
             },
         };
-        let chart_request = ChartRequest::new(
-            request.get_ticker().clone(),
-            Interval::OneDay,
-            request.get_started_at().to_timestamp(),
-            request.get_ended_at().to_timestamp(),
-        );
-        let chart_response = self.yahoo_api.send(chart_request).await?;
-        let chart_response = chart_response.get_charts()?;
-        let daily_candlesticks = chart_response.get_candlesticks()?;
-        let daily_candlesticks = ticker_price.calculate_historical_candlesticks(daily_candlesticks)?;
-        let date_now = Date::today();
-        for daily_candlestick in daily_candlesticks {
-            let daily_price_id = self.fetch_by_day(request, ticker_price, daily_candlestick).await?;
-            let is_now_daily_price = daily_price_id.get_date() == &date_now;
-            if is_now_daily_price {
-                quartal_price.push_incomplete_daily_price_once(daily_price_id.clone());
-            }
-            quartal_price.push_daily_price_once(daily_price_id);
-        }
-        self.quartal_price_repository.store(&quartal_price).await?;
-        return Ok(quartal_price_id);
-    }
-
-    fn is_quartal_price_cached(&self, request: &CandlestickRequest, quartal_price: &QuartalPrice, candlestick: &HistoricalCandleStick) -> Result<bool, Failure> {
-        if quartal_price.is_candlestick_equals(&candlestick) {
-            return Ok(false);
-        }
-        let date_iterator = DateIterator::new(
-            request.get_started_at().to_date(),
-            request.get_ended_at().to_date(),
-        )?;
-        for date in date_iterator {
-            let daily_price = DayPriceId::from_ticker_and_date(
-                request.get_ticker().clone(), 
-                date,
+        if !is_actual {
+            let started_at = quartal_price.get_id().get_period().get_start().to_timestamp();
+            let next_period = quartal_price.get_id().get_period().next();
+            let ended_at = next_period.get_end().to_timestamp();
+            let chart_request = ChartRequest::new(
+                quartal_price.get_id().get_ticker().clone(), 
+                Interval::OneDay, 
+                started_at,
+                ended_at,
             );
-            if quartal_price.contains_daily_price(&daily_price) {
-                return Ok(false);
-            }
-            if quartal_price.contains_incomplete_daily_price(&daily_price) {
-                return Ok(false);
-            }
+            let chart_response = self.yahoo_api.send(chart_request).await?;
+            let chart_response = chart_response.get_charts()?;
+            let candlesticks = chart_response.get_candlesticks()?;
+            let candlesticks = ticker_price.calculate_original_candlesticks(candlesticks)?;
+            let chart_period = ChartPeriod::from_year_quartal(quartal_price.get_id().get_period());
+            for candlestick in candlesticks {
+                if chart_period.contains_datetime(candlestick.get_timestamp()) {
+                    let date = candlestick.get_timestamp().to_date();
+                    quartal_price.update_chart_price(&date, candlestick);
+                } else if candlestick.get_timestamp() > chart_period.get_end() {
+                    quartal_price.mark_actual();
+                }
+            }            
+            return Ok(UpdateDecision::update(quartal_price));
         }
-        return Ok(true);
-    }
-
-    async fn fetch_by_day(&self, request: &CandlestickRequest, ticker_price: &TickerPrice, candlestick: HistoricalCandleStick) -> Result<DayPriceId, Failure> {
-        let day_price_id = DayPriceId::from_ticker_and_date(
-            request.get_ticker().clone(),
-            candlestick.get_timestamp().to_date(),
-        );
-        let day_price = self
-            .daily_price_repository
-            .find(&day_price_id).await?;
-        if let Some(ref day_price) = day_price {
-            if day_price.is_candlestick_equals(&candlestick) {
-                return Ok(day_price_id);
-            }
-        }
-        let day_price = DayPrice::new(day_price_id.clone(), candlestick);
-        self.daily_price_repository.store(&day_price).await?;
-        return Ok(day_price_id);
+        return Ok(UpdateDecision::nothing(quartal_price));
     }
 }

@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{app::model::day::Day, market::market_data::model::time_frame::TimeFrame, prelude::*};
 use chrono::{DateTime as ChronoDateTime, TimeZone};
 use chrono::offset::Utc;
 use chrono::naive::NaiveDateTime;
@@ -19,9 +19,18 @@ impl DateTime {
         return DateTime(Utc::now());
     }
 
-    pub fn ymd_start_day(year: i32, month: u32, day: u32) -> DateTime {
-        let datetime = Utc.ymd(year, month, day).and_hms(0, 0, 0);
+    pub fn ymd_start_day(year: Year, month: Month, day: Day) -> DateTime {
+        let datetime = Utc.ymd(year.to_i32(), month.to_u32(), day.to_u32()).and_hms(0, 0, 0);
         return DateTime(datetime);
+    }
+
+    pub fn ymd_end_day(year: Year, month: Month, day: Day) -> DateTime {
+        let datetime = Utc.ymd(year.to_i32(), month.to_u32(), day.to_u32()).and_hms(23, 59, 59);
+        return DateTime(datetime);
+    }
+
+    pub fn from_year_start_day(year: Year) -> DateTime {
+        return DateTime::ymd_start_day(year, Month::Jan, Day::DAY_1);
     }
 
     pub fn from_chrono_datetime(datetime: ChronoDateTime<Utc>) -> DateTime {
@@ -61,6 +70,32 @@ impl DateTime {
         let days = Duration::days(days as i64);
         let datetime = self.0 - days;
         return DateTime(datetime);
+    }
+
+    pub fn prev_years(&self, years: u16) -> Result<DateTime, Failure> {
+        let prev_year = self.0.with_year(self.0.year() - years as i32);
+        let prev_year = match prev_year {
+            Some(prev_year) => prev_year,
+            None => {
+                return crate::fail!("Unable to find prev year `{}`", self.get_year());
+            },
+        };
+        let prev_year = DateTime(prev_year);
+        return Ok(prev_year);
+    }
+
+    pub fn prev_timeframe(&self, time_frame: TimeFrame) -> Result<DateTime, Failure> {
+        match time_frame {
+            TimeFrame::Year => {
+                return self.prev_years(1);
+            },
+            TimeFrame::Month => {
+                return Ok(self.sub_days(31));
+            },
+            TimeFrame::Day => {
+                return Ok(self.sub_days(1));
+            },
+        }
     }
 }
 
