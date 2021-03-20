@@ -22,16 +22,16 @@ struct Events {
 
 #[derive(Debug, Deserialize)]
 struct Candlestick {
-    #[serde(rename="open")]
-    pub open: Vec<ActualPrice>,
-    #[serde(rename="close")]
-    pub close: Vec<ActualPrice>,
-    #[serde(rename="high")]
-    pub high: Vec<ActualPrice>,
-    #[serde(rename="low")]
-    pub low: Vec<ActualPrice>,
-    #[serde(rename="volume")]
-    pub volume: Vec<ActualVolume>,
+    #[serde(rename="open", default = "Default::default")]
+    pub open: Vec<Option<ActualPrice>>,
+    #[serde(rename="close", default = "Default::default")]
+    pub close: Vec<Option<ActualPrice>>,
+    #[serde(rename="high", default = "Default::default")]
+    pub high: Vec<Option<ActualPrice>>,
+    #[serde(rename="low", default = "Default::default")]
+    pub low: Vec<Option<ActualPrice>>,
+    #[serde(rename="volume", default = "Default::default")]
+    pub volume: Vec<Option<ActualVolume>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -55,8 +55,8 @@ pub struct ChartResponse {
     events: Option<Events>,
     #[serde(rename="indicators")]
     indicators: Indicators,
-    #[serde(rename="timestamp")]
-    timestamps: Vec<TimeStamp>,
+    #[serde(rename="timestamp", default = "Default::default")]
+    timestamps: Vec<Option<TimeStamp>>,
 }
 
 impl ChartResponse {
@@ -91,6 +91,16 @@ impl ChartResponse {
             candlestick.low.iter(),
             candlestick.volume.iter(),
         );
+        let iterator = iterator
+            .filter_map(|(timestamp, open, close, high, low, volume)| {
+                let timestamp = timestamp.as_ref()?;
+                let open = open.as_ref()?;
+                let close = close.as_ref()?;
+                let high = high.as_ref()?;
+                let low = low.as_ref()?;
+                let volume = volume.as_ref()?;
+                return Some((timestamp, open, close, high, low, volume));
+            });
         let mut result = Vec::new();
         for item in iterator {
             let (timestamp, open, close, high, low, volume) = item;
@@ -108,8 +118,21 @@ impl ChartResponse {
     }
 
     pub fn get_chart_period(&self) -> Result<ActualChartPeriod, Failure> {
-        let first_timestamp = self.timestamps.first();
-        let last_timestamp = self.timestamps.last();
+        let first_timestamp = self
+            .timestamps
+            .iter()
+            .filter_map(|item| {
+                return item.as_ref();
+            })
+            .nth(0);
+        let last_timestamp = self
+            .timestamps
+            .iter()
+            .rev()
+            .filter_map(|item| {
+                return item.as_ref();
+            })
+            .nth(0);
         match (first_timestamp, last_timestamp) {
             (Some(first_timestamp), Some(last_timestamp)) => {
                 let first_timestamp = first_timestamp.to_datetime()?;

@@ -22,6 +22,6 @@ impl CusipCacheRecord {
         if let Some(record) = self.records.first() {
             return Ok(record);
         }
-        return Err(Failure::msg("Unable to get figi record"));
+        return crate::fail!("Unable to get figi record for cusip `{}`", self.cusip);
     }
 }

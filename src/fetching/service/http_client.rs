@@ -105,8 +105,9 @@ impl HttpClient {
             request_builder = request_builder.body(body);
         }
         let response = request_builder.send().await?;
-        if request.get_check_status_code() {
-            if response.status() != reqwest::StatusCode::OK {
+        if !request.get_allowed_status_codes().is_empty() {
+            let response_status_code = response.status().as_u16();
+            if !request.get_allowed_status_codes().contains(&response_status_code) {
                 return Err(FetchError::WrongStatusCode(response));
             }
         }

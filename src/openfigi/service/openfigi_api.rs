@@ -86,8 +86,10 @@ impl OpenFigiApi {
             request = request.with_header(Self::OPENFIGI_AUTH_HEADER, auth_token)?;
         }
         request = request.with_header(CONTENT_TYPE, MIME_APPLICATION_JSON.as_ref())?;
-        let body = FindByIdRequestBody::new_request_cusip(cusip.clone());
-        let body = vec![body];
+        let body = vec![
+            FindByIdRequestBody::new_request_cusip(cusip.clone()),
+            FindByIdRequestBody::new_request_cins(cusip.clone()),
+        ];
         let body = self.serializer.to_vec(&body)?;
         request = request.with_mime_type(MIME_APPLICATION_JSON);
         request = request.with_body(body)?;
@@ -114,8 +116,9 @@ impl OpenFigiApi {
         let responses: Vec<Response<Vec<FigiRecord>>> = self.serializer.from_slice(&response)?;
         let mut records = Vec::with_capacity(responses.len());
         for response in responses {
-            let response_records = response.into_result()?;
-            records.extend_from_slice(response_records.as_slice());
+            if let Ok(response_records) = response.into_result() {
+                records.extend_from_slice(response_records.as_slice());
+            }
         }
         let cache_record = CusipCacheRecord::new(cusip.clone(), records);
         self.cache_repository.store(&cache_record).await?;

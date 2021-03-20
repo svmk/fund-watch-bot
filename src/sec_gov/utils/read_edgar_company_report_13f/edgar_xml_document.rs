@@ -17,6 +17,6 @@ impl EdgarXmlDocument {
     }
 
     pub fn root(&self) -> EdgarXmlFragment {
-        return EdgarXmlFragment::new(self.file.as_document());
+        return EdgarXmlFragment::new(self.file.as_document().root());
     }
 }

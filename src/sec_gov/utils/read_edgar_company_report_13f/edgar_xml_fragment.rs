@@ -1,27 +1,28 @@
 use crate::prelude::*;
-use sxd_document::dom::Document;
+use sxd_document::dom::Root;
 use sxd_xpath::Value as XPathValue;
 use sxd_xpath::Context as XPathContext;
 use sxd_xpath::Factory as XPathFactory;
 use std::collections::HashMap;
+use sxd_xpath::nodeset::Node;
 
 #[derive(Debug)]
 pub struct EdgarXmlFragment<'a> {
-    document: Document<'a>,
+    node: Node<'a>,
     namespaces: HashMap<String, String>,
 }
 
 impl <'a>EdgarXmlFragment<'a> {
-    pub fn new(document: Document<'a>) -> EdgarXmlFragment<'a> {
+    pub fn new(root: Root<'a>) -> EdgarXmlFragment<'a> {
         return EdgarXmlFragment {
-            document,
+            node: Node::Root(root),
             namespaces: HashMap::new(),
         }
     }
 
-    fn new_like(&self, document: Document<'a>) -> EdgarXmlFragment<'a> {
+    fn new_like(&self, node: Node<'a>) -> EdgarXmlFragment<'a> {
         return EdgarXmlFragment {
-            document,
+            node,
             namespaces: self.namespaces.clone(),
         }
     }
@@ -48,7 +49,7 @@ impl <'a>EdgarXmlFragment<'a> {
         let nodes: Vec<_> = nodes
             .iter()
             .map(|node| {
-                return self.new_like(node.document());
+                return self.new_like(node);
             })
             .collect();
         return Ok(nodes);
@@ -78,7 +79,7 @@ impl <'a>EdgarXmlFragment<'a> {
                 return crate::fail!("Unable to compile xpath `{}`", selector);
             },
         };
-        let value = xpath.evaluate(&context, self.document.root())?;
+        let value = xpath.evaluate(&context, self.node)?;
         return Ok(value);
     }
 }

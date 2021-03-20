@@ -1,17 +1,14 @@
-use crate::{repository::repository::repository_instance::RepositoryInstance, sec_gov::model::year_quartal::YearQuartal};
-use crate::app::model::date_iterator::DateIterator;
+use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::market::common::model::ticker::Ticker;
 use crate::market::market_data::model::ticker_price::TickerPrice;
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
 use crate::market::market_data::model::quartal_price::QuartalPrice;
 use crate::market::market_data::model::chart_period::ChartPeriod;
-use crate::market::common::model::original_candlestick::OriginalCandleStick;
+use crate::market::market_data::error::candlestick_fetch_error::CandlestickFetchError;
 use crate::yahoo_finance::service::yahoo_api::YahooApi;
 use crate::yahoo_finance::model::chart::chart_request::ChartRequest;
 use crate::yahoo_finance::model::common_api::interval::Interval;
-use crate::app::model::year_quartal_iterator::YearQuartalIterator;
 use crate::app::model::timestamp::TimeStamp;
-use crate::app::model::date::Date;
 use crate::prelude::*;
 use typed_di::service::service::Service;
 mod candlestick_request;
@@ -27,7 +24,7 @@ pub struct CandlestickDownloader {
 }
 
 impl CandlestickDownloader {
-    pub async fn fetch_by_ticker(&self, request: &CandlestickRequest) -> Result<(), Failure> {
+    pub async fn fetch_by_ticker(&self, request: &CandlestickRequest) -> Result<(), CandlestickFetchError> {
         let mut ticker_price = self.fetch_ticker_price(request).await?;
         let quartal_price_ids_iterator = ticker_price.as_ref().iter_quartal_price_ids()?;
         let quartal_price_ids_iterator = quartal_price_ids_iterator.filter(|quartal_price_id| {
@@ -51,7 +48,7 @@ impl CandlestickDownloader {
         return Ok(());
     }
 
-    async fn fetch_ticker_price(&self, request: &CandlestickRequest) -> Result<UpdateDecision<TickerPrice>, Failure> {
+    async fn fetch_ticker_price(&self, request: &CandlestickRequest) -> Result<UpdateDecision<TickerPrice>, CandlestickFetchError> {
         let ticker_price = self
             .ticker_price_repository
             .find(request.get_ticker()).await?;
@@ -72,6 +69,9 @@ impl CandlestickDownloader {
                 TimeStamp::now(),
             );
             let chart_response = self.yahoo_api.send(chart_request).await?;
+            let chart_response = chart_response.ok_or_else(|| {
+                return CandlestickFetchError::TickerNotAvailable(request.get_ticker().clone());
+            })?;
             let chart_response = chart_response.get_charts()?;
             for split in chart_response.get_splits()? {
                 if ticker_price.can_add_split(&split) {
@@ -95,7 +95,7 @@ impl CandlestickDownloader {
         }
     }
 
-    async fn fetch_quartal_price(&self, ticker_price: &TickerPrice, quartal_price_id: QuartalPriceId) -> Result<UpdateDecision<QuartalPrice>, Failure> {
+    async fn fetch_quartal_price(&self, ticker_price: &TickerPrice, quartal_price_id: QuartalPriceId) -> Result<UpdateDecision<QuartalPrice>, CandlestickFetchError> {
         let quartal_price = self
             .quartal_price_repository
             .find(&quartal_price_id).await?;
@@ -105,7 +105,7 @@ impl CandlestickDownloader {
                 (is_actual, quartal_price)
             },
             None => {
-                let quartal_price = QuartalPrice::new(quartal_price_id);
+                let quartal_price = QuartalPrice::new(quartal_price_id.clone());
                 (false, quartal_price)
             },
         };
@@ -120,6 +120,9 @@ impl CandlestickDownloader {
                 ended_at,
             );
             let chart_response = self.yahoo_api.send(chart_request).await?;
+            let chart_response = chart_response.ok_or_else(|| {
+                return crate::error!("Unable to fetch quartal price `{}`", quartal_price_id);
+            })?;
             let chart_response = chart_response.get_charts()?;
             let candlesticks = chart_response.get_candlesticks()?;
             let candlesticks = ticker_price.calculate_original_candlesticks(candlesticks)?;

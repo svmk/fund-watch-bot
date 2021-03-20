@@ -10,11 +10,12 @@ impl Cusip {
             return Err(Failure::msg("Cusip length is not equal 9"));
         }
         for c in value.chars() {
-            let is_valid_char = c.is_digit(10) || c.is_uppercase() && c.is_alphabetic();
+            let is_valid_char = c.is_digit(10) || c.is_alphabetic();
             if !is_valid_char {
-                return Err(Failure::msg("Invalid cusip format"));
+                return crate::fail!("Invalid cusip format: `{}`", value);
             }
         }
+        let value = value.to_uppercase();
         return Ok(Cusip(value));
     }
 

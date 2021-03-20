@@ -35,12 +35,27 @@ pub struct YahooApi {
 }
 
 impl YahooApi {
-    pub async fn send(&self, request: impl ApiRequest) -> Result<Response, Failure> {
+    pub async fn send(&self, request: impl ApiRequest) -> Result<Option<Response>, Failure> {
+        // {
+        //     let url = request.create_api_url(&self.config.base_url)?;
+        //     let request = Request::get(url);
+        //     let request = request.with_status_code(404);
+        //     // let request = request.with_mime_type(MIME_APPLICATION_JSON);
+        //     let response = self.http_client.send(request).await?;
+        //     let response = response.bytes().await?;
+        //     let response = response.to_vec();
+        //     let response = String::from_utf8_lossy(&response);
+        //     println!("yahoo response = `{}`", response);
+        // }
         let url = request.create_api_url(&self.config.base_url)?;
         let request = Request::get(url);
-        let request = request.with_mime_type(MIME_APPLICATION_JSON);
+        let request = request.with_status_code(404);
+        // let request = request.with_mime_type(MIME_APPLICATION_JSON);
         let response = self.http_client.send(request).await?;
+        if response.status().as_u16() == 404 {
+            return Ok(None);
+        }
         let response: Response = response.json().await?;
-        return Ok(response);
+        return Ok(Some(response));
     }
 }

@@ -2,6 +2,7 @@ use crate::market::common::model::ticker::Ticker;
 use crate::app::model::year_quartal::YearQuartal;
 use crate::app::model::datetime::DateTime;
 use crate::repository::model::identity::Identity;
+use std::fmt;
 
 #[derive(new, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct QuartalPriceId {
@@ -39,5 +40,11 @@ impl QuartalPriceId {
 impl Identity for QuartalPriceId {
     fn to_string(&self) -> String {
         return format!("{}_{}", self.ticker, self.period);
+    }
+}
+
+impl fmt::Display for QuartalPriceId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}_{}", self.ticker, self.period)
     }
 }

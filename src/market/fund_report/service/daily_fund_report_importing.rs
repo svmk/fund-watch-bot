@@ -143,17 +143,30 @@ impl DailyFundReportImporting {
                 .await?;
             let weight = fund_component.get_share().clone().into_f64() / share_sum;
             let weight = Weight::from_f64(weight)?;
-            let candlestick = self
+            let candlestick_result = self
                 .candlestick_provider
                 .fetch_last_candlestick(ticker.clone(), report_datetime.clone())
-                .await?;
-            let fund_component = FundComponent::new(
-                ticker.clone(),
-                fund_component.get_share().clone(),
-                candlestick.get_orignal().get_close().clone(),
-                weight,
-            );
-            result.add_fund_component(fund_component);
+                .await;
+            let candlestick = match candlestick_result {
+                Ok(candlestick) => Some(candlestick),
+                Err(error) => {
+                    if error.is_ticker_not_available() {
+                        None
+                    } else {
+                        return Err(error.into());
+                    }
+                },
+            };
+            if let Some(candlestick) = candlestick {
+                // TODO: Изменить модель FundComponent, и сделать цены опциональными
+                let fund_component = FundComponent::new(
+                    ticker.clone(),
+                    fund_component.get_share().clone(),
+                    candlestick.get_orignal().get_close().clone(),
+                    weight,
+                );
+                result.add_fund_component(fund_component);
+            }
         }
         self.report_repository.store(&result).await?;
         self.event_emitter.emit_event(NewDailyFundReportEvent::new(result.get_id().clone())).await?;

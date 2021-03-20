@@ -28,7 +28,7 @@ impl SubdirPathMapper {
         if end_at >= directory.len() {
             end_at = directory.len();
         }
-        let subdir = &directory[self.start_at..end_at];
+        let subdir = directory.get(self.start_at..end_at).unwrap_or_default();
         if subdir.is_empty() {
             if self.fail_when_empty {
                 return crate::fail!("Unable to extract subdir from `{}` with range {}..{}", directory, self.start_at, end_at);

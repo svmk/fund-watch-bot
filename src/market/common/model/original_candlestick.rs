@@ -29,6 +29,7 @@ impl OriginalCandleStick {
         for candlestick in iterator {
             if is_first {
                 open = candlestick.get_open().clone();
+                low = candlestick.get_low().clone();
                 is_first = false;
             }
             close = candlestick.get_close().clone();

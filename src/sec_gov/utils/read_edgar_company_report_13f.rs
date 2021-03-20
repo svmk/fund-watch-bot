@@ -59,15 +59,16 @@ fn parse_document_information_table(document: &EdgarXmlDocument) -> Result<Optio
     let info_tables = document.list("//edgar:informationTable//edgar:infoTable")?;
     let mut result = Form13FComponentTable::new();
     for info_table in info_tables.iter() {
-        let company_name = info_table.read_xpath_string("//edgar:nameOfIssuer")?;
-        let company_name = CompanyName::from_string(company_name)?;
-        let cusip = info_table.read_xpath_string("//edgar:cusip")?;
+        let company_name = info_table.read_xpath_string("edgar:nameOfIssuer")?;
+        let company_name = company_name.trim();
+        let company_name = CompanyName::from_str(company_name)?;
+        let cusip = info_table.read_xpath_string("edgar:cusip")?;
         let cusip = Cusip::from_string(cusip)?;
-        let investment_discretion = info_table.read_xpath_string("//edgar:investmentDiscretion")?;
+        let investment_discretion = info_table.read_xpath_string("edgar:investmentDiscretion")?;
         let investment_discretion = InvestmentDiscretion::from_str(&investment_discretion)?;
-        let share = info_table.read_xpath_string("//edgar:shrsOrPrnAmt/edgar:sshPrnamt")?;
+        let share = info_table.read_xpath_string("edgar:shrsOrPrnAmt/edgar:sshPrnamt")?;
         let share = Share::from_str(&share)?;
-        let share_type = info_table.read_xpath_string("//edgar:shrsOrPrnAmt/edgar:sshPrnamtType")?;
+        let share_type = info_table.read_xpath_string("edgar:shrsOrPrnAmt/edgar:sshPrnamtType")?;
         if share_type != "SH" {
             return Err(Failure::msg(format!("Unknown share type {}", share_type)));
         }

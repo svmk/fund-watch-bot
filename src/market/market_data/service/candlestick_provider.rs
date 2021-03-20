@@ -4,12 +4,12 @@ use crate::market::market_data::model::candlestick_report::CandlestickReport;
 use crate::market::market_data::model::time_frame::TimeFrame;
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
 use crate::market::market_data::model::ticker_price::TickerPrice;
+use crate::market::market_data::error::candlestick_fetch_error::CandlestickFetchError;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::market::market_data::model::quartal_price::QuartalPrice;
 use crate::app::model::datetime::DateTime;
 use crate::app::model::year_quartal::YearQuartal;
 use typed_di::service::service::Service;
-use crate::prelude::*;
 
 
 #[derive(new)]
@@ -20,7 +20,7 @@ pub struct CandlestickProvider {
 }
 
 impl CandlestickProvider {
-    pub async fn fetch_last_candlestick(&self, ticker: Ticker, mut datetime: DateTime) -> Result<CandlestickReport, Failure> {
+    pub async fn fetch_last_candlestick(&self, ticker: Ticker, mut datetime: DateTime) -> Result<CandlestickReport, CandlestickFetchError> {
         loop {
             if let Some(report) = self.fetch_opt_candlestick(ticker.clone(), TimeFrame::Day, datetime.clone()).await? {
                 return Ok(report);
@@ -29,7 +29,7 @@ impl CandlestickProvider {
         }
     }
 
-    async fn fetch_opt_candlestick(&self, ticker: Ticker, time_frame: TimeFrame, datetime: DateTime) -> Result<Option<CandlestickReport>, Failure> {
+    async fn fetch_opt_candlestick(&self, ticker: Ticker, time_frame: TimeFrame, datetime: DateTime) -> Result<Option<CandlestickReport>, CandlestickFetchError> {
         let request = CandlestickRequest::from_datetime(ticker.clone(), datetime.clone());
         self.candlestick_downloader.fetch_by_ticker(&request).await?;
         let ticker_price = self.ticker_price_repository.get(&ticker).await?;
@@ -53,7 +53,7 @@ impl CandlestickProvider {
     }
 }
 
-fn create_candlestick_report(ticker_price: &TickerPrice, original_candlestick: Option<OriginalCandleStick>) -> Result<Option<CandlestickReport>, Failure> {
+fn create_candlestick_report(ticker_price: &TickerPrice, original_candlestick: Option<OriginalCandleStick>) -> Result<Option<CandlestickReport>, CandlestickFetchError> {
     if let Some(original_candlestick) = original_candlestick {
         let actual_candlestick = ticker_price.calculate_actual_candlestick(&original_candlestick)?;
         let report = CandlestickReport::new(

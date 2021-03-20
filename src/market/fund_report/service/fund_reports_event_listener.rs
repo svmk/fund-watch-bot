@@ -20,9 +20,15 @@ impl FundReportsEventListener {
             .get_daily_fund_report_id()
             .clone();
         let fund_id = daily_fund_report_id.get_fund_id();
-        let mut fund_reports = self
+        let fund_reports = self
             .fund_reports_repository
-            .get(fund_id).await?;
+            .find(fund_id).await?;
+        let mut fund_reports = match fund_reports {
+            Some(fund_reports) => fund_reports,
+            None => {
+                FundReports::new(fund_id.clone())
+            }
+        };
         fund_reports.push_once_daily_fund_report_id(daily_fund_report_id);
         self.fund_reports_repository.store(&fund_reports).await?;
         self.generate_fund_changes(&fund_reports).await?;

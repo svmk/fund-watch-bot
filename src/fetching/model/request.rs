@@ -12,7 +12,7 @@ use reqwest::header::IntoHeaderName;
 pub struct Request {
     url: Url,
     request_method: RequestMethod,
-    check_status_code: bool,
+    allowed_status_codes: Vec<u16>,
     expected_mimes: Vec<MimeType>,
     headers: HeaderMap,
     body: Option<Vec<u8>>,
@@ -24,7 +24,7 @@ impl Request {
         return Request {
             url,
             request_method: RequestMethod::Get,
-            check_status_code: true,
+            allowed_status_codes: vec![200],
             expected_mimes: Vec::new(),
             headers: HeaderMap::new(),
             body: None,
@@ -36,7 +36,7 @@ impl Request {
         return Request {
             url,
             request_method: RequestMethod::Post,
-            check_status_code: true,
+            allowed_status_codes: vec![200],
             expected_mimes: Vec::new(),
             headers: HeaderMap::new(),
             body: None,
@@ -68,6 +68,11 @@ impl Request {
         return self;
     }
 
+    pub fn with_status_code(mut self, status_code: u16) -> Self {
+        self.allowed_status_codes.push(status_code);
+        return self;
+    }
+
     pub fn get_method(&self) -> &RequestMethod {
         return &self.request_method;
     }
@@ -76,8 +81,8 @@ impl Request {
         return &self.url;
     }
 
-    pub fn get_check_status_code(&self) -> bool {
-        return self.check_status_code;
+    pub fn get_allowed_status_codes(&self) -> &[u16] {
+        return &self.allowed_status_codes;
     }
 
     pub fn get_expected_mimes(&self) -> &Vec<MimeType> {
