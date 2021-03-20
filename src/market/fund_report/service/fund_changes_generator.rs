@@ -28,6 +28,7 @@ impl FundChangesGenerator {
                 fund_changes
             },
         };
+        self.fund_changes_repository.store(&fund_changes).await?;
         self.event_emitter.emit_event(NewFundChangeEvent::new(fund_changes.get_id().clone())).await?;
         return Ok(fund_changes);
     }   

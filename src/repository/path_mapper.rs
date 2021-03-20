@@ -6,3 +6,4 @@ pub mod seq_path_mapper;
 pub mod for_each_path_mapper;
 pub mod path_mapper_instance;
 pub mod iter_path_mapper;
+pub mod suffix_path_mapper;
