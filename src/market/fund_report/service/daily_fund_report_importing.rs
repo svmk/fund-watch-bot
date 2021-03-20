@@ -141,6 +141,13 @@ impl DailyFundReportImporting {
                 .openfigi_api
                 .get_ticker_by_cusip(fund_component.get_cusip())
                 .await?;
+            // TODO: Компонент фонда, для которого не был найден тикер, всё равно должен попасть в фонд.
+            let ticker = match ticker {
+                Some(ticker) => ticker,
+                None => {
+                    continue;
+                }
+            };
             let weight = fund_component.get_share().clone().into_f64() / share_sum;
             let weight = Weight::from_f64(weight)?;
             let candlestick_result = self

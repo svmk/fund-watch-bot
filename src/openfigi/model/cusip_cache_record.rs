@@ -1,4 +1,5 @@
 use crate::market::common::model::cusip::Cusip;
+use crate::market::common::model::ticker::Ticker;
 use crate::openfigi::model::figi_record::FigiRecord;
 use crate::repository::model::entity::Entity;
 use crate::prelude::*;
@@ -23,5 +24,14 @@ impl CusipCacheRecord {
             return Ok(record);
         }
         return crate::fail!("Unable to get figi record for cusip `{}`", self.cusip);
+    }
+
+    pub fn find_ticker(&self) -> Option<Ticker> {
+        for record in self.records.iter() {
+            if let Some(ticker) = record.get_opt_ticker() {
+                return Some(ticker);
+            }
+        }
+        return None;
     }
 }

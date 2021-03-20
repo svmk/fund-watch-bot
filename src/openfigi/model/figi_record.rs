@@ -17,4 +17,11 @@ impl FigiRecord {
         }
         return Err(Failure::msg("Ticker not found in figi record"));
     }
+
+    pub fn get_opt_ticker(&self) -> Option<Ticker> {
+        if let Some(ref ticker) = self.ticker {
+            return Some(ticker.clone());
+        }
+        return None;
+    }
 }

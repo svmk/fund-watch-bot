@@ -75,10 +75,9 @@ impl OpenFigiApi {
         };
     }
 
-    pub async fn get_ticker_by_cusip(&self, cusip: &Cusip) -> Result<Ticker, Failure> {
+    pub async fn get_ticker_by_cusip(&self, cusip: &Cusip) -> Result<Option<Ticker>, Failure> {
         if let Some(cache_record) = self.cache_repository.find(cusip).await? {
-            let ticker = cache_record.get_first_record()?.get_ticker()?;
-            return Ok(ticker);
+            return Ok(cache_record.find_ticker());
         }
         let url = self.config.base_url.join("/v2/mapping")?;
         let mut request = Request::post(url);
@@ -122,7 +121,6 @@ impl OpenFigiApi {
         }
         let cache_record = CusipCacheRecord::new(cusip.clone(), records);
         self.cache_repository.store(&cache_record).await?;
-        let ticker = cache_record.get_first_record()?.get_ticker()?;
-        return Ok(ticker);
+        return Ok(cache_record.find_ticker());
     }
 }
