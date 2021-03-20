@@ -5,6 +5,7 @@ use crate::prelude::*;
 pub enum InvestmentDiscretion {
     Sole,
     Defund,
+    Otr,
 }
 
 impl FromStr for InvestmentDiscretion {
@@ -16,6 +17,9 @@ impl FromStr for InvestmentDiscretion {
             },
             "DFND" => {
                 return Ok(InvestmentDiscretion::Defund);
+            },
+            "OTR" => {
+                return Ok(InvestmentDiscretion::Otr);
             },
             _ => {
                 return Err(Failure::msg(format!("Wrong investment discretion value: `{}`", s)));

@@ -25,7 +25,9 @@ pub struct CandlestickDownloader {
 
 impl CandlestickDownloader {
     pub async fn fetch_by_ticker(&self, request: &CandlestickRequest) -> Result<(), CandlestickFetchError> {
+        // println!("fetch_by_ticker = {:#?}", request);
         let mut ticker_price = self.fetch_ticker_price(request).await?;
+        // println!("ticker_price = {:#?}", ticker_price);
         let quartal_price_ids_iterator = ticker_price.as_ref().iter_quartal_price_ids()?;
         let quartal_price_ids_iterator = quartal_price_ids_iterator.filter(|quartal_price_id| {
             return request.get_chart_period().intersects_year_quartal(quartal_price_id.get_period());
@@ -44,6 +46,9 @@ impl CandlestickDownloader {
         }
         if ticker_price.is_need_update() {
             self.ticker_price_repository.store(ticker_price.as_ref()).await?;
+        }
+        if !ticker_price.get_actual_chart_period().is_actual(request.get_chart_period()) {
+            return Err(CandlestickFetchError::TickerNotAvailable(ticker_price.get_ticker().clone()));
         }
         return Ok(());
     }
@@ -96,6 +101,7 @@ impl CandlestickDownloader {
     }
 
     async fn fetch_quartal_price(&self, ticker_price: &TickerPrice, quartal_price_id: QuartalPriceId) -> Result<UpdateDecision<QuartalPrice>, CandlestickFetchError> {
+        // println!("fetch_quartal_price = `{}`", quartal_price_id);
         let quartal_price = self
             .quartal_price_repository
             .find(&quartal_price_id).await?;

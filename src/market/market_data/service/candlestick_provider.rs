@@ -22,14 +22,15 @@ pub struct CandlestickProvider {
 impl CandlestickProvider {
     pub async fn fetch_last_candlestick(&self, ticker: Ticker, mut datetime: DateTime) -> Result<CandlestickReport, CandlestickFetchError> {
         loop {
-            if let Some(report) = self.fetch_opt_candlestick(ticker.clone(), TimeFrame::Day, datetime.clone()).await? {
+            if let Some(report) = self.fetch_candlestick(ticker.clone(), TimeFrame::Day, datetime.clone()).await? {
                 return Ok(report);
             }
             datetime = datetime.prev_timeframe(TimeFrame::Day)?;
         }
     }
 
-    async fn fetch_opt_candlestick(&self, ticker: Ticker, time_frame: TimeFrame, datetime: DateTime) -> Result<Option<CandlestickReport>, CandlestickFetchError> {
+    async fn fetch_candlestick(&self, ticker: Ticker, time_frame: TimeFrame, datetime: DateTime) -> Result<Option<CandlestickReport>, CandlestickFetchError> {
+        // println!("Fetching `{}` `{}`", ticker, datetime);
         let request = CandlestickRequest::from_datetime(ticker.clone(), datetime.clone());
         self.candlestick_downloader.fetch_by_ticker(&request).await?;
         let ticker_price = self.ticker_price_repository.get(&ticker).await?;

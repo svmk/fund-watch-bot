@@ -35,6 +35,10 @@ impl TickerPrice {
         };
     }
 
+    pub fn get_ticker(&self) -> &Ticker {
+        return &self.ticker;
+    }
+
     pub fn can_add_split(&self, split: &Split) -> bool {
         return self.split_rules.can_add_split(split);
     }

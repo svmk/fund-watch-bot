@@ -48,6 +48,7 @@ impl YahooApi {
         //     println!("yahoo response = `{}`", response);
         // }
         let url = request.create_api_url(&self.config.base_url)?;
+        // println!("yahoo api = `{}`", url);
         let request = Request::get(url);
         let request = request.with_status_code(404);
         // let request = request.with_mime_type(MIME_APPLICATION_JSON);

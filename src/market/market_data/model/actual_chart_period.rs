@@ -1,4 +1,4 @@
-use crate::market::market_data::model::chart_period::ChartPeriod;
+use crate::{app::model::datetime::DateTime, market::market_data::model::chart_period::ChartPeriod};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActualChartPeriod {
@@ -27,6 +27,17 @@ impl ActualChartPeriod {
         match self.period {
             Some(ref period) => {
                 return period.contains(expected_period);
+            },
+            None => {
+                return false;
+            },
+        }
+    }
+
+    pub fn is_actual_datetime(&self, datetime: &DateTime) -> bool {
+        match self.period {
+            Some(ref period) => {
+                return period.contains_datetime(datetime);
             },
             None => {
                 return false;
