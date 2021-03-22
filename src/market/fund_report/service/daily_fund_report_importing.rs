@@ -117,6 +117,7 @@ impl DailyFundReportImporting {
             Some(fund) => fund,
             None => Fund::new(fund_id, report.get_form_13f().get_company_name().clone()),
         };
+        self.fund_repository.store(&fund).await?;
         let daily_fund_report_id = DailyFundReportId::new(
             fund.get_fund_id().clone(),
             report_ref.get_date().clone(),

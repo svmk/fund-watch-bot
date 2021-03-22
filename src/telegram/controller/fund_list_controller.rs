@@ -8,7 +8,6 @@ use crate::telegram::views::fund_list_view::fund_list_view;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
 use crate::repository::repository::repository_instance::RepositoryInstance;
-use crate::repository::query::all_query::AllQuery;
 use typed_di::service::service::Service;
 
 #[derive(new)]
@@ -24,8 +23,9 @@ impl CommandHandler for FundListController {
     async fn handle_message(&self, context: &ChatContext, message: IncomingMessage) -> Result<View, Failure> {
         let mut funds = self
             .fund_repository
-            .query(AllQuery::new()).await?
+            .all().await?
             .to_vec().await?;
+        println!("Funds = {:?}", funds);
         if let Some(argument) = message.get_argument() {
             let argument = argument.to_lowercase();
             funds.drain_filter(|fund| {

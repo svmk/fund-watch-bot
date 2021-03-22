@@ -47,7 +47,6 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         let service = FileRepository::new(
             ticker_price_path_resolver(path),
             JsonSerializer::new(),
-            resolver.get_service(di::repository_di::QUERY_COMPARATOR).await?,
         );
         return Ok(service);
     })?;
@@ -58,7 +57,6 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         let service = FileRepository::new(
             quartal_price_path_resolver(path),
             JsonSerializer::new(),
-            resolver.get_service(di::repository_di::QUERY_COMPARATOR).await?,
         );
         return Ok(service);
     })?;

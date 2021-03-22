@@ -35,7 +35,6 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         let service = FileRepository::new(
             cusip_cache_path_resolver(path),
             JsonSerializer::new(),
-            resolver.get_service(di::repository_di::QUERY_COMPARATOR).await?,
         );
         return Ok(service);
     })?;

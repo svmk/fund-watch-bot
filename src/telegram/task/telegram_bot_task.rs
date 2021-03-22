@@ -2,6 +2,7 @@ use crate::{prelude::*};
 use crate::telegram::service::message_handler::MessageHandler;
 use crate::telegram::service::bot_instance::BotInstance;
 use typed_di::service::service::Service;
+use tbot::types::update::Kind;
 
 #[derive(new)]
 pub struct TelegramBotTask {
@@ -14,25 +15,57 @@ impl TelegramBotTask {
         let bot = self.bot_instance.get_bot();
         let mut event_loop = bot.event_loop();
         let message_handler = self.message_handler.clone();
-        event_loop.text(move |context| {
+        event_loop.unhandled(move |context| {
             let message_handler = message_handler.clone();
             return async move {
-                let result = message_handler.handle_text_message(&context).await;
+                let result = match context.update {
+                    Kind::Message(ref message) => {
+                        message_handler.handle_text_message(&message).await
+                    },
+                    Kind::CallbackQuery(ref query) => {
+                        Ok(())
+                    },
+                    _ => {
+                        Ok(())
+                    },
+                };
                 if let Err(error) = result {
                     eprintln!("Telegram error: {}", error);
                 }
-            };
+            }
         });
-        let message_handler = self.message_handler.clone();
-        event_loop.inline_data_callback(move |context| {
-            let message_handler = message_handler.clone();
-            return async move {
-                let result = message_handler.handle_callback_message(&context).await;
-                if let Err(error) = result {
-                    eprintln!("Telegram error: {}", error);
-                }
-            };
-        });
+        // let message_handler = self.message_handler.clone();
+        // event_loop.text(move |context| {
+        //     println!("context 1 = {:?}", context);
+        //     let message_handler = message_handler.clone();
+        //     return async move {
+        //         let result = message_handler.handle_text_message(&context).await;
+        //         if let Err(error) = result {
+        //             eprintln!("Telegram error: {}", error);
+        //         }
+        //     };
+        // });
+        // let message_handler = self.message_handler.clone();
+        // event_loop.start(move |context| {
+        //     println!("context 2 = {:?}", context);
+        //     let message_handler = message_handler.clone();
+        //     return async move {
+        //         let result = message_handler.handle_start_command_message(&context).await;
+        //         if let Err(error) = result {
+        //             eprintln!("Telegram error: {}", error);
+        //         }
+        //     };
+        // });
+        // let message_handler = self.message_handler.clone();
+        // event_loop.inline_data_callback(move |context| {
+        //     let message_handler = message_handler.clone();
+        //     return async move {
+        //         let result = message_handler.handle_callback_message(&context).await;
+        //         if let Err(error) = result {
+        //             eprintln!("Telegram error: {}", error);
+        //         }
+        //     };
+        // });
         event_loop
             .polling()
             .start()

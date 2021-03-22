@@ -9,6 +9,10 @@ pub async fn execute_console(container: Container, config: &ConsoleApplication) 
             let service = container.get_service(console_di::IMPORT_13F_FORM_SERVICE).await?;
             return service.run(command).await;
         },
+        ConsoleCommand::Run => {
+            let service = container.get_service(console_di::RUN_TELEGRAM_SERVICE).await?;
+            return service.run().await;
+        },
     }
     return Ok(());
 }

@@ -38,6 +38,14 @@ impl <I, E> RepositoryInstance<I, E>
         }
     }
 
+    pub async fn is_exists(&self, id: &I) -> Result<bool, Failure> {
+        match self {
+            RepositoryInstance::FileRepository(ref service) => {
+                return service.is_exists(id).await;
+            },
+        }
+    }
+
     pub async fn find_many(&self, ids: &[I]) -> Result<Vec<Option<E>>, Failure> {
         match self {
             RepositoryInstance::FileRepository(ref service) => {
@@ -64,6 +72,18 @@ impl <I, E> RepositoryInstance<I, E>
         match self {
             RepositoryInstance::FileRepository(ref service) => {
                 return service.query(query).await;
+            },
+        }
+    }
+
+    pub async fn all(&self) -> Result<EntityStream<'_, E>, Failure> 
+        where 
+            I: Send + Sync,
+            E: Send + Sync + 'static,
+    {
+        match self {
+            RepositoryInstance::FileRepository(ref service) => {
+                return service.all().await;
             },
         }
     }

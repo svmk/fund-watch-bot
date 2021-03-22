@@ -17,6 +17,7 @@ pub struct FundChangesGenerator {
 
 impl FundChangesGenerator {
     pub async fn generate_fund_changes(&self, fund_changes_id: FundChangesId) -> Result<FundChanges, Failure> {
+        println!("generate_fund_changes = {:?}", fund_changes_id); 
         let fund_changes = self.fund_changes_repository.find(&fund_changes_id).await?;
         let fund_changes = match fund_changes {
             Some(fund_changes) => fund_changes,

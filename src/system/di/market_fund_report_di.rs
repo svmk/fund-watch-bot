@@ -69,7 +69,6 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         let service = FileRepository::new(
             fund_reports_path_resolver(path),
             JsonSerializer::new(),
-            resolver.get_service(di::repository_di::QUERY_COMPARATOR).await?,
         );
         return Ok(service);
     })?;
@@ -80,7 +79,6 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         let service = FileRepository::new(
             fund_path_resolver(path),
             JsonSerializer::new(),
-            resolver.get_service(di::repository_di::QUERY_COMPARATOR).await?,
         );
         return Ok(service);
     })?;
@@ -91,7 +89,6 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         let service = FileRepository::new(
             daily_fund_report_path_resolver(path),
             JsonSerializer::new(),
-            resolver.get_service(di::repository_di::QUERY_COMPARATOR).await?,
         );
         return Ok(service);
     })?;
@@ -102,7 +99,6 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         let service = FileRepository::new(
             fund_changes_path_resolver(path),
             JsonSerializer::new(),
-            resolver.get_service(di::repository_di::QUERY_COMPARATOR).await?,
         );
         return Ok(service);
     })?;

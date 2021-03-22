@@ -7,11 +7,12 @@ use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::model::chat::Chat;
 use crate::telegram::model::chat_context::ChatContext;
 use crate::telegram::model::action_route::ActionRoute;
+use tbot::types::message::Message;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use typed_di::service::service::Service;
 use tbot::contexts::InlineDataCallback;
-use tbot::contexts::Text as TextContext;
 use tbot::types::chat::Id as TelegramChatId;
+use tbot::types::message::Kind;
 use std::str::FromStr;
 
 #[derive(new)]
@@ -23,11 +24,17 @@ pub struct MessageHandler {
 }
 
 impl MessageHandler {
-    pub async fn handle_text_message(&self, context: &TextContext) -> Result<(), Failure> {
-        self.ensure_chat_exists(context.chat.id.clone()).await?;
-        let incoming_message = IncomingMessage::from_str(&context.text.value)?;
+    pub async fn handle_text_message(&self, message: &Message) -> Result<(), Failure> {
+        self.ensure_chat_exists(message.chat.id.clone()).await?;
+        let text = match message.kind {
+            Kind::Text(ref text) => text,
+            _ => {
+                return Ok(());
+            },
+        };
+        let incoming_message = IncomingMessage::from_str(&text.value)?;
         let message_handler = self.command_router.get_command(incoming_message.get_command())?;
-        let chat_id = ChatId::from_i64(context.chat.id.0)?;
+        let chat_id = ChatId::from_i64(message.chat.id.0)?;
         let chat_context = ChatContext {
             chat_id,
         };

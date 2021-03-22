@@ -4,8 +4,8 @@ use crate::repository::path_mapper::subdir_path_mapper::SubdirPathMapper;
 use crate::repository::path_mapper::iter_path_mapper::IterPathMapper;
 use std::path::PathBuf;
 
-pub fn quartal_price_path_resolver(mut path: PathBuf) -> PathResolver {
-    path.push("prices");
+pub fn action_id_path_resolver(mut path: PathBuf) -> PathResolver {
+    path.push("telegram/actions");
     let path_mapper = IterPathMapper::new()
         .push_mapper(SubdirPathMapper::new(0, 2))
         .push_mapper(SubdirPathMapper::new(2, 2));

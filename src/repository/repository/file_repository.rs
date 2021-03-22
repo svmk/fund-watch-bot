@@ -28,7 +28,7 @@ pub struct FileRepository<I, E>
     _entity: PhantomData<E>,
     path_resolver: PathResolver,
     serializer_instance: SerializerInstance,
-    query_comparator: Service<QueryComparator>,
+    query_comparator: Option<Service<QueryComparator>>,
 }
 
 impl <I, E> FileRepository<I, E>
@@ -39,16 +39,20 @@ impl <I, E> FileRepository<I, E>
     pub fn new(
         path_resolver: PathResolver,
         serializer_instance: SerializerInstance,
-        query_comparator: Service<QueryComparator>,
     ) -> RepositoryInstance<I, E> {
         let repository = FileRepository {
             _identity: PhantomData{},
             _entity: PhantomData {},
             path_resolver,
             serializer_instance,
-            query_comparator,
+            query_comparator: None,
         };
         return RepositoryInstance::FileRepository(repository);
+    }
+
+    pub fn with_query_comparator(mut self, query_comparator: Service<QueryComparator>) -> Self {
+        self.query_comparator = Some(query_comparator);
+        return self;
     }
 
     pub async fn get(&self, id: &I) -> Result<E, Failure> {
@@ -89,6 +93,14 @@ impl <I, E> FileRepository<I, E>
         return Ok(Some(model));
     }
 
+    pub async fn is_exists(&self, id: &I) -> Result<bool, Failure> {
+        let path = RelativePath::from_string(id.to_string());
+        let path = self.path_resolver.resolve_path(path)?;
+        let async_path = AsyncPath::new(&path);
+        let is_exists = async_path.exists().await;
+        return Ok(is_exists);
+    }
+
     pub async fn find_many(&self, ids: &[I]) -> Result<Vec<Option<E>>, Failure> {
         let mut result = Vec::with_capacity(ids.len());
         for id in ids.iter() {
@@ -116,6 +128,42 @@ impl <I, E> FileRepository<I, E>
             I: Send + Sync,
             E: Send + Sync + 'static,
     {
+        let query_comparator = match self.query_comparator {
+            Some(ref query_comparator) => query_comparator,
+            None => {
+                return crate::fail!("Query comparator not available");
+            },
+        };
+        let entites_stream = self.all().await?;
+        let entites_stream = entites_stream.filter_map(move |entity| {
+            let mut result = None;
+            if let Ok(entity) = entity {
+                let is_match = query_comparator.compare_entity(&query, &entity);
+                match is_match {
+                    Ok(true) => {
+                        result = Some(Ok(entity));
+                    },
+                    Ok(false) => {
+                        result = None;
+                    },
+                    Err(error) => {
+                        result = Some(Err(error));
+                    },
+                }
+            }
+            async move {
+                return result;
+            }
+        });
+        let entites_stream = EntityStream::new(entites_stream);
+        return Ok(entites_stream);
+    }
+
+    pub async fn all(&self) -> Result<EntityStream<'_, E>, Failure> 
+        where 
+            I: Send + Sync,
+            E: Send + Sync + 'static,
+    {
         let base_path = self.path_resolver.base_path()?;
         async_std::fs::create_dir_all(&base_path).await?;
         let walkdir_stream = WalkDir::new(base_path)
@@ -134,41 +182,24 @@ impl <I, E> FileRepository<I, E>
                     return Filtering::Ignore;
                 }
             });
-        let query = Arc::new(query);
         let walkdir_stream = walkdir_stream
-            .filter_map(move |file_path| {
-                let query = query.clone();
-                return async move {
-                    let file_path = file_path
-                        .map(|file_path| {
-                            return file_path.path();
-                        })
-                        .map_err(|error| {
-                            let error: Failure = error.into();
-                            return error;
-                        });
-                    let result = self.process_walkdir_stream(query.as_ref(), file_path).await;
-                    return result.transpose();
-                }
+            .then(async move |file_path| -> Result<E, Failure> {
+                let file_path = file_path
+                .map(|file_path| {
+                    return file_path.path();
+                })
+                .map_err(|error| {
+                    let error: Failure = error.into();
+                    return error;
+                });
+                let file_path = file_path?;
+                let mut file = File::open(&file_path).await?;
+                let mut data: Vec<u8> = Vec::new();
+                file.read_to_end(&mut data).await?;
+                let model: E = self.serializer_instance.from_slice(&data)?;
+                return Ok(model);
             });
         let walkdir_stream = EntityStream::new(walkdir_stream);
         return Ok(walkdir_stream);
-    }
-
-    async fn process_walkdir_stream<Q>(&self, query: &Q, file_path: Result<PathBuf, Failure>) -> Result<Option<E>, Failure>
-        where 
-            Q: Query,
-            E: 'static,
-    {
-        let file_path = file_path?;
-        let mut file = File::open(&file_path).await?;
-        let mut data: Vec<u8> = Vec::new();
-        file.read_to_end(&mut data).await?;
-        let model: E = self.serializer_instance.from_slice(&data)?;
-        let model = match self.query_comparator.compare(query, &model)? {
-            true => Some(model),
-            false => None,
-        };
-        return Ok(model);
     }
 }

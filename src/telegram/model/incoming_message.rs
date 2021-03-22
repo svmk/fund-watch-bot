@@ -2,6 +2,7 @@ use crate::telegram::model::command::Command;
 use crate::prelude::*;
 use std::str::FromStr;
 
+#[derive(Debug)]
 pub struct IncomingMessage {
     command: Command,
     argument: Option<String>,
@@ -26,12 +27,16 @@ impl FromStr for IncomingMessage {
                 let text = &text[1..];
                 let whitespace_index = text.find(|c: char| {
                     return c.is_whitespace();
-                }).unwrap_or(0);
-                let (command_text, arument_text) = text.split_at(whitespace_index);
-                if !arument_text.is_empty() {
-                    argument = Some(arument_text.to_string());
+                });
+                if let Some(whitespace_index) = whitespace_index {
+                    let (command_text, arument_text) = text.split_at(whitespace_index);
+                    if !arument_text.is_empty() {
+                        argument = Some(arument_text.to_string());
+                    }
+                    Command::from_str(command_text)?
+                } else {
+                    Command::from_str(text)?
                 }
-                Command::from_str(command_text)?
             },
             false => {
                 Command::Unknown

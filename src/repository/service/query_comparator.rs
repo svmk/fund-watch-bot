@@ -30,7 +30,7 @@ impl QueryComparator {
             let _ = self.comparators.insert(query_type, comparator);
         }
 
-    pub fn compare<E, Q>(&self, query: &Q, entity: &E) -> Result<bool, Failure> 
+    pub fn compare_entity<E, Q>(&self, query: &Q, entity: &E) -> Result<bool, Failure> 
         where 
             Q: Query,
             E: Any,

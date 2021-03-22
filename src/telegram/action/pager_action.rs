@@ -90,7 +90,9 @@ impl PagerAction {
     }
 
     pub fn iter_pages(&self) -> impl Iterator<Item=&Page> + '_ {
+        println!("self = {:#?}", self);
         let pages_length = self.pages.len();
+        dbg!(self.current_page_num, self.paginator_length);
         let begin = self.current_page_num - self.paginator_length;
         let end = self.current_page_num + self.paginator_length;
         return self
