@@ -59,28 +59,32 @@ impl BotInstance {
         };
         let telegram_chat_id = TelegramChatId(chat_id.to_i64());
         for message in view.iter_messages() {
-            let message_text = MessageText::with_plain(message.get_text());
+            let message_text = MessageText::with_html(message.get_text());
             match chat_messages.get_telegram_message(message.get_id()) {
-                Some(telegram_message_id) => {
-                    let telegram_message_id = TelegramMessageId(telegram_message_id.to_u32());
-                    let mut bot_message = self.bot.edit_message_text(
-                        telegram_chat_id, 
-                        telegram_message_id,
-                        message_text,
-                    );
-                    if let Some(reply_markup) = telegram_create_reply_markup(message.get_reply_markup()) {
-                        bot_message = bot_message.reply_markup(reply_markup);
+                Some(sended_message) => {
+                    if sended_message.need_update(message) {
+                        let telegram_message_id = sended_message.get_telegram_message_id();
+                        let telegram_message_id = TelegramMessageId(telegram_message_id.to_u32());
+                        let mut bot_message = self.bot.edit_message_text(
+                            telegram_chat_id, 
+                            telegram_message_id,
+                            message_text,
+                        );
+                        if let Some(reply_markup) = telegram_create_reply_markup(message.get_reply_markup()) {
+                            bot_message = bot_message.reply_markup(reply_markup);
+                        }
+                        bot_message.call().await?;
                     }
-                    bot_message.call().await?;
                 },
                 None => {
                     let mut bot_message = self.bot.send_message(telegram_chat_id, message_text);
                     if let Some(reply_markup) = telegram_create_reply_markup(message.get_reply_markup()) {
                         bot_message = bot_message.reply_markup(reply_markup);
                     }
+                    bot_message = bot_message.is_notification_disabled(!message.is_notification_enabled());
                     let send_message_response = bot_message.call().await?;
                     let telegram_message_id = MessageId::from_u32(send_message_response.id.0)?;
-                    chat_messages.assign_message(telegram_message_id, message.get_id().clone());
+                    chat_messages.assign_message(telegram_message_id, message.clone());
                 },
             }
             self.messages_repository.store(&chat_messages).await?;

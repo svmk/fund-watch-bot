@@ -23,7 +23,7 @@ impl TelegramBotTask {
                         message_handler.handle_text_message(&message).await
                     },
                     Kind::CallbackQuery(ref query) => {
-                        Ok(())
+                        message_handler.handle_callback_message(&query).await
                     },
                     _ => {
                         Ok(())
@@ -34,38 +34,6 @@ impl TelegramBotTask {
                 }
             }
         });
-        // let message_handler = self.message_handler.clone();
-        // event_loop.text(move |context| {
-        //     println!("context 1 = {:?}", context);
-        //     let message_handler = message_handler.clone();
-        //     return async move {
-        //         let result = message_handler.handle_text_message(&context).await;
-        //         if let Err(error) = result {
-        //             eprintln!("Telegram error: {}", error);
-        //         }
-        //     };
-        // });
-        // let message_handler = self.message_handler.clone();
-        // event_loop.start(move |context| {
-        //     println!("context 2 = {:?}", context);
-        //     let message_handler = message_handler.clone();
-        //     return async move {
-        //         let result = message_handler.handle_start_command_message(&context).await;
-        //         if let Err(error) = result {
-        //             eprintln!("Telegram error: {}", error);
-        //         }
-        //     };
-        // });
-        // let message_handler = self.message_handler.clone();
-        // event_loop.inline_data_callback(move |context| {
-        //     let message_handler = message_handler.clone();
-        //     return async move {
-        //         let result = message_handler.handle_callback_message(&context).await;
-        //         if let Err(error) = result {
-        //             eprintln!("Telegram error: {}", error);
-        //         }
-        //     };
-        // });
         event_loop
             .polling()
             .start()

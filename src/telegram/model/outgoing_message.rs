@@ -1,11 +1,16 @@
 use crate::telegram::model::reply_markup::ReplyMarkup;
 use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct OutgoingMessage {
+    #[serde(rename="id")]
     id: OutgoingMessageId,
+    #[serde(rename="text")]
     text: String,
+    #[serde(rename="reply_markup")]
     reply_markup: ReplyMarkup,
+    #[serde(rename="enable_notification")]
+    enable_notification: bool,
 }
 
 impl OutgoingMessage {
@@ -14,6 +19,7 @@ impl OutgoingMessage {
             id: OutgoingMessageId::new(),
             text,
             reply_markup: ReplyMarkup::None,
+            enable_notification: false,
         }
     }
     
@@ -22,6 +28,7 @@ impl OutgoingMessage {
             id,
             text,
             reply_markup: ReplyMarkup::None,
+            enable_notification: false,
         }
     }
 
@@ -40,6 +47,14 @@ impl OutgoingMessage {
 
     pub fn get_reply_markup(&self) -> &ReplyMarkup {
         return &self.reply_markup;
+    }
+
+    pub fn is_notification_enabled(&self) -> bool {
+        return self.enable_notification;
+    }
+
+    pub fn is_same(&self, other: &Self) -> bool {
+        return self == other;
     }
 }
 

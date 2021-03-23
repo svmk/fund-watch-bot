@@ -25,7 +25,6 @@ impl CommandHandler for FundListController {
             .fund_repository
             .all().await?
             .to_vec().await?;
-        println!("Funds = {:?}", funds);
         if let Some(argument) = message.get_argument() {
             let argument = argument.to_lowercase();
             funds.drain_filter(|fund| {
@@ -51,7 +50,8 @@ impl ActionHandler for FundListController {
             .action_repository
             .get(action_route.get_action_id()).await?;
         action.update_subscriptions(chat.get_fund_subscriptions());
-        match action.decide(&action_route) {
+        let action_decision = action.decide(&action_route);
+        match action_decision {
             FundListActionDecision::Subscribe(fund_id) => {
                 chat.subscribe(fund_id);
             },

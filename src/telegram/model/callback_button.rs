@@ -1,9 +1,11 @@
 use crate::telegram::model::button::Button;
 use crate::telegram::model::action_route::ActionRoute;
 
-#[derive(new, Debug, Clone)]
+#[derive(new, Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CallbackButton {
+    #[serde(rename="text")]
     text: String,
+    #[serde(rename="action_route")]
     action_route: ActionRoute,
 }
 

@@ -28,13 +28,14 @@ impl ActionRoute {
 impl FromStr for ActionRoute {
     type Err = Failure;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let dot_index = match s.find('.') {
+        let dot_index = match s.rfind('.') {
             Some(dot_index) => dot_index,
             None => {
                 return crate::fail!("Unable to find dot at action route");
             },
         };
         let (action_id, action_ref) = s.split_at(dot_index);
+        let action_ref = &action_ref[1..];
         let action_id = ActionId::from_str(action_id)?;
         let action_ref = ActionRef::from_str(action_ref)?;
         let action_route = ActionRoute {

@@ -1,8 +1,9 @@
 use crate::telegram::model::reply_markup::ReplyMarkup;
 use crate::telegram::model::button::Button;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct InlineKeyboard {
+    #[serde(rename="markup")]
     markup: Vec<Vec<Button>>,
 }
 

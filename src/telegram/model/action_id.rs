@@ -46,7 +46,8 @@ impl FromStr for ActionId {
             },
         };
         let (action_type, action_id) = s.split_at(dot_index);
-        let action_type = ActionType::from_str(action_id)?;
+        let action_id = &action_id[1..];
+        let action_type = ActionType::from_str(action_type)?;
         let action_id = EncodedUint::from_str(action_id)?;
         let action_route = ActionId {
             action_type,

@@ -10,9 +10,10 @@ use crate::telegram::model::action_route::ActionRoute;
 use tbot::types::message::Message;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use typed_di::service::service::Service;
-use tbot::contexts::InlineDataCallback;
+use tbot::types::callback::query::Kind as QueryKind;
 use tbot::types::chat::Id as TelegramChatId;
-use tbot::types::message::Kind;
+use tbot::types::message::Kind as MessageKind;
+use tbot::types::callback::query::Query;
 use std::str::FromStr;
 
 #[derive(new)]
@@ -27,7 +28,7 @@ impl MessageHandler {
     pub async fn handle_text_message(&self, message: &Message) -> Result<(), Failure> {
         self.ensure_chat_exists(message.chat.id.clone()).await?;
         let text = match message.kind {
-            Kind::Text(ref text) => text,
+            MessageKind::Text(ref text) => text,
             _ => {
                 return Ok(());
             },
@@ -44,10 +45,16 @@ impl MessageHandler {
         return Ok(());
     }
 
-    pub async fn handle_callback_message(&self, context: &InlineDataCallback) -> Result<(), Failure> {
-        let chat_id = TelegramChatId(context.from.id.0);
+    pub async fn handle_callback_message(&self, query: &Query) -> Result<(), Failure> {
+        let chat_id = TelegramChatId(query.from.id.0);
         self.ensure_chat_exists(chat_id).await?;
-        let action_route = ActionRoute::from_str(&context.data)?;
+        let action_route = match query.kind {
+            QueryKind::Data(ref action_route) => action_route,
+            _ => {
+                return crate::fail!("Query kind cannot be game");
+            },
+        };
+        let action_route = ActionRoute::from_str(&&action_route)?;
         let action_type = action_route.get_action_id().get_action_type();
         let action_handler = self.action_router.get_action_handler(action_type)?;
         let chat_id = ChatId::from_i64(chat_id.0)?;

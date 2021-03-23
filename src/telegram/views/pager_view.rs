@@ -8,11 +8,11 @@ use crate::telegram::action::pager_action::PagerAction;
 pub fn pager_view(pager_action: &PagerAction) -> OutgoingMessage {
     let mut message = OutgoingMessage::update(
         pager_action.get_outgoing_message_id().clone(), 
-        "".to_string(),
+        "...".to_string(),
     );
     let mut buttons = Vec::new();
     for page in pager_action.iter_pages() {
-        let text = format!("{}", page.get_number());
+        let text = format!("{}", page.get_page());
         let route = page.get_route().clone();
         let button = CallbackButton::new(text, route);
         let button = Button::CallbackButton(button);

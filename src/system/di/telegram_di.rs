@@ -10,6 +10,7 @@ use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::telegram::service::command_router::CommandRouter;
 use crate::telegram::service::message_handler::MessageHandler;
 use crate::telegram::service_handlers::command_handler::CommandHandler;
+use crate::telegram::service_handlers::action_handler::ActionHandler;
 use crate::telegram::service::action_router::ActionRouter;
 use crate::telegram::service::bot_instance::BotInstance;
 use crate::telegram::service::event_notifier::EventNotifier;
@@ -22,6 +23,7 @@ use crate::telegram::model::chat::Chat;
 use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::model::chat_messages::ChatMessages;
 use crate::telegram::model::command::Command;
+use crate::telegram::model::action_type::ActionType;
 use crate::telegram::path_resolver::chat_path_resolver::chat_path_resolver;
 use crate::telegram::path_resolver::messages_path_resolver::messages_path_resolver;
 use crate::telegram::path_resolver::action_id_path_resolver::action_id_path_resolver;
@@ -60,8 +62,11 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         );
         return Ok(service);
     })?;
-    builder.register(ACTION_ROUTER, async move |_resolver| {
-        let service = ActionRouter::new();
+    builder.register(ACTION_ROUTER, async move |resolver| {
+        let fund_list_controller = resolver.get_service(FUND_LIST_CONTROLLER).await?;
+        let fund_list_controller = typed_di::service_ref!(fund_list_controller => &dyn ActionHandler);
+        let mut service = ActionRouter::new();
+        service.register_action(ActionType::FUND_LIST, fund_list_controller);
         return Ok(service);
     })?;
     builder.register(BOT_INSTANCE, async move |resolver| {

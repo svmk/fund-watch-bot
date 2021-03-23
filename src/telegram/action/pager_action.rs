@@ -5,15 +5,19 @@ use crate::prelude::*;
 
 #[derive(new, Debug, Clone, Serialize, Deserialize)]
 pub struct Page {
-    #[serde(rename="number")]
-    number: usize,
+    #[serde(rename="index")]
+    index: usize,
     #[serde(rename="route")]
     route: ActionRoute,
 }
 
 impl Page {
-    pub fn get_number(&self) -> usize {
-        return self.number;
+    pub fn get_page(&self) -> usize {
+        return self.index + 1;
+    }
+    
+    fn get_index(&self) -> usize {
+        return self.index;
     }
 
     pub fn get_route(&self) -> &ActionRoute {
@@ -38,7 +42,7 @@ pub struct PagerAction {
 }
 
 impl PagerAction {
-    const PAGE_SIZE: usize = 10;
+    const PAGE_SIZE: usize = 5;
     const PAGINATOR_LENGTH: usize = 2;
 
     pub fn new(action_id: ActionId, items_count: usize) -> PagerAction {
@@ -72,7 +76,7 @@ impl PagerAction {
         let mut pages = Vec::new();
         for page in 0..pages_count {
             let page = Page {
-                number: page,
+                index: page,
                 route: action_id.create_route(),
             };
             pages.push(page);
@@ -82,30 +86,30 @@ impl PagerAction {
 
     pub fn iter_records<'a, T>(&'a self, iterator: impl Iterator<Item=T> + 'a) -> impl Iterator<Item=T> + 'a {
         let skip = self.current_page_num * self.page_size;
+        // println!("self = {:#?}", self);
+        println!("skip = `{}`", skip);
         return iterator.skip(skip).take(self.page_size);
     }
 
     pub fn is_selected(&self, page: &Page) -> bool {
-        return self.current_page_num == page.number;
+        return self.current_page_num == page.index;
     }
 
     pub fn iter_pages(&self) -> impl Iterator<Item=&Page> + '_ {
-        println!("self = {:#?}", self);
         let pages_length = self.pages.len();
-        dbg!(self.current_page_num, self.paginator_length);
-        let begin = self.current_page_num - self.paginator_length;
+        let begin = self.current_page_num.saturating_sub(self.paginator_length);
         let end = self.current_page_num + self.paginator_length;
         return self
             .pages
             .iter()
             .filter(move |&page| {
-                if page.number == 0 {
+                if page.index == 0 {
                     return true;
                 }
-                if page.number == pages_length {
+                if page.index == pages_length {
                     return true;
                 }
-                if page.number >= begin && page.number <= end {
+                if page.index >= begin && page.index <= end {
                     return true;
                 }
                 return false;
@@ -119,7 +123,8 @@ impl PagerAction {
     }
 
     pub fn select_page(&mut self, page: &Page) -> Result<(), Failure> {
-        let page = page.get_number();
+        let page = page.get_index();
+        self.current_page_num = page;
         if page >= self.pages.len() {
             return crate::fail!("Unknown page {}", page);
         }
