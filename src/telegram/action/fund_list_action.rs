@@ -2,7 +2,7 @@ use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
 use crate::telegram::model::action_id::ActionId;
 use crate::telegram::model::action_type::ActionType;
 use crate::telegram::model::action_route::ActionRoute;
-use crate::telegram::action::pager_action::{PagerAction, Page, PagerItem};
+use crate::telegram::action::pager_action::{PagerAction, Page};
 use crate::market::common::model::company_name::CompanyName;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
@@ -39,27 +39,12 @@ impl FundRecord {
         return &self.company_name;
     }
 
-    pub fn is_subscribed(&self) -> bool {
-        return self.is_subscribed;
-    }
-
     pub fn get_route_view(&self) -> &ActionRoute {
         return &self.route_view;
     }
 
-    pub fn create_pager_item(&self) -> PagerItem {
-        let text = match self.is_subscribed {
-            true => {
-                format!("🔔 {}", self.company_name)
-            },
-            false => {
-                format!("{}", self.company_name)
-            },
-        };
-        return PagerItem::new(
-            self.route_view.clone(),
-            text,
-        );
+    pub fn is_subscribed(&self) -> bool {
+        return self.is_subscribed;
     }
 }
 
@@ -124,11 +109,10 @@ impl FundListAction {
         }
     }
 
-    pub fn iter(&self) -> impl Iterator<Item=PagerItem> + '_ {
+    pub fn iter(&self) -> impl Iterator<Item=&'_ FundRecord> + '_ {
         let iterator = self
             .fund_records
-            .iter()
-            .map(FundRecord::create_pager_item);
+            .iter();
         return self.pager.iter_items(iterator);
     }
 

@@ -17,9 +17,17 @@ pub fn fund_list_view(action: &FundListAction) -> View {
     let message = OutgoingMessage::update(action.get_outgoing_message_id().clone(), message.to_string());
     let mut keyboard = InlineKeyboard::new();
     for fund_record in action.iter() {
+        let text = match fund_record.is_subscribed() {
+            true => {
+                format!("🔔 {}", fund_record.get_company_name())
+            },
+            false => {
+                format!("{}", fund_record.get_company_name())
+            },
+        };
         let button = CallbackButton::new(
-            fund_record.get_text().to_string(),
-            fund_record.get_action().clone(),
+            text,
+            fund_record.get_route_view().clone(),
         );
         let button = Button::CallbackButton(button);
         keyboard.push_single_button(button);

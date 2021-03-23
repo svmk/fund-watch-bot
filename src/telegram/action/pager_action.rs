@@ -38,24 +38,6 @@ struct Paginator {
     paginator_length: usize,
 }
 
-#[derive(new, Debug, Serialize, Deserialize)]
-pub struct PagerItem {
-    #[serde(rename="action")]
-    action: ActionRoute,
-    #[serde(rename="text")]
-    text: String,
-}
-
-impl PagerItem {
-    pub fn get_action(&self) -> &ActionRoute {
-        return &self.action;
-    }
-
-    pub fn get_text(&self) -> &String {
-        return &self.text;
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PagerAction {
     #[serde(rename="paginator")]
@@ -102,7 +84,7 @@ impl PagerAction {
         return pages;
     }
 
-    pub fn iter_items<'a>(&'a self, iterator: impl Iterator<Item=PagerItem> + 'a) -> impl Iterator<Item=PagerItem> + 'a {
+    pub fn iter_items<'a, T>(&'a self, iterator: impl Iterator<Item=T> + 'a) -> impl Iterator<Item=T> + 'a {
         let skip = self.paginator.current_page_index * self.paginator.page_size;
         let iterator = iterator
             .skip(skip)
