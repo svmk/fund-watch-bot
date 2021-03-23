@@ -1,6 +1,5 @@
 use crate::telegram::model::action_id::ActionId;
 use crate::telegram::model::action_route::ActionRoute;
-use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
 use crate::prelude::*; 
 
 #[derive(new, Debug, Clone, Serialize, Deserialize)]
@@ -26,13 +25,11 @@ impl Page {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct PagerAction {
-    #[serde(rename="outgoing_message_id")]
-    outgoing_message_id: OutgoingMessageId,
+struct Paginator {
     #[serde(rename="action_id")]
     action_id: ActionId,
-    #[serde(rename="current_page_num")]
-    current_page_num: usize,
+    #[serde(rename="current_page_index")]
+    current_page_index: usize,
     #[serde(rename="page_size")]
     page_size: usize,
     #[serde(rename="pages")]
@@ -41,8 +38,32 @@ pub struct PagerAction {
     paginator_length: usize,
 }
 
+#[derive(new, Debug, Serialize, Deserialize)]
+pub struct PagerItem {
+    #[serde(rename="action")]
+    action: ActionRoute,
+    #[serde(rename="text")]
+    text: String,
+}
+
+impl PagerItem {
+    pub fn get_action(&self) -> &ActionRoute {
+        return &self.action;
+    }
+
+    pub fn get_text(&self) -> &String {
+        return &self.text;
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PagerAction {
+    #[serde(rename="paginator")]
+    paginator: Paginator,
+}
+
 impl PagerAction {
-    const PAGE_SIZE: usize = 5;
+    const PAGE_SIZE: usize = 10;
     const PAGINATOR_LENGTH: usize = 2;
 
     pub fn new(action_id: ActionId, items_count: usize) -> PagerAction {
@@ -50,17 +71,14 @@ impl PagerAction {
         let pages_count = Self::compute_pages_count(items_count, page_size);
         let pages = Self::create_pages(&action_id, pages_count);
         return PagerAction {
-            outgoing_message_id: OutgoingMessageId::new(),
-            action_id,
-            current_page_num: 0,
-            page_size,
-            pages,
-            paginator_length: Self::PAGINATOR_LENGTH,
+            paginator: Paginator {
+                action_id,
+                current_page_index: 0,
+                page_size,
+                pages,
+                paginator_length: Self::PAGINATOR_LENGTH,
+            },
         }
-    }
-
-    pub fn get_outgoing_message_id(&self) -> &OutgoingMessageId {
-        return &self.outgoing_message_id;
     }
 
     fn compute_pages_count(items_count: usize, page_size: usize) -> usize {
@@ -84,22 +102,20 @@ impl PagerAction {
         return pages;
     }
 
-    pub fn iter_records<'a, T>(&'a self, iterator: impl Iterator<Item=T> + 'a) -> impl Iterator<Item=T> + 'a {
-        let skip = self.current_page_num * self.page_size;
-        // println!("self = {:#?}", self);
-        println!("skip = `{}`", skip);
-        return iterator.skip(skip).take(self.page_size);
-    }
-
-    pub fn is_selected(&self, page: &Page) -> bool {
-        return self.current_page_num == page.index;
+    pub fn iter_items<'a>(&'a self, iterator: impl Iterator<Item=PagerItem> + 'a) -> impl Iterator<Item=PagerItem> + 'a {
+        let skip = self.paginator.current_page_index * self.paginator.page_size;
+        let iterator = iterator
+            .skip(skip)
+            .take(self.paginator.page_size);
+        return iterator;
     }
 
     pub fn iter_pages(&self) -> impl Iterator<Item=&Page> + '_ {
-        let pages_length = self.pages.len();
-        let begin = self.current_page_num.saturating_sub(self.paginator_length);
-        let end = self.current_page_num + self.paginator_length;
+        let pages_length = self.paginator.pages.len();
+        let begin = self.paginator.current_page_index.saturating_sub(self.paginator.paginator_length);
+        let end = self.paginator.current_page_index + self.paginator.paginator_length;
         return self
+            .paginator
             .pages
             .iter()
             .filter(move |&page| {
@@ -117,15 +133,15 @@ impl PagerAction {
     }
 
     pub fn get_page_by_route(&self, route: &ActionRoute) -> Option<&Page> {
-        return self.pages.iter().find(|page| {
+        return self.paginator.pages.iter().find(|page| {
             return page.get_route() == route;
         });
     }
 
     pub fn select_page(&mut self, page: &Page) -> Result<(), Failure> {
         let page = page.get_index();
-        self.current_page_num = page;
-        if page >= self.pages.len() {
+        self.paginator.current_page_index = page;
+        if page >= self.paginator.pages.len() {
             return crate::fail!("Unknown page {}", page);
         }
         return Ok(());

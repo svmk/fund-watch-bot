@@ -2,7 +2,7 @@ use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
 use crate::telegram::model::action_id::ActionId;
 use crate::telegram::model::action_type::ActionType;
 use crate::telegram::model::action_route::ActionRoute;
-use crate::telegram::action::pager_action::{PagerAction, Page};
+use crate::telegram::action::pager_action::{PagerAction, Page, PagerItem};
 use crate::market::common::model::company_name::CompanyName;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
@@ -11,12 +11,8 @@ use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FundRecord {
-    #[serde(rename="route_subscribe")]
-    route_subscribe: ActionRoute,
-    #[serde(rename="route_unsubscribe")]
-    route_unsubscribe: ActionRoute,
-    #[serde(rename="outgoing_message_id")]
-    outgoing_message_id: OutgoingMessageId,
+    #[serde(rename="route_view")]
+    route_view: ActionRoute,
     #[serde(rename="fund_id")]
     fund_id: FundId,
     #[serde(rename="company_name")]
@@ -28,17 +24,11 @@ pub struct FundRecord {
 impl FundRecord {
     fn new(fund: &Fund, action_id: &ActionId) -> FundRecord {
         return FundRecord {
-            route_subscribe: action_id.create_route(),
-            route_unsubscribe: action_id.create_route(),
-            outgoing_message_id: OutgoingMessageId::new(),
+            route_view: action_id.create_route(),
             fund_id: fund.get_fund_id().clone(),
             company_name: fund.get_company_name().clone(),
             is_subscribed: false,
         }
-    }
-
-    pub fn get_outgoing_message_id(&self) -> &OutgoingMessageId {
-        return &self.outgoing_message_id;
     }
 
     pub fn get_fund_id(&self) -> &FundId {
@@ -53,20 +43,30 @@ impl FundRecord {
         return self.is_subscribed;
     }
 
-    pub fn get_route_subscribe(&self) -> &ActionRoute {
-        return &self.route_subscribe;
+    pub fn get_route_view(&self) -> &ActionRoute {
+        return &self.route_view;
     }
 
-    pub fn get_route_unsubscribe(&self) -> &ActionRoute {
-        return &self.route_unsubscribe;
+    pub fn create_pager_item(&self) -> PagerItem {
+        let text = match self.is_subscribed {
+            true => {
+                format!("🔔 {}", self.company_name)
+            },
+            false => {
+                format!("{}", self.company_name)
+            },
+        };
+        return PagerItem::new(
+            self.route_view.clone(),
+            text,
+        );
     }
 }
 
 
 #[derive(Debug)]
 pub enum FundListActionDecision {
-    Subscribe(FundId),
-    UnSubscribe(FundId),
+    View(FundId),
     SelectPage(Page),
     UnknownRoute,
 }
@@ -79,6 +79,8 @@ pub struct FundListAction {
     pager: PagerAction,
     #[serde(rename="fund_records")]
     fund_records: Vec<FundRecord>,
+    #[serde(rename="outgoing_message_id")]
+    outgoing_message_id: OutgoingMessageId,
 }
 
 impl FundListAction {
@@ -93,11 +95,12 @@ impl FundListAction {
         fund_records.sort_by_key(|fund_record| {
             return fund_record.get_company_name().clone();
         });
-        let pager = PagerAction::new(action_id.clone(), funds.len());
+        let pager = PagerAction::new(action_id.clone(), fund_records.len());
         let mut action = FundListAction {
             action_id,
             pager,
             fund_records,
+            outgoing_message_id: OutgoingMessageId::new(),
         };
         action.update_subscriptions(subscriptions);
         return action;
@@ -111,14 +114,22 @@ impl FundListAction {
         return FundListAction::new(ActionType::SUBSCRIPTION_LIST, funds, subscriptions);
     }
 
+    pub fn get_outgoing_message_id(&self) -> &OutgoingMessageId {
+        return &self.outgoing_message_id;
+    }
+
     pub fn update_subscriptions(&mut self, subscriptions: &[FundId]) {
         for fund_record in self.fund_records.iter_mut() {
             fund_record.is_subscribed = subscriptions.contains(&fund_record.fund_id);
         }
     }
 
-    pub fn iter(&self) -> impl Iterator<Item=&FundRecord> {
-        return self.pager.iter_records(self.fund_records.iter());
+    pub fn iter(&self) -> impl Iterator<Item=PagerItem> + '_ {
+        let iterator = self
+            .fund_records
+            .iter()
+            .map(FundRecord::create_pager_item);
+        return self.pager.iter_items(iterator);
     }
 
     pub fn get_funds_count(&self) -> usize {
@@ -131,11 +142,8 @@ impl FundListAction {
 
     pub fn decide(&self, action_route: &ActionRoute) -> FundListActionDecision {
         for fund_record in self.fund_records.iter() {
-            if fund_record.get_route_subscribe() == action_route {
-                return FundListActionDecision::Subscribe(fund_record.get_fund_id().clone());
-            }
-            if fund_record.get_route_unsubscribe() == action_route {
-                return FundListActionDecision::UnSubscribe(fund_record.get_fund_id().clone());
+            if fund_record.get_route_view() == action_route {
+                return FundListActionDecision::View(fund_record.get_fund_id().clone());
             }
         }
         if let Some(page) = self.pager.get_page_by_route(action_route) {

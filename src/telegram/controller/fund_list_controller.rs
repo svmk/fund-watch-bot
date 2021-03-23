@@ -5,6 +5,7 @@ use crate::telegram::model::chat::Chat;
 use crate::telegram::action::fund_list_action::{FundListAction, FundListActionDecision};
 use crate::telegram::model::action_id::ActionId;
 use crate::telegram::views::fund_list_view::fund_list_view;
+use crate::telegram::views::fund_info_view::fund_info_view;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
 use crate::repository::repository::repository_instance::RepositoryInstance;
@@ -43,7 +44,7 @@ impl CommandHandler for FundListController {
 #[async_trait]
 impl ActionHandler for FundListController {
     async fn handle_action(&self, context: &ChatContext, action_route: ActionRoute) -> Result<View, Failure> {
-        let mut chat = self
+        let chat = self
             .chat_repository
             .get(&context.chat_id).await?;
         let mut action = self
@@ -52,11 +53,12 @@ impl ActionHandler for FundListController {
         action.update_subscriptions(chat.get_fund_subscriptions());
         let action_decision = action.decide(&action_route);
         match action_decision {
-            FundListActionDecision::Subscribe(fund_id) => {
-                chat.subscribe(fund_id);
-            },
-            FundListActionDecision::UnSubscribe(fund_id) => {
-                chat.unsubscribe(&fund_id);
+            FundListActionDecision::View(fund_id) => {
+                let fund = self
+                    .fund_repository
+                    .get(&fund_id).await?;
+                let view = fund_info_view(&fund);
+                return Ok(view);
             },
             FundListActionDecision::SelectPage(page) => {
                 action.select_page(&page)?;

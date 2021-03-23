@@ -43,11 +43,8 @@ impl ActionHandler for SubscriptionListController {
             .get(action_route.get_action_id()).await?;
         action.update_subscriptions(chat.get_fund_subscriptions());
         match action.decide(&action_route) {
-            FundListActionDecision::Subscribe(fund_id) => {
-                chat.subscribe(fund_id);
-            },
-            FundListActionDecision::UnSubscribe(fund_id) => {
-                chat.unsubscribe(&fund_id);
+            FundListActionDecision::View(fund_id) => {
+                unimplemented!()
             },
             FundListActionDecision::SelectPage(page) => {
                 action.select_page(&page)?;

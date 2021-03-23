@@ -74,6 +74,7 @@ impl BotInstance {
                             bot_message = bot_message.reply_markup(reply_markup);
                         }
                         bot_message.call().await?;
+                        chat_messages.assign_message(sended_message.get_telegram_message_id().clone(), message.clone());
                     }
                 },
                 None => {
