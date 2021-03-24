@@ -1,11 +1,11 @@
 use crate::telegram::controller::prelude::*;
+use crate::telegram::controller::fund_info_controller::FundInfoController;
 use crate::telegram::model::chat_context::ChatContext;
-use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::model::chat::Chat;
+use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::action::fund_list_action::{FundListAction, FundListActionDecision};
 use crate::telegram::model::action_id::ActionId;
 use crate::telegram::views::fund_list_view::fund_list_view;
-use crate::telegram::views::fund_info_view::fund_info_view;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
 use crate::repository::repository::repository_instance::RepositoryInstance;
@@ -16,6 +16,7 @@ pub struct FundListController {
     fund_repository: Service<RepositoryInstance<FundId, Fund>>,
     chat_repository: Service<RepositoryInstance<ChatId, Chat>>,
     action_repository: Service<RepositoryInstance<ActionId, FundListAction>>,
+    fund_info_controller: Service<FundInfoController>,
 }
 
 
@@ -54,11 +55,7 @@ impl ActionHandler for FundListController {
         let action_decision = action.decide(&action_route);
         match action_decision {
             FundListActionDecision::View(fund_id) => {
-                let fund = self
-                    .fund_repository
-                    .get(&fund_id).await?;
-                let view = fund_info_view(&fund);
-                return Ok(view);
+                return self.fund_info_controller.render(&chat, &fund_id).await;
             },
             FundListActionDecision::SelectPage(page) => {
                 action.select_page(&page)?;
