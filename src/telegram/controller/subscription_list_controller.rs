@@ -4,8 +4,9 @@ use crate::telegram::model::chat::Chat;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
-use crate::telegram::action::fund_list_action::{FundListAction, FundListActionDecision};
+use crate::telegram::action::subscription_list_action::{SubscriptionListAction, SubscriptionListActionDecision};
 use crate::telegram::model::action_id::ActionId;
+use crate::telegram::controller::fund_info_controller::FundInfoController;
 use crate::telegram::views::subscription_list_view::subscription_list_view;
 use typed_di::service::service::Service;
 
@@ -13,7 +14,8 @@ use typed_di::service::service::Service;
 pub struct SubscriptionListController {
     chat_repository: Service<RepositoryInstance<ChatId, Chat>>,
     fund_repository: Service<RepositoryInstance<FundId, Fund>>,
-    action_repository: Service<RepositoryInstance<ActionId, FundListAction>>,
+    action_repository: Service<RepositoryInstance<ActionId, SubscriptionListAction>>,
+    fund_info_controller: Service<FundInfoController>,
 }
 
 #[async_trait]
@@ -25,7 +27,7 @@ impl CommandHandler for SubscriptionListController {
         let funds = self
             .fund_repository
             .get_many(chat.get_fund_subscriptions()).await?;
-        let fund_list_action  = FundListAction::new_fund_list(&funds, chat.get_fund_subscriptions());
+        let fund_list_action  = SubscriptionListAction::new_fund_list(&funds, chat.get_fund_subscriptions());
         self.action_repository.store(&fund_list_action).await?;
         let view = subscription_list_view(&fund_list_action);
         return Ok(view);
@@ -43,13 +45,18 @@ impl ActionHandler for SubscriptionListController {
             .get(action_route.get_action_id()).await?;
         action.update_subscriptions(chat.get_fund_subscriptions());
         match action.decide(&action_route) {
-            FundListActionDecision::View(fund_id) => {
-                unimplemented!()
+            SubscriptionListActionDecision::View(fund_id) => {
+                let view = self.fund_info_controller.render(&chat, &fund_id).await?;
+                return Ok(view);
             },
-            FundListActionDecision::SelectPage(page) => {
+            SubscriptionListActionDecision::Unsubscribe(fund_id) => {
+                chat.unsubscribe(&fund_id);
+                action.update_subscriptions(chat.get_fund_subscriptions());
+            },
+            SubscriptionListActionDecision::SelectPage(page) => {
                 action.select_page(&page)?;
             },
-            FundListActionDecision::UnknownRoute => {
+            SubscriptionListActionDecision::UnknownRoute => {
                 return crate::fail!("Unknown action route {}", action_route);
             },
         }

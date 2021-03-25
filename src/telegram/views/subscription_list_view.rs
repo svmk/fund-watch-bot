@@ -1,38 +1,40 @@
 use crate::telegram::model::view::View;
 use crate::telegram::model::outgoing_message::OutgoingMessage;
+use crate::telegram::model::button::Button;
 use crate::telegram::model::inline_keyboard::InlineKeyboard;
-use crate::telegram::action::fund_list_action::FundListAction;
+use crate::telegram::action::subscription_list_action::SubscriptionListAction;
 use crate::telegram::model::callback_button::CallbackButton;
+use crate::telegram::views::pager_keyboard_view::pager_keyboard_view;
 
-pub fn subscription_list_view(action: &FundListAction) -> View {
-    unimplemented!()
-    // let mut view = View::new();
-    // if action.get_funds_count() == 0 {
-    //     view.push_message("Ничего не найдено.");
-    // } else {
-    //     view.push_message("Список ваших подписок:");
-    // }
-    // for fund_record in action.iter() {
-    //     let message = format!("Фонд: {}\nCIK: {}", fund_record.get_company_name(), fund_record.get_fund_id());
-    //     let mut message = OutgoingMessage::update(fund_record.get_outgoing_message_id().clone(), message);
-    //     let mut keyboard = InlineKeyboard::new();
-    //     if fund_record.is_subscribed() {
-    //         let button = CallbackButton::new(
-    //             "Отписаться".to_string(),
-    //             fund_record.get_route_unsubscribe().clone(),
-    //         );
-    //         keyboard.push_single_button(button);
-    //     } else {
-    //         let button = CallbackButton::new(
-    //             "Подписаться".to_string(),
-    //             fund_record.get_route_subscribe().clone(),
-    //         );
-    //         keyboard.push_single_button(button);
-    //     }
-    //     message = message.with_reply_markup(keyboard);
-    //     view.push_message(message);
-    // }
-    // let pager_message = pager_view(action.get_pager());
-    // view.push_message(pager_message);
-    // return view;
+pub fn subscription_list_view(action: &SubscriptionListAction) -> View {
+    let mut view = View::new();
+    let message;
+    if action.has_subscriptions() {
+        message = "<b>Список фондов, на которые вы подписаны:</b>";
+    } else {
+        message = "<b>Вы еще не подписались ни на один фонд.</b>\nНажмите на /funds чтобы вывести список фондов.";
+    }
+    let message = OutgoingMessage::update(action.get_outgoing_message_id().clone(), message.to_string());
+    let mut keyboard = InlineKeyboard::new();
+    for fund_record in action.iter() {
+        if fund_record.is_subscribed() {
+            let text = fund_record.get_company_name().to_string();
+            let view_button = CallbackButton::new(
+                text,
+                fund_record.get_route_view().clone(),
+            );
+            let view_button = Button::CallbackButton(view_button);
+            let unsubscribe_button = CallbackButton::new(
+                "❌ Отписаться".to_string(),
+                fund_record.get_route_unsubscribe().clone(),
+            );
+            let unsubscribe_button = Button::CallbackButton(unsubscribe_button);
+            keyboard.push_keyboard_line(vec![view_button, unsubscribe_button]);
+        }
+    }
+    let pager_buttons = pager_keyboard_view(action.get_pager());
+    keyboard.push_keyboard_line(pager_buttons);
+    let message = message.with_reply_markup(keyboard);
+    view.push_message(message);
+    return view;
 }

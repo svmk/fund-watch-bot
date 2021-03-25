@@ -5,12 +5,14 @@ use std::str::FromStr;
 pub enum Command {
     Start,
     Funds,
+    Subscriptions,
     Unknown,
 }
 
 impl Command {
     const COMMAND_START: &'static str = "start";
     const COMMAND_FUNDS: &'static str = "funds";
+    const COMMAND_SUBSCRIPTIONS: &'static str = "subscriptions";
 }
 
 impl FromStr for Command {
@@ -22,6 +24,9 @@ impl FromStr for Command {
             },
             Self::COMMAND_FUNDS => {
                 Command::Funds
+            },
+            Self::COMMAND_SUBSCRIPTIONS => {
+                Command::Subscriptions
             },
             _ => {
                 Command::Unknown
