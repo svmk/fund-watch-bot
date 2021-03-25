@@ -1,6 +1,7 @@
 use crate::{prelude::*};
 use crate::telegram::service::message_handler::MessageHandler;
 use crate::telegram::service::bot_instance::BotInstance;
+use crate::telegram::views::bot_command_settings_view::bot_command_settings_view;
 use typed_di::service::service::Service;
 use tbot::types::update::Kind;
 
@@ -13,6 +14,7 @@ pub struct TelegramBotTask {
 impl TelegramBotTask {
     pub async fn run(&self) -> Result<(), Failure> {
         let bot = self.bot_instance.get_bot();
+        self.register_bot_command_settings().await?;
         let mut event_loop = bot.event_loop();
         let message_handler = self.message_handler.clone();
         event_loop.unhandled(move |context| {
@@ -41,6 +43,12 @@ impl TelegramBotTask {
             .map_err(|error|{
                 return Failure::msg(format!("{:?}", error));
             })?;
+        return Ok(());
+    }
+
+    async fn register_bot_command_settings(&self) -> Result<(), Failure> {
+        let settings = bot_command_settings_view();
+        self.bot_instance.register_bot_command_settings(settings).await?;
         return Ok(());
     }
 }

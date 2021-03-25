@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::telegram::model::bot_command_settings::BotCommandSettings;
 use crate::telegram::model::view::View;
 use crate::telegram::model::message_id::MessageId;
 use crate::telegram::model::chat_id::ChatId;
@@ -10,6 +11,7 @@ use tbot::Bot;
 use tbot::types::parameters::Text as MessageText;
 use tbot::types::message::Id as TelegramMessageId;
 use tbot::types::chat::Id as TelegramChatId;
+use tbot::types::parameters::BotCommand as TelegramBotCommand;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BotInstanceConfig {
@@ -88,6 +90,16 @@ impl BotInstance {
             }
             self.messages_repository.store(&chat_messages).await?;
         }
+        return Ok(());
+    }
+
+    pub async fn register_bot_command_settings(&self, settings: BotCommandSettings) -> Result<(), Failure> {
+        let mut telegram_bot_commands = Vec::new();
+        for (command, description) in settings.iter() {
+            let telegram_bot_command = TelegramBotCommand::new(command, description);
+            telegram_bot_commands.push(telegram_bot_command);
+        }
+        self.bot.set_my_commands(telegram_bot_commands.as_slice()).call().await?;
         return Ok(());
     }
 }

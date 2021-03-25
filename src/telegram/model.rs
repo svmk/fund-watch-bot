@@ -17,3 +17,4 @@ pub mod inline_keyboard;
 pub mod button;
 pub mod callback_button;
 pub mod sended_message;
+pub mod bot_command_settings;
