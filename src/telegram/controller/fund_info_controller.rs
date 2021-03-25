@@ -7,6 +7,7 @@ use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::telegram::views::fund_info_view::fund_info_view;
 use crate::telegram::action::fund_info_action::{FundInfoAction, FundInfoActionDecision};
 use crate::telegram::service_handlers::action_handler::ActionHandler;
+use crate::telegram::controller::fund_report_list_controller::FundReportListController;
 use typed_di::service::service::Service;
 
 #[derive(new)]
@@ -14,6 +15,7 @@ pub struct FundInfoController {
     fund_repository: Service<RepositoryInstance<FundId, Fund>>,
     chat_repository: Service<RepositoryInstance<ChatId, Chat>>,
     action_repository: Service<RepositoryInstance<ActionId, FundInfoAction>>,
+    fund_report_list_controller: Service<FundReportListController>,
 }
 
 impl FundInfoController {
@@ -33,6 +35,12 @@ impl ActionHandler for FundInfoController {
         let mut action = self.action_repository.get(action_route.get_action_id()).await?;
         let action_decision = action.decide(&action_route);
         match action_decision {
+            FundInfoActionDecision::FundReportList => {
+                let view = self
+                    .fund_report_list_controller
+                    .render(action.get_fund().get_fund_id()).await?;
+                return Ok(view);
+            },
             FundInfoActionDecision::Subscribe => {
                 chat.subscribe(action.get_fund().get_fund_id().clone());
             },

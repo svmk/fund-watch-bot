@@ -10,6 +10,7 @@ use crate::repository::model::entity::Entity;
 pub enum FundInfoActionDecision {
     Subscribe,
     Unsubscribe,
+    FundReportList,
     Unknown,
 }
 
@@ -21,10 +22,12 @@ pub struct FundInfoAction {
     action_id: ActionId,
     #[serde(rename="fund")]
     fund: Fund,
-    #[serde(rename="subscribe_action")]
-    subscribe_action: ActionRoute,
-    #[serde(rename="unsubscribe_action")]
-    unsubscribe_action: ActionRoute,
+    #[serde(rename="subscribe_route")]
+    subscribe_route: ActionRoute,
+    #[serde(rename="unsubscribe_route")]
+    unsubscribe_route: ActionRoute,
+    #[serde(rename="fund_report_list_route")]
+    fund_report_list_route: ActionRoute,
     #[serde(rename="is_subscribed")]
     is_subscribed: bool,
 }
@@ -37,8 +40,9 @@ impl FundInfoAction {
             outgoing_message_id: OutgoingMessageId::new(),
             action_id: action_id.clone(),
             fund,
-            subscribe_action: ActionRoute::new(action_id.clone()),
-            unsubscribe_action: ActionRoute::new(action_id),
+            fund_report_list_route: ActionRoute::new(action_id.clone()),
+            subscribe_route: ActionRoute::new(action_id.clone()),
+            unsubscribe_route: ActionRoute::new(action_id),
             is_subscribed,
         }
     }
@@ -56,12 +60,16 @@ impl FundInfoAction {
         return &self.fund;
     }
 
-    pub fn get_subscribe_action(&self) -> &ActionRoute {
-        return &self.subscribe_action;
+    pub fn get_fund_report_list_route(&self) -> &ActionRoute {
+        return &self.fund_report_list_route;
     }
 
-    pub fn get_unsubscribe_action(&self) -> &ActionRoute {
-        return &self.unsubscribe_action;
+    pub fn get_subscribe_route(&self) -> &ActionRoute {
+        return &self.subscribe_route;
+    }
+
+    pub fn get_unsubscribe_route(&self) -> &ActionRoute {
+        return &self.unsubscribe_route;
     }
 
     pub fn is_subscribed(&self) -> bool {
@@ -69,10 +77,12 @@ impl FundInfoAction {
     }
 
     pub fn decide(&self, action_route: &ActionRoute) -> FundInfoActionDecision {
-        if &self.subscribe_action == action_route {
+        if &self.subscribe_route == action_route {
             return FundInfoActionDecision::Subscribe;
-        } else if &self.unsubscribe_action == action_route {
+        } else if &self.unsubscribe_route == action_route {
             return FundInfoActionDecision::Unsubscribe;
+        } else if &self.fund_report_list_route == action_route {
+            return FundInfoActionDecision::FundReportList;
         } else {
             return FundInfoActionDecision::Unknown;
         }

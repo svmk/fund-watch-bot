@@ -1,3 +1,4 @@
+use crate::app::model::day::Day;
 use crate::prelude::*;
 use crate::app::model::year::Year;
 use crate::app::model::month::Month;
@@ -33,6 +34,10 @@ impl Date {
 
     pub fn get_month(&self) -> Month {
         return Month::from_u32(self.0.month()).unwrap();
+    }
+
+    pub fn get_day(&self) -> Day {
+        return Day::from_u32(self.0.day()).unwrap();
     }
 
     pub fn parse_mdy(text: &str) -> Result<Date, Failure> {

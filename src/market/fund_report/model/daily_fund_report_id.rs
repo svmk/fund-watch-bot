@@ -14,6 +14,10 @@ impl DailyFundReportId {
     pub fn get_fund_id(&self) -> &FundId {
         return &self.fund_id;
     }
+
+    pub fn get_date(&self) -> &Date {
+        return &self.date;
+    }
 }
 
 impl Identity for DailyFundReportId {

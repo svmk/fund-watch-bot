@@ -9,17 +9,14 @@ pub struct FundReports {
     #[serde(rename = "fund_id")]
     fund_id: FundId,
     #[serde(rename = "daily_reports")]
-    daily_reports: BTreeSet<DailyFundReportId>,
-    #[serde(rename = "fund_changes_ids")]
-    fund_changes_ids: BTreeSet<FundChangesId>,
+    daily_reports: Vec<DailyFundReportId>,
 }
 
 impl FundReports {
     pub fn new(fund_id: FundId) -> FundReports {
         return FundReports {
             fund_id,
-            daily_reports: BTreeSet::new(),
-            fund_changes_ids: BTreeSet::new(),
+            daily_reports: Vec::new(),
         };
     }
 
@@ -37,7 +34,14 @@ impl FundReports {
     }
 
     pub fn push_once_daily_fund_report_id(&mut self, id: DailyFundReportId) {
-        let _ = self.daily_reports.insert(id);
+        if !self.daily_reports.contains(&id) {
+            let _ = self.daily_reports.push(id);
+            self.daily_reports.sort();
+        }
+    }
+
+    pub fn get_daily_reports(&self) -> &Vec<DailyFundReportId> {
+        return &self.daily_reports;
     }
 }
 
