@@ -134,4 +134,22 @@ impl SplitRules {
         }
         return Ok(result);
     }
+
+    pub fn calculate_actual_price(&self, original_price: &OriginalPrice) -> Result<ActualPrice, Failure> {
+        let mut price = original_price.into_f64();
+        for split_rule in self.split_rules.iter().rev() {
+            price = split_rule.calculate_from_original_to_actual(price);           
+        }
+        let price = ActualPrice::from_f64(price)?;
+        return Ok(price);
+    }
+
+    pub fn calculate_actual_volume(&self, original_volume: &OriginalVolume) -> Result<ActualVolume, Failure> {
+        let mut price = original_volume.into_f64();
+        for split_rule in self.split_rules.iter().rev() {
+            price = split_rule.calculate_from_original_to_actual(price);           
+        }
+        let price = ActualVolume::from_f64(price)?;
+        return Ok(price);
+    }
 }

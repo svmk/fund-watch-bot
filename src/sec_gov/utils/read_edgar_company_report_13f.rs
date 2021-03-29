@@ -69,6 +69,10 @@ fn parse_document_information_table(document: &EdgarXmlDocument) -> Result<Optio
         let share = info_table.read_xpath_string("edgar:shrsOrPrnAmt/edgar:sshPrnamt")?;
         let share = Share::from_str(&share)?;
         let share_type = info_table.read_xpath_string("edgar:shrsOrPrnAmt/edgar:sshPrnamtType")?;
+
+        // sh - shares
+        // prn - principal amount
+        // https://www.sec.gov/rules/extra/form13f.txt
         if share_type != "SH" && share_type != "PRN" {
             return Err(Failure::msg(format!("Unknown share type {}", share_type)));
         }

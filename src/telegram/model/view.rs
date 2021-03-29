@@ -12,6 +12,12 @@ impl View {
         }
     }
 
+    pub fn with_one_message(message: impl Into<OutgoingMessage>) -> View {
+        let mut result = View::new();
+        result.push_message(message);
+        return result;
+    }
+
     pub fn push_message(&mut self, message: impl Into<OutgoingMessage>) {
         self.messages.push(message.into());
     }

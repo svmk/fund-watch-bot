@@ -2,6 +2,7 @@ use crate::market::{common::model::original_candlestick::OriginalCandleStick, ma
 use crate::market::common::model::ticker::Ticker;
 use crate::market::market_data::model::candlestick_report::CandlestickReport;
 use crate::market::market_data::model::time_frame::TimeFrame;
+use crate::market::market_data::model::split_rules::SplitRules;
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
 use crate::market::market_data::model::ticker_price::TickerPrice;
 use crate::market::market_data::error::candlestick_fetch_error::CandlestickFetchError;
@@ -51,6 +52,14 @@ impl CandlestickProvider {
                 return create_candlestick_report(&ticker_price, original_candlestick);
             },
         }
+    }
+
+    pub async fn fetch_split_rules(&self, ticker: &Ticker, datetime: &DateTime) -> Result<SplitRules, CandlestickFetchError> {
+        let request = CandlestickRequest::from_datetime(ticker.clone(), datetime.clone());
+        self.candlestick_downloader.fetch_by_ticker(&request).await?;
+        let ticker_price = self.ticker_price_repository.get(&ticker).await?;
+        let split_rules = ticker_price.get_split_rules().clone();
+        return Ok(split_rules);
     }
 }
 

@@ -133,7 +133,7 @@ impl DailyFundReportImporting {
                 return component.get_share().clone();
             })
             .fold(Share::zero(), |accumulator, share| {
-                return accumulator.add(share);
+                return accumulator.sum(&share);
             });
         let share_sum = share_sum.into_f64();
         let report_datetime = report.get_form_13f().get_period_of_report().end_of_day();

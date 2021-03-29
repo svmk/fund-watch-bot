@@ -47,6 +47,10 @@ impl TickerPrice {
         return self.split_rules.add_split(split);
     }
 
+    pub fn get_split_rules(&self) -> &SplitRules {
+        return &self.split_rules;
+    }
+
     pub fn need_update_chart_price(&self, id: &QuartalPriceId, price: &OriginalCandleStick) -> bool {
         return self.chart.need_update_chart_price(id.get_period(), price);
     }

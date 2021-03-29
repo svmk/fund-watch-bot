@@ -12,6 +12,7 @@ use crate::telegram::service::command_router::CommandRouter;
 use crate::telegram::service::message_handler::MessageHandler;
 use crate::telegram::service_handlers::command_handler::CommandHandler;
 use crate::telegram::service_handlers::action_handler::ActionHandler;
+use crate::telegram::action::fund_report_action::FundReportAction;
 use crate::telegram::service::action_router::ActionRouter;
 use crate::telegram::service::bot_instance::BotInstance;
 use crate::telegram::service::event_notifier::EventNotifier;
@@ -23,6 +24,7 @@ use crate::telegram::controller::fund_list_controller::FundListController;
 use crate::telegram::controller::fund_info_controller::FundInfoController;
 use crate::telegram::controller::subscription_list_controller::SubscriptionListController;
 use crate::telegram::controller::fund_report_list_controller::FundReportListController;
+use crate::telegram::controller::fund_report_controller::FundReportController;
 use crate::telegram::model::chat::Chat;
 use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::model::chat_messages::ChatMessages;
@@ -50,6 +52,8 @@ pub const FUND_INFO_CONTROLLER: ServiceId<FundInfoController> = ServiceIdResolve
 pub const SUBSCRIPTION_LIST_CONTROLLER: ServiceId<SubscriptionListController> = ServiceIdResolver::SERVICE_ID;
 pub const SUBSCRIPTION_LIST_ACTION_REPOSITORY: ServiceId<RepositoryInstance<ActionId, SubscriptionListAction>> = ServiceIdResolver::SERVICE_ID;
 pub const FUND_REPORT_LIST_CONTROLLER: ServiceId<FundReportListController> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_REPORT_CONTROLLER: ServiceId<FundReportController> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_REPORT_ACTION_REPOSITORY: ServiceId<RepositoryInstance<ActionId, FundReportAction>> = ServiceIdResolver::SERVICE_ID;
 
 pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error> {
     builder.register(COMMAND_ROUTER, async move |resolver| {
@@ -84,11 +88,14 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         let subscription_list_controller = typed_di::service_ref!(subscription_list_controller => &dyn ActionHandler);
         let fund_report_list_controller = resolver.get_service(FUND_REPORT_LIST_CONTROLLER).await?;
         let fund_report_list_controller = typed_di::service_ref!(fund_report_list_controller => &dyn ActionHandler);
+        let fund_report_controller = resolver.get_service(FUND_REPORT_CONTROLLER).await?;
+        let fund_report_controller = typed_di::service_ref!(fund_report_controller => &dyn ActionHandler);
         let mut service = ActionRouter::new();
         service.register_action(ActionType::FUND_LIST, fund_list_controller);
         service.register_action(ActionType::FUND_INFO, fund_info_controller);
         service.register_action(ActionType::SUBSCRIPTION_LIST, subscription_list_controller);
         service.register_action(ActionType::FUND_REPORT_LIST, fund_report_list_controller);
+        service.register_action(ActionType::FUND_REPORT, fund_report_controller);
         return Ok(service);
     })?;
     builder.register(BOT_INSTANCE, async move |resolver| {
@@ -211,7 +218,27 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
             resolver.get_service(di::market_fund_report_di::FUND_REPOSITORY).await?,
             resolver.get_service(di::market_fund_report_di::FUND_REPORTS_REPOSITORY).await?,
             resolver.get_service(FUND_REPORT_LIST_ACTION_REPOSITORY).await?,
+            resolver.get_service(FUND_REPORT_CONTROLLER).await?,
         );       
+        return Ok(service);
+    })?;
+    builder.register(FUND_REPORT_ACTION_REPOSITORY, async move |resolver| {
+        let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
+        let config = config.get_repository();
+        let path = config.get_path();
+        let service = FileRepository::new(
+            action_id_path_resolver(path),
+            JsonSerializer::new(),
+        );
+        return Ok(service);
+    })?;
+    builder.register(FUND_REPORT_CONTROLLER, async move |resolver| {
+        let service = FundReportController::new(
+            resolver.get_service(di::market_fund_report_di::FUND_REPOSITORY).await?,
+            resolver.get_service(di::market_fund_report_di::DAILY_FUND_REPORT_REPOSITORY).await?,
+            resolver.get_service(di::market_data_di::CANDLESTICK_PROVIDER).await?,
+            resolver.get_service(FUND_REPORT_ACTION_REPOSITORY).await?,
+        );
         return Ok(service);
     })?;
     return Ok(());

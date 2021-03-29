@@ -2,6 +2,7 @@ use std::str::FromStr;
 use crate::prelude::*;
 
 #[derive(Debug)]
+/// https://fundapps.zendesk.com/hc/en-us/articles/360038126592-Notes-on-Various-13F-Portfolio-Properties
 pub enum InvestmentDiscretion {
     Sole,
     Defund,

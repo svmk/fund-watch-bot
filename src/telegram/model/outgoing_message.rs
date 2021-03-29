@@ -1,10 +1,13 @@
 use crate::telegram::model::reply_markup::ReplyMarkup;
 use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
+use crate::telegram::model::outgoing_message_format::OutgoingMessageFormat;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct OutgoingMessage {
     #[serde(rename="id")]
     id: OutgoingMessageId,
+    #[serde(rename="format")]
+    format: OutgoingMessageFormat,
     #[serde(rename="text")]
     text: String,
     #[serde(rename="reply_markup")]
@@ -17,6 +20,7 @@ impl OutgoingMessage {
     pub fn new(text: String) -> OutgoingMessage {
         return OutgoingMessage {
             id: OutgoingMessageId::new(),
+            format: OutgoingMessageFormat::Html,
             text,
             reply_markup: ReplyMarkup::None,
             enable_notification: false,
@@ -26,10 +30,16 @@ impl OutgoingMessage {
     pub fn update(id: OutgoingMessageId, text: String) -> OutgoingMessage {
         return OutgoingMessage {
             id,
+            format: OutgoingMessageFormat::Html,
             text,
             reply_markup: ReplyMarkup::None,
             enable_notification: false,
         }
+    }
+
+    pub fn with_markdown_v2_format(mut self) -> Self {
+        self.format = OutgoingMessageFormat::MarkdownV2;
+        return self;
     }
 
     pub fn with_reply_markup(mut self, reply_markup: impl Into<ReplyMarkup> + 'static) -> OutgoingMessage {
@@ -39,6 +49,10 @@ impl OutgoingMessage {
 
     pub fn get_id(&self) -> &OutgoingMessageId {
         return &self.id;
+    }
+
+    pub fn get_format(&self) -> &OutgoingMessageFormat {
+        return &self.format;
     }
 
     pub fn get_text(&self) -> &String {

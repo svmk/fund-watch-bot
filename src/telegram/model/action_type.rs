@@ -9,6 +9,7 @@ impl ActionType {
     pub const SUBSCRIPTION_LIST: ActionType = ActionType(2);
     pub const FUND_INFO: ActionType = ActionType(3);
     pub const FUND_REPORT_LIST: ActionType = ActionType(4);
+    pub const FUND_REPORT: ActionType = ActionType(5);
     fn from_u16(value: u16) -> Result<ActionType, Failure> {
         return Ok(ActionType(value));
     }

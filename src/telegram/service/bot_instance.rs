@@ -6,6 +6,7 @@ use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::model::chat_messages::ChatMessages;
 use crate::telegram::utils::telegram_create_reply_markup::telegram_create_reply_markup;
 use crate::repository::repository::repository_instance::RepositoryInstance;
+use crate::telegram::model::outgoing_message_format::OutgoingMessageFormat;
 use typed_di::service::service::Service;
 use tbot::Bot;
 use tbot::types::parameters::Text as MessageText;
@@ -59,7 +60,14 @@ impl BotInstance {
         };
         let telegram_chat_id = TelegramChatId(chat_id.to_i64());
         for message in view.iter_messages() {
-            let message_text = MessageText::with_html(message.get_text());
+            let message_text = match message.get_format() {
+                OutgoingMessageFormat::Html => {
+                    MessageText::with_html(message.get_text())
+                },
+                OutgoingMessageFormat::MarkdownV2 => {
+                    MessageText::with_markdown_v2(message.get_text())
+                },
+            };
             match chat_messages.get_telegram_message(message.get_id()) {
                 Some(sended_message) => {
                     if sended_message.need_update(message) {

@@ -5,6 +5,7 @@ use crate::market::fund_report::model::fund::Fund;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::telegram::views::fund_report_list_view::fund_report_list_view;
 use crate::telegram::service_handlers::action_handler::ActionHandler;
+use crate::telegram::controller::fund_report_controller::FundReportController;
 use crate::telegram::action::fund_report_list_action::{FundReportListAction, FundReportListActionDecision};
 use typed_di::service::service::Service;
 
@@ -13,6 +14,7 @@ pub struct FundReportListController {
     fund_repository: Service<RepositoryInstance<FundId, Fund>>,
     fund_reports_repository: Service<RepositoryInstance<FundId, FundReports>>,
     action_repository: Service<RepositoryInstance<ActionId, FundReportListAction>>,
+    fund_report_controller: Service<FundReportController>,
 }
 
 impl FundReportListController {
@@ -35,7 +37,10 @@ impl ActionHandler for FundReportListController {
         let action_decision = action.decide(&action_route);
         match action_decision {
             FundReportListActionDecision::View(daily_fund_report_id) => {
-                unimplemented!()
+                let view = self
+                    .fund_report_controller
+                    .render(&daily_fund_report_id).await?;
+                return Ok(view);
             },
             FundReportListActionDecision::SelectPage(page) => {
                 action.select_page(&page)?;

@@ -9,7 +9,7 @@ use crate::telegram::views::date_view::date_view;
 
 pub fn fund_report_list_view(action: &FundReportListAction) -> View {
     let mut view = View::new();
-    let message = format!("<b>Список всех отчётов компании {}:</b>", action.get_company_name());
+    let message = format!("Список всех отчётов компании <b>{}</b>:  ", action.get_company_name());
     let message = OutgoingMessage::update(
         action.get_outgoing_message_id().clone(),
         message,
