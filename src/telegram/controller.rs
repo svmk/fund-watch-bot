@@ -5,3 +5,4 @@ pub mod start_controller;
 pub mod fund_info_controller;
 pub mod fund_report_list_controller;
 pub mod fund_report_info_controller;
+pub mod fund_change_list_controller;

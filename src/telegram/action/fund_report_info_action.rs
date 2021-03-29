@@ -88,7 +88,7 @@ pub struct FundReportInfoAction {
 
 impl FundReportInfoAction {
     pub fn new_empty(fund: &Fund, fund_report: &DailyFundReport) -> FundReportInfoAction {
-        let action_id = ActionId::new(ActionType::FUND_REPORT);
+        let action_id = ActionId::new(ActionType::FUND_REPORT_INFO);
         return FundReportInfoAction {
             action_id: action_id.clone(),
             fund_name: fund.get_company_name().clone(),

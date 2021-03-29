@@ -43,6 +43,10 @@ impl FundReports {
     pub fn get_daily_reports(&self) -> &Vec<DailyFundReportId> {
         return &self.daily_reports;
     }
+
+    pub fn get_fund_changes(&self) -> &Vec<FundChangesId> {
+        unimplemented!()
+    }
 }
 
 impl Entity<FundId> for FundReports {

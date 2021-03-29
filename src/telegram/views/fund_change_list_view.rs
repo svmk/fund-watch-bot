@@ -1,24 +1,30 @@
 use crate::telegram::model::view::View;
 use crate::telegram::model::outgoing_message::OutgoingMessage;
 use crate::telegram::model::inline_keyboard::InlineKeyboard;
-use crate::telegram::action::fund_report_list_action::FundReportListAction;
+use crate::telegram::action::fund_change_list_action::FundChangeListAction;
 use crate::telegram::model::callback_button::CallbackButton;
 use crate::telegram::model::button::Button;
 use crate::telegram::views::pager_keyboard_view::pager_keyboard_view;
 use crate::telegram::views::date_view::date_view;
 
-pub fn fund_report_list_view(action: &FundReportListAction) -> View {
+pub fn fund_change_list_view(action: &FundChangeListAction) -> View {
     let mut view = View::new();
-    let message = format!("Список всех отчётов фонда <b>{}</b>:  ", action.get_company_name());
+    let message = format!("Список всех перебалансировок фонда <b>{}</b>:  ", action.get_company_name());
     let message = OutgoingMessage::update(
         action.get_outgoing_message_id().clone(),
         message,
     );
     let mut keyboard = InlineKeyboard::new();
-    for fund_report_record in action.iter() {
+    for fund_change_record in action.iter() {
+        let fund_change_id = fund_change_record.get_fund_change_id();
+        let view_button_text = format!(
+            "{} -> {}",
+            date_view(fund_change_id.get_prev_fund_id().get_date()),
+            date_view(fund_change_id.get_next_fund_id().get_date()),
+        );
         let view_button = CallbackButton::new(
-            date_view(fund_report_record.get_fund_report_id().get_date()),
-            fund_report_record.get_route_view().clone(),
+            view_button_text,
+            fund_change_record.get_route_view().clone(),
         );
         let view_button = Button::CallbackButton(view_button);
         keyboard.push_single_button(view_button);
