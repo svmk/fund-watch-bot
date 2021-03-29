@@ -94,12 +94,15 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         let fund_report_list_controller = typed_di::service_ref!(fund_report_list_controller => &dyn ActionHandler);
         let fund_report_controller = resolver.get_service(FUND_REPORT_INFO_CONTROLLER).await?;
         let fund_report_controller = typed_di::service_ref!(fund_report_controller => &dyn ActionHandler);
+        let fund_change_list_controller = resolver.get_service(FUND_CHANGE_LIST_CONTROLLER).await?;
+        let fund_change_list_controller = typed_di::service_ref!(fund_change_list_controller => &dyn ActionHandler);
         let mut service = ActionRouter::new();
         service.register_action(ActionType::FUND_LIST, fund_list_controller);
         service.register_action(ActionType::FUND_INFO, fund_info_controller);
         service.register_action(ActionType::SUBSCRIPTION_LIST, subscription_list_controller);
         service.register_action(ActionType::FUND_REPORT_LIST, fund_report_list_controller);
         service.register_action(ActionType::FUND_REPORT_INFO, fund_report_controller);
+        service.register_action(ActionType::FUND_CHANGE_LIST, fund_change_list_controller);
         return Ok(service);
     })?;
     builder.register(BOT_INSTANCE, async move |resolver| {
@@ -175,6 +178,7 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
             resolver.get_service(CHAT_REPOSITORY).await?,
             resolver.get_service(FUND_INFO_ACTION_REPOSITORY).await?,
             resolver.get_service(FUND_REPORT_LIST_CONTROLLER).await?,
+            resolver.get_service(FUND_CHANGE_LIST_CONTROLLER).await?,
         );
         return Ok(service);
     })?;

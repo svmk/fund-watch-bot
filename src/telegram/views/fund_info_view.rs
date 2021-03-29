@@ -23,8 +23,13 @@ pub fn fund_info_view(action: &FundInfoAction) -> View {
         action.get_fund_report_list_route().clone(),
     );
     let fund_reports_list_button = Button::CallbackButton(fund_reports_list_button);
+    let fund_changes_list_button = CallbackButton::new(
+        "Перебалансировки".to_string(),
+        action.get_fund_change_list_route().clone(),
+    );
+    let fund_changes_list_button = Button::CallbackButton(fund_changes_list_button);
     let subscribe_button= subscribe_button(action);
-    keyboard.push_keyboard_line(vec![fund_reports_list_button, subscribe_button]);
+    keyboard.push_keyboard_line(vec![fund_reports_list_button, fund_changes_list_button, subscribe_button]);
     let message = message.with_reply_markup(keyboard);
     view.push_message(message);
     return view;

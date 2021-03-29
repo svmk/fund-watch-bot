@@ -11,6 +11,7 @@ pub enum FundInfoActionDecision {
     Subscribe,
     Unsubscribe,
     FundReportList,
+    FundChangeList,
     Unknown,
 }
 
@@ -28,6 +29,8 @@ pub struct FundInfoAction {
     unsubscribe_route: ActionRoute,
     #[serde(rename="fund_report_list_route")]
     fund_report_list_route: ActionRoute,
+    #[serde(rename="fund_change_list_route")]
+    fund_change_list_route: ActionRoute,
     #[serde(rename="is_subscribed")]
     is_subscribed: bool,
 }
@@ -42,7 +45,8 @@ impl FundInfoAction {
             fund,
             fund_report_list_route: ActionRoute::new(action_id.clone()),
             subscribe_route: ActionRoute::new(action_id.clone()),
-            unsubscribe_route: ActionRoute::new(action_id),
+            unsubscribe_route: ActionRoute::new(action_id.clone()),
+            fund_change_list_route: ActionRoute::new(action_id),
             is_subscribed,
         }
     }
@@ -64,6 +68,10 @@ impl FundInfoAction {
         return &self.fund_report_list_route;
     }
 
+    pub fn get_fund_change_list_route(&self) -> &ActionRoute {
+        return &self.fund_change_list_route;
+    }
+
     pub fn get_subscribe_route(&self) -> &ActionRoute {
         return &self.subscribe_route;
     }
@@ -83,6 +91,8 @@ impl FundInfoAction {
             return FundInfoActionDecision::Unsubscribe;
         } else if &self.fund_report_list_route == action_route {
             return FundInfoActionDecision::FundReportList;
+        } else if &self.fund_change_list_route == action_route {
+            return FundInfoActionDecision::FundChangeList;
         } else {
             return FundInfoActionDecision::Unknown;
         }
