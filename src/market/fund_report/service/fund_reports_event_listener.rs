@@ -30,14 +30,19 @@ impl FundReportsEventListener {
             }
         };
         fund_reports.push_once_daily_fund_report_id(daily_fund_report_id);
+        self.generate_fund_changes(&mut fund_reports).await?;
         self.fund_reports_repository.store(&fund_reports).await?;
-        self.generate_fund_changes(&fund_reports).await?;
         return Ok(());
     }
 
-    async fn generate_fund_changes(&self, fund_reports: &FundReports) -> Result<(), Failure> {
+    async fn generate_fund_changes(&self, fund_reports: &mut FundReports) -> Result<(), Failure> {
+        let mut fund_change_ids = Vec::new();
         for fund_change_id in fund_reports.generate_fund_change_ids() {
-            let _ = self.fund_changes_generator.generate_fund_changes(fund_change_id).await?;
+            let fund_change = self.fund_changes_generator.generate_fund_changes(fund_change_id).await?;
+            fund_change_ids.push(fund_change.get_id().clone());
+        }
+        for fund_change_id in fund_change_ids.into_iter() {
+            fund_reports.push_once_daily_fund_change_id(fund_change_id);
         }
         return Ok(());
     }

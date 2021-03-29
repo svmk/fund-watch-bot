@@ -17,7 +17,6 @@ pub struct FundChangesGenerator {
 
 impl FundChangesGenerator {
     pub async fn generate_fund_changes(&self, fund_changes_id: FundChangesId) -> Result<FundChanges, Failure> {
-        println!("generate_fund_changes = {:?}", fund_changes_id); 
         let fund_changes = self.fund_changes_repository.find(&fund_changes_id).await?;
         let fund_changes = match fund_changes {
             Some(fund_changes) => fund_changes,
@@ -26,11 +25,11 @@ impl FundChangesGenerator {
                 let next_report = self.report_repository.get(fund_changes_id.get_next_fund_id()).await?;
                 let fund_changes = FundChanges::generate(&prev_report, &next_report)?;
                 self.fund_changes_repository.store(&fund_changes).await?;
+                self.fund_changes_repository.store(&fund_changes).await?;
+                self.event_emitter.emit_event(NewFundChangeEvent::new(fund_changes.get_id().clone())).await?;
                 fund_changes
             },
         };
-        self.fund_changes_repository.store(&fund_changes).await?;
-        self.event_emitter.emit_event(NewFundChangeEvent::new(fund_changes.get_id().clone())).await?;
         return Ok(fund_changes);
     }   
 }

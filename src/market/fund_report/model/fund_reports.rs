@@ -10,6 +10,8 @@ pub struct FundReports {
     fund_id: FundId,
     #[serde(rename = "daily_reports")]
     daily_reports: Vec<DailyFundReportId>,
+    #[serde(rename = "fund_changes")]
+    fund_changes: Vec<FundChangesId>,
 }
 
 impl FundReports {
@@ -17,6 +19,7 @@ impl FundReports {
         return FundReports {
             fund_id,
             daily_reports: Vec::new(),
+            fund_changes: Vec::new(),
         };
     }
 
@@ -44,8 +47,17 @@ impl FundReports {
         return &self.daily_reports;
     }
 
+    pub fn push_once_daily_fund_change_id(&mut self, id: FundChangesId) {
+        if !self.fund_changes.contains(&id) {
+            let _ = self.fund_changes.push(id);
+            self.fund_changes.sort_by_key(|item| {
+                return item.get_prev_fund_id().clone();
+            });
+        }
+    }
+
     pub fn get_fund_changes(&self) -> &Vec<FundChangesId> {
-        unimplemented!()
+        return &self.fund_changes;
     }
 }
 
