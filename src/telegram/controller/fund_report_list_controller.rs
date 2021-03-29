@@ -5,7 +5,7 @@ use crate::market::fund_report::model::fund::Fund;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::telegram::views::fund_report_list_view::fund_report_list_view;
 use crate::telegram::service_handlers::action_handler::ActionHandler;
-use crate::telegram::controller::fund_report_controller::FundReportController;
+use crate::telegram::controller::fund_report_info_controller::FundReportInfoController;
 use crate::telegram::action::fund_report_list_action::{FundReportListAction, FundReportListActionDecision};
 use typed_di::service::service::Service;
 
@@ -14,7 +14,7 @@ pub struct FundReportListController {
     fund_repository: Service<RepositoryInstance<FundId, Fund>>,
     fund_reports_repository: Service<RepositoryInstance<FundId, FundReports>>,
     action_repository: Service<RepositoryInstance<ActionId, FundReportListAction>>,
-    fund_report_controller: Service<FundReportController>,
+    fund_report_controller: Service<FundReportInfoController>,
 }
 
 impl FundReportListController {

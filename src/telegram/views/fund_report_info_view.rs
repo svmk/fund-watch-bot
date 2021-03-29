@@ -1,12 +1,12 @@
 use crate::telegram::model::view::View;
 use crate::telegram::model::outgoing_message::OutgoingMessage;
 use crate::telegram::model::inline_keyboard::InlineKeyboard;
-use crate::telegram::action::fund_report_action::FundReportAction;
+use crate::telegram::action::fund_report_info_action::FundReportInfoAction;
 use crate::telegram::views::date_view::date_view;
 use crate::telegram::views::pager_keyboard_view::pager_keyboard_view;
 use crate::telegram::utils::text_table::{TextTable, Row};
 
-pub fn fund_report_view(action: &FundReportAction) -> View {
+pub fn fund_report_info_view(action: &FundReportInfoAction) -> View {
     let report_date = date_view(action.get_report_date());
     let mut message = format!(
         "Позиции фонда <b>{}</b> на <b>{}</b>:\n", 

@@ -65,13 +65,13 @@ impl FundComponentRecord {
 
 
 #[derive(Debug)]
-pub enum FundReportActionDecision {
+pub enum FundReportInfoActionDecision {
     SelectPage(Page),
     Unknown,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct FundReportAction {
+pub struct FundReportInfoAction {
     #[serde(rename="fund_name")]
     fund_name: CompanyName,
     #[serde(rename="report_date")]
@@ -86,10 +86,10 @@ pub struct FundReportAction {
     fund_component_records: Vec<FundComponentRecord>,
 }
 
-impl FundReportAction {
-    pub fn new_empty(fund: &Fund, fund_report: &DailyFundReport) -> FundReportAction {
+impl FundReportInfoAction {
+    pub fn new_empty(fund: &Fund, fund_report: &DailyFundReport) -> FundReportInfoAction {
         let action_id = ActionId::new(ActionType::FUND_REPORT);
-        return FundReportAction {
+        return FundReportInfoAction {
             action_id: action_id.clone(),
             fund_name: fund.get_company_name().clone(),
             report_date: fund_report.get_id().get_date().clone(),
@@ -136,11 +136,11 @@ impl FundReportAction {
         return self.pager.iter_items(iterator);
     }
 
-    pub fn decide(&self, action_route: &ActionRoute) -> FundReportActionDecision {
+    pub fn decide(&self, action_route: &ActionRoute) -> FundReportInfoActionDecision {
         if let Some(page) = self.pager.get_page_by_route(action_route) {
-            return FundReportActionDecision::SelectPage(page.clone());
+            return FundReportInfoActionDecision::SelectPage(page.clone());
         }
-        return FundReportActionDecision::Unknown;
+        return FundReportInfoActionDecision::Unknown;
     }
 
     pub fn select_page(&mut self, page: &Page) -> Result<(), Failure> {
@@ -148,7 +148,7 @@ impl FundReportAction {
     }
 }
 
-impl Entity<ActionId> for FundReportAction {
+impl Entity<ActionId> for FundReportInfoAction {
     fn get_entity_id(&self) -> &ActionId {
         return &self.action_id;
     }
