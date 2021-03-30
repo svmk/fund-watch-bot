@@ -17,6 +17,12 @@ impl OriginalVolume {
         return OriginalVolume(self.0 + other.0);
     }
 
+    pub fn sub(&self, other: &Self) -> OriginalVolume {
+        let value = self.0 - other.0;
+        assert!(value >= 0.0);
+        return OriginalVolume(value);
+    }
+
     pub fn into_f64(&self) -> f64 {
         return self.0;
     }

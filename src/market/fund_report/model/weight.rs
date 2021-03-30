@@ -22,6 +22,13 @@ impl Weight {
         return Ok(Weight(value));
     }
 
+    pub fn sub(&self, other: &Self) -> Weight {
+        let value = self.0 - other.0;
+        assert!(value >= 0.0);
+        assert!(value <= 100.0);
+        return Weight(value);
+    }
+
     pub fn into_f64(self) -> f64 {
         return self.0;
     }

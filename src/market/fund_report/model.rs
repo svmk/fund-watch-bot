@@ -12,3 +12,5 @@ pub mod weight_change;
 pub mod fund_component_change;
 pub mod fund_component_share;
 pub mod fund_reports;
+pub mod fund_component_sell;
+pub mod fund_component_buy;

@@ -1,7 +1,7 @@
 use crate::market::common::error::price_parse_error::PriceParseError;
 use crate::market::common::model::price::Price;
 
-#[derive(Debug, Clone, PartialEq, ValueObject)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, ValueObject)]
 #[value_object(error_type = "PriceParseError", load_fn = "OriginalPrice::from_f64")]
 pub struct OriginalPrice(f64);
 
@@ -20,6 +20,12 @@ impl OriginalPrice {
 
     pub fn min(self, other: &Self) -> OriginalPrice {
         return OriginalPrice(self.0.min(other.0));
+    }
+
+    pub fn sub(&self, other: &Self) -> OriginalPrice {
+        let value = self.0 - other.0;
+        assert!(value >= 0.0);
+        return OriginalPrice(value);
     }
     
     pub fn from_f64(value: f64) -> Result<OriginalPrice, PriceParseError> {

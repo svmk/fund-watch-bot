@@ -1,7 +1,7 @@
 pub mod start_view;
 pub mod fund_list_view;
 pub mod pager_keyboard_view;
-pub mod fund_change_view;
+pub mod fund_change_notification_view;
 pub mod subscription_list_view;
 pub mod fund_info_view;
 pub mod bot_command_settings_view;
@@ -9,3 +9,5 @@ pub mod fund_report_list_view;
 pub mod date_view;
 pub mod fund_report_info_view;
 pub mod fund_change_list_view;
+pub mod fund_change_info_view;
+pub mod fund_change_table_view;

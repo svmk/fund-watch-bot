@@ -117,6 +117,7 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
     builder.register(EVENT_NOTIFIER, async move |resolver| {
         let service = EventNotifier::new(
             resolver.get_service(BOT_INSTANCE).await?,
+            resolver.get_service(di::market_fund_report_di::FUND_REPOSITORY).await?,
             resolver.get_service(CHAT_REPOSITORY).await?,
             resolver.get_service(di::market_fund_report_di::FUND_CHANGES_REPOSITORY).await?,
         );

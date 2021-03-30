@@ -1,6 +1,6 @@
 use crate::market::fund_report::model::weight::Weight;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(new, Debug, Clone, Serialize, Deserialize)]
 pub struct WeightChange {
     #[serde(rename = "from")]
     from: Weight,
@@ -9,16 +9,27 @@ pub struct WeightChange {
 }
 
 impl WeightChange {
-    pub fn new(
-        from: Weight,
-        to: Weight,
-    ) -> Option<WeightChange> {
-        if from == to {
-            return None;
+    pub fn is_buy(&self) -> bool {
+        return self.to > self.from;
+    }
+
+    pub fn compute_buy(&self) -> Option<Weight> {
+        if self.is_buy() {
+            let share = self.to.sub(&self.from);
+            return Some(share);
         }
-        return Some(WeightChange {
-            from,
-            to,
-        });
+        return None;
+    }
+
+    pub fn is_sell(&self) -> bool {
+        return self.to < self.from;
+    }
+
+    pub fn compute_sell(&self) -> Option<Weight> {
+        if self.is_sell() {
+            let share = self.from.sub(&self.to);
+            return Some(share);
+        }
+        return None;
     }
 }

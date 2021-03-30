@@ -1,39 +1,52 @@
 use crate::market::common::model::ticker::Ticker;
+use crate::market::fund_report::model::fund_component_sell::FundComponentSell;
 use crate::market::fund_report::model::share_change::ShareChange;
 use crate::market::fund_report::model::price_change::PriceChange;
 use crate::market::fund_report::model::weight_change::WeightChange;
+use crate::market::fund_report::model::fund_component_buy::FundComponentBuy;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(new, Debug, Clone, Serialize, Deserialize)]
 pub struct FundComponentChange {
     #[serde(rename = "ticker")]
     ticker: Ticker,
     #[serde(rename = "share_change")]
-    share_change: Option<ShareChange>,
+    share_change: ShareChange,
     #[serde(rename = "price_change")]
-    price_change: Option<PriceChange>,
+    price_change: PriceChange,
     #[serde(rename = "weight_change")]
-    weight_change: Option<WeightChange>,
+    weight_change: WeightChange,
 }
 
 impl FundComponentChange {
-    pub fn new(ticker: Ticker) -> FundComponentChange {
-        return FundComponentChange {
-            ticker,
-            share_change: None,
-            price_change: None,
-            weight_change: None,
-        };
+    pub fn generate_fund_component_buy(&self) -> Option<FundComponentBuy> {
+        let share = self.share_change.compute_buy();
+        let price = self.price_change.get_to().clone();
+        let weight = self.weight_change.compute_buy();
+        if let Some((share, weight)) = share.zip(weight) {
+            let result = FundComponentBuy::new(
+                self.ticker.clone(),
+                share,
+                price,
+                weight,
+            );
+            return Some(result);
+        }
+        return None;
     }
 
-    pub fn set_share_change(&mut self, value: ShareChange) {
-        self.share_change = Some(value);
-    }
-
-    pub fn set_price_change(&mut self, value: PriceChange) {
-        self.price_change = Some(value);
-    }
-
-    pub fn set_weight_change(&mut self, value: WeightChange) {
-        self.weight_change = Some(value);
+    pub fn generate_fund_component_sell(&self) -> Option<FundComponentSell> {
+        let share = self.share_change.compute_sell();
+        let price = self.price_change.get_to().clone();
+        let weight = self.weight_change.compute_sell();
+        if let Some((share, weight)) = share.zip(weight) {
+            let result = FundComponentSell::new(
+                self.ticker.clone(),
+                share,
+                price,
+                weight,
+            );
+            return Some(result);
+        }
+        return None;
     }
 }

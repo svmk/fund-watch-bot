@@ -1,6 +1,6 @@
 use crate::market::common::model::share::Share;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(new, Debug, Clone, Serialize, Deserialize)]
 pub struct ShareChange {
     #[serde(rename = "from")]
     from: Share,
@@ -9,16 +9,27 @@ pub struct ShareChange {
 }
 
 impl ShareChange {
-    pub fn new(
-        from: Share,
-        to: Share,
-    ) -> Option<ShareChange> {
-        if from == to {
-            return None;
+    pub fn is_buy(&self) -> bool {
+        return self.to > self.from;
+    }
+
+    pub fn compute_buy(&self) -> Option<Share> {
+        if self.is_buy() {
+            let share = self.to.sub(&self.from);
+            return Some(share);
         }
-        return Some(ShareChange {
-            from,
-            to,
-        });
+        return None;
+    }
+
+    pub fn is_sell(&self) -> bool {
+        return self.to < self.from;
+    }
+
+    pub fn compute_sell(&self) -> Option<Share> {
+        if self.is_sell() {
+            let share = self.from.sub(&self.to);
+            return Some(share);
+        }
+        return None;
     }
 }

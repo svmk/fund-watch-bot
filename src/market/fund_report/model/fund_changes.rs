@@ -2,6 +2,8 @@ use crate::market::fund_report::model::daily_fund_report::DailyFundReport;
 use crate::market::fund_report::model::fund_component::FundComponent;
 use crate::market::common::error::fund_changes_error::FundChangesError;
 use crate::market::fund_report::model::fund_component_change::FundComponentChange;
+use crate::market::fund_report::model::fund_component_buy::FundComponentBuy;
+use crate::market::fund_report::model::fund_component_sell::FundComponentSell;
 use crate::market::fund_report::model::share_change::ShareChange;
 use crate::market::fund_report::model::price_change::PriceChange;
 use crate::market::fund_report::model::weight_change::WeightChange;
@@ -81,28 +83,24 @@ impl FundChanges {
     }
 
     fn update_fund_component(&mut self, old_component: &FundComponent, new_component: &FundComponent) {
-        let mut fund_component_change = FundComponentChange::new(old_component.get_ticker().clone());
         let share_change = ShareChange::new(
             old_component.get_share().get_share().clone(), 
             new_component.get_share().get_share().clone(),
         );
-        if let Some(share_change) = share_change {
-            fund_component_change.set_share_change(share_change);
-        }
         let price_change = PriceChange::new(
             old_component.get_share().get_price().clone(), 
             new_component.get_share().get_price().clone(),
         );
-        if let Some(price_change) = price_change {
-            fund_component_change.set_price_change(price_change);
-        }
         let weight_change = WeightChange::new(
             old_component.get_share().get_weight().clone(), 
             new_component.get_share().get_weight().clone(),
         );
-        if let Some(weight_change) = weight_change {
-            fund_component_change.set_weight_change(weight_change);
-        }
+        let fund_component_change = FundComponentChange::new(
+            old_component.get_ticker().clone(),
+            share_change,
+            price_change,
+            weight_change,
+        );
         self.fund_component_changes.push(fund_component_change);
     }
 
@@ -112,6 +110,44 @@ impl FundChanges {
 
     pub fn get_id(&self) -> &FundChangesId {
         return &self.id;
+    }
+
+    pub fn generate_buys(&self) -> Vec<FundComponentBuy> {
+        let mut result = Vec::new();
+        for added_component in self.added_to_fund.iter() {
+            let added_component = FundComponentBuy::new(
+                added_component.get_ticker().clone(),
+                added_component.get_share().get_share().clone(),
+                added_component.get_share().get_price().clone(),
+                added_component.get_share().get_weight().clone(),
+            );
+            result.push(added_component);
+        }
+        for fund_component_change in self.fund_component_changes.iter() {
+            if let Some(buy_component) = fund_component_change.generate_fund_component_buy() {
+                result.push(buy_component);
+            }
+        }
+        return result;
+    }
+
+    pub fn generate_sells(&self) -> Vec<FundComponentSell> {
+        let mut result = Vec::new();
+        for removed_component in self.removed_from_fund.iter() {
+            let removed_component = FundComponentSell::new(
+                removed_component.get_ticker().clone(),
+                removed_component.get_share().get_share().clone(),
+                removed_component.get_share().get_price().clone(),
+                removed_component.get_share().get_weight().clone(),
+            );
+            result.push(removed_component);
+        }
+        for fund_component_change in self.fund_component_changes.iter() {
+            if let Some(sell_component) = fund_component_change.generate_fund_component_sell() {
+                result.push(sell_component);
+            }
+        }
+        return result;
     }
 }
 

@@ -1,6 +1,6 @@
 use crate::market::common::model::original_price::OriginalPrice;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(new, Debug, Clone, Serialize, Deserialize)]
 pub struct PriceChange {
     #[serde(rename = "from")]
     from: OriginalPrice,
@@ -8,17 +8,33 @@ pub struct PriceChange {
     to: OriginalPrice,
 }
 
+
 impl PriceChange {
-    pub fn new(
-        from: OriginalPrice,
-        to: OriginalPrice,
-    ) -> Option<PriceChange> {
-        if from == to {
-            return None;
+    pub fn get_to(&self) -> &OriginalPrice {
+        return &self.to;
+    }
+    
+    pub fn is_buy(&self) -> bool {
+        return self.to > self.from;
+    }
+
+    pub fn compute_buy(&self) -> Option<OriginalPrice> {
+        if self.is_buy() {
+            let share = self.to.sub(&self.from);
+            return Some(share);
         }
-        return Some(PriceChange {
-            from,
-            to,
-        });
+        return None;
+    }
+
+    pub fn is_sell(&self) -> bool {
+        return self.to < self.from;
+    }
+
+    pub fn compute_sell(&self) -> Option<OriginalPrice> {
+        if self.is_sell() {
+            let share = self.from.sub(&self.to);
+            return Some(share);
+        }
+        return None;
     }
 }

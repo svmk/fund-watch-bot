@@ -21,7 +21,6 @@ pub fn fund_report_info_view(action: &FundReportInfoAction) -> View {
         let volume = component.get_volume().into_f64();
         let volume = format!("{:.2}", volume);
         let weight = component.get_weight().clone().into_f64();
-        let weight = weight * 100.0;
         let weight = format!("{:.2}%", weight);
         let row = Row::new()
             .with_code("<code>")

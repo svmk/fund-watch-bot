@@ -11,6 +11,7 @@ impl ActionType {
     pub const FUND_REPORT_LIST: ActionType = ActionType(4);
     pub const FUND_REPORT_INFO: ActionType = ActionType(5);
     pub const FUND_CHANGE_LIST: ActionType = ActionType(6);
+    pub const FUND_CHANGE_INFO: ActionType = ActionType(7);
     fn from_u16(value: u16) -> Result<ActionType, Failure> {
         return Ok(ActionType(value));
     }
