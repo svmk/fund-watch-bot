@@ -93,21 +93,34 @@ impl PagerAction {
     }
 
     pub fn iter_pages(&self) -> impl Iterator<Item=&Page> + '_ {
-        let pages_length = self.paginator.pages.len();
-        let begin = self.paginator.current_page_index.saturating_sub(self.paginator.paginator_length);
-        let end = self.paginator.current_page_index + self.paginator.paginator_length;
+        let last_page_index = self.paginator.pages.len().saturating_sub(1) as isize;
+
+        let current_page_index = self.paginator.current_page_index as isize;
+        let paginator_length = self.paginator.paginator_length as isize;
+
+        let mut begin = current_page_index - paginator_length;
+        let mut end = begin + paginator_length * 2;
+        if begin <= 0 {
+            begin = 0;
+            end = paginator_length * 2 + 1;
+        }
+        if end >= last_page_index {
+            end = last_page_index;
+            begin = last_page_index - paginator_length * 2 - 1;
+        }
         return self
             .paginator
             .pages
             .iter()
             .filter(move |&page| {
-                if page.index == 0 {
+                let index = page.index as isize;
+                if index == 0 {
                     return true;
                 }
-                if page.index == pages_length {
+                if index == last_page_index {
                     return true;
                 }
-                if page.index >= begin && page.index <= end {
+                if index >= begin && index <= end {
                     return true;
                 }
                 return false;
