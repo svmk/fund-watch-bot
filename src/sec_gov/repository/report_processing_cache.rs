@@ -11,7 +11,7 @@ pub struct ReportProcessingCache {
 }
 
 impl ReportProcessingCache {
-    pub async fn was_processed(&self, company_report_ref: &CompanyReportRef) -> Result<bool, Failure> {
+    pub async fn need_fetch(&self, company_report_ref: &CompanyReportRef) -> Result<bool, Failure> {
         let processed_reports = self
             .processed_reports_repository
             .find(company_report_ref.get_date()).await?;
@@ -22,7 +22,7 @@ impl ReportProcessingCache {
             },
         };
         let was_processed = processed_reports.was_processed(company_report_ref);
-        return Ok(was_processed);
+        return Ok(!was_processed);
     }
 
     pub async fn notify_processed(&self, company_report_ref: &CompanyReportRef) -> Result<(), Failure> {

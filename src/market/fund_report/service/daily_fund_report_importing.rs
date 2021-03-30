@@ -65,7 +65,7 @@ impl DailyFundReportImporting {
                 if request.get_process_only_new() {
                     need_fetch = self
                         .report_processing_cache
-                        .was_processed(fund_report_ref).await?;
+                        .need_fetch(fund_report_ref).await?;
                 }
                 if need_fetch {
                     let _ = self.fetch_daily_fund_report(fund_report_ref).await?;
@@ -98,6 +98,15 @@ impl DailyFundReportImporting {
     }
 
     pub async fn fetch_daily_fund_report(
+        &self,
+        report_ref: &CompanyReportRef,
+    ) -> Result<Option<DailyFundReport>, Failure> {
+        let fund_report = self.inner_fetch_daily_fund_report(report_ref).await?;
+        self.report_processing_cache.notify_processed(report_ref).await?;
+        return Ok(fund_report);
+    }
+
+    async fn inner_fetch_daily_fund_report(
         &self,
         report_ref: &CompanyReportRef,
     ) -> Result<Option<DailyFundReport>, Failure> {
@@ -174,7 +183,6 @@ impl DailyFundReportImporting {
         }
         self.report_repository.store(&result).await?;
         self.event_emitter.emit_event(NewDailyFundReportEvent::new(result.get_id().clone())).await?;
-        self.report_processing_cache.notify_processed(report_ref).await?;
         return Ok(Some(result));
     }
 }
