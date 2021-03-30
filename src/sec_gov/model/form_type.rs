@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Debug, Clone, PartialEq, ValueObject)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, ValueObject)]
 #[value_object(error_type = "Failure", load_fn = "FormType::from_string")]
 pub struct FormType(String);
 

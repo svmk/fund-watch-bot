@@ -14,3 +14,4 @@ pub mod form_13f_componenttable;
 pub mod form_13f_component;
 pub mod cusip;
 pub mod investment_discretion;
+pub mod processed_reports;

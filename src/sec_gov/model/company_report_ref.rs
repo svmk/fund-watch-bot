@@ -3,11 +3,15 @@ use crate::sec_gov::model::form_type::FormType;
 use crate::sec_gov::model::cik::Cik;
 use crate::app::model::date::Date;
 
-#[derive(new, Debug, Clone)]
+#[derive(new, Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct CompanyReportRef {
+    #[serde(rename="cik")]
     cik: Cik,
+    #[serde(rename="date")]
     date: Date,
+    #[serde(rename="form_type")]
     form_type: FormType,
+    #[serde(rename="relative_url")]
     relative_url: RelativeUrl,
 }
 

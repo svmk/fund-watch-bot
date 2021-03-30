@@ -1,16 +1,14 @@
 use crate::app::model::year_quartal::YearQuartal;
 use crate::app::model::year_quartal_iterator::YearQuartalIterator;
-use crate::app::model::date::Date;
 use crate::market::common::model::share::Share;
-use crate::market::market_data::model::time_frame::TimeFrame;
 use crate::market::fund_report::model::daily_fund_report::DailyFundReport;
 use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
 use crate::market::fund_report::model::fund::Fund;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund_component::FundComponent;
 use crate::market::fund_report::model::weight::Weight;
+use crate::market::fund_report::model::daily_fund_report_import_request::DailyFundReportImportRequest;
 use crate::market::fund_report::events::new_daily_fund_report_event::NewDailyFundReportEvent;
-use crate::market::fund_report::service::fund_reports_event_listener::FundReportsEventListener;
 use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
 use crate::event_emitter::service::event_emitter::EventEmitter;
 use crate::openfigi::service::openfigi_api::OpenFigiApi;
@@ -18,18 +16,8 @@ use crate::prelude::*;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::sec_gov::model::company_report_ref::CompanyReportRef;
 use crate::sec_gov::service::edgar_api::EdgarApi;
+use crate::sec_gov::repository::report_processing_cache::ReportProcessingCache;
 use typed_di::service::service::Service;
-
-#[derive(new, Debug)]
-pub struct DailyFundReportRef {
-    company_report_ref: CompanyReportRef,
-}
-
-impl DailyFundReportRef {
-    pub fn get_company_report_ref(&self) -> &CompanyReportRef {
-        return &self.company_report_ref;
-    }
-}
 
 #[derive(new)]
 pub struct DailyFundReportImporting {
@@ -39,10 +27,13 @@ pub struct DailyFundReportImporting {
     report_repository: Service<RepositoryInstance<DailyFundReportId, DailyFundReport>>,
     candlestick_provider: Service<CandlestickProvider>,
     event_emitter: Service<EventEmitter>,
+    report_processing_cache: Service<ReportProcessingCache>,
 }
 
 impl DailyFundReportImporting {
-    pub async fn import_period(&self, started_at: Date, ended_at: Option<Date>) -> Result<(), Failure> {
+    pub async fn import_period(&self, request: DailyFundReportImportRequest) -> Result<(), Failure> {
+        let started_at = request.get_started_at().clone();
+        let ended_at = request.get_ended_at().clone();
         let start_quartal = YearQuartal::from_date(started_at.clone());
         let end_quartal = match ended_at {
             Some(ref ended_at) => {
@@ -58,7 +49,7 @@ impl DailyFundReportImporting {
             let fund_report_refs_iterator = fund_report_refs
                 .iter()
                 .filter(|fund_report_ref| {
-                    let datetime = fund_report_ref.get_company_report_ref().get_date();
+                    let datetime = fund_report_ref.get_date();
                     if datetime < &started_at {
                         return false;
                     }
@@ -70,7 +61,15 @@ impl DailyFundReportImporting {
                     return true;
                 });
             for fund_report_ref in fund_report_refs_iterator {
-                let _ = self.fetch_daily_fund_report(fund_report_ref).await?;
+                let mut need_fetch = true;
+                if request.get_process_only_new() {
+                    need_fetch = self
+                        .report_processing_cache
+                        .was_processed(fund_report_ref).await?;
+                }
+                if need_fetch {
+                    let _ = self.fetch_daily_fund_report(fund_report_ref).await?;
+                }
             }
         }
         return Ok(());
@@ -79,7 +78,7 @@ impl DailyFundReportImporting {
     pub async fn import_reports(
         &self,
         quartal: &YearQuartal,
-    ) -> Result<Vec<DailyFundReportRef>, Failure> {
+    ) -> Result<Vec<CompanyReportRef>, Failure> {
         let edgar_company_index = self.edgar_api.fetch_company_index(quartal).await?;
         let mut report_refs: Vec<_> = edgar_company_index
             .iter()
@@ -90,21 +89,18 @@ impl DailyFundReportImporting {
                 }
                 return false;
             })
-            .map(|report_ref| {
-                return DailyFundReportRef::new(report_ref.clone());
-            })
+            .map(Clone::clone)
             .collect();
         report_refs.sort_by_key(|report_ref| {
-            return report_ref.get_company_report_ref().get_date().clone();
+            return report_ref.get_date().clone();
         });
         return Ok(report_refs);
     }
 
     pub async fn fetch_daily_fund_report(
         &self,
-        report_ref: &DailyFundReportRef,
+        report_ref: &CompanyReportRef,
     ) -> Result<Option<DailyFundReport>, Failure> {
-        let report_ref = report_ref.get_company_report_ref();
         let report = self.edgar_api.fetch_compoany_report_13f(report_ref).await?;
         let report = match report {
             Some(report) => report,
@@ -178,6 +174,7 @@ impl DailyFundReportImporting {
         }
         self.report_repository.store(&result).await?;
         self.event_emitter.emit_event(NewDailyFundReportEvent::new(result.get_id().clone())).await?;
+        self.report_processing_cache.notify_processed(report_ref).await?;
         return Ok(Some(result));
     }
 }

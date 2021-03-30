@@ -44,6 +44,7 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
             resolver.get_service(DAILY_FUND_REPORT_REPOSITORY).await?,
             resolver.get_service(CANDLESTICK_PROVIDER).await?,
             resolver.get_service(di::event_emitter_di::EVENT_EMITTER).await?,
+            resolver.get_service(di::sec_gov_di::REPORT_PROCESSING_CACHE).await?,
         );
         return Ok(service);
     })?;

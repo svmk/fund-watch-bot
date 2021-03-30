@@ -3,6 +3,7 @@ use crate::prelude::*;
 use crate::app::model::year::Year;
 use crate::app::model::month::Month;
 use crate::app::model::datetime::DateTime;
+use crate::repository::model::identity::Identity;
 use chrono::Date as ChronoDate;
 use chrono::offset::Utc;
 use chrono::Datelike;
@@ -88,5 +89,11 @@ impl FromStr for Date {
         let date = ChronoDate::from_utc(date, Utc{});
         let date = Date(date);
         return Ok(date);
+    }
+}
+
+impl Identity for Date {
+    fn to_string(&self) -> String {
+        return format!("{}", self.0.naive_utc());
     }
 }

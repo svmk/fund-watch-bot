@@ -7,6 +7,7 @@ use crate::event_emitter::model::event_record::EventRecord;
 use crate::console::event_handlers::WATCH_EDGAR_CACHE_ACCESS;
 use crate::console::command::import_13f_form_command::Import13FFormCommand;
 use crate::sec_gov::events::edgar_cache_access_event::EdgarCacheAccessEvent;
+use crate::market::fund_report::model::daily_fund_report_import_request::DailyFundReportImportRequest;
 use typed_di::service::service::Service;
 
 #[derive(new)]
@@ -27,7 +28,12 @@ impl Import13Form {
         println!("Started!");
         let start_at = command.get_started_at();
         let end_at = command.get_ended_at();
-        self.daily_fund_report_importing.import_period(start_at, end_at).await?;
+        let mut request = DailyFundReportImportRequest::new(start_at);
+        if let Some(end_at) = end_at {
+            request = request.with_end_at(end_at);
+        }
+        request = request.with_process_only_new(command.get_only_new());
+        self.daily_fund_report_importing.import_period(request).await?;
         return Ok(());
     }
 }

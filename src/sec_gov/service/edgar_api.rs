@@ -57,7 +57,7 @@ impl EdgarApi {
             year_quartal.get_year(),
             year_quartal.get_quartal().display_long(),
         );
-        let relative_url = RelativeUrl::new(relative_url);
+        let relative_url = RelativeUrl::from_string(relative_url)?;
         let url = self
             .config
             .base_url

@@ -14,3 +14,4 @@ pub mod fund_component_share;
 pub mod fund_reports;
 pub mod fund_component_sell;
 pub mod fund_component_buy;
+pub mod daily_fund_report_import_request;
