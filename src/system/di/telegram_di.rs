@@ -19,6 +19,7 @@ use crate::telegram::service::event_notifier::EventNotifier;
 use crate::telegram::task::telegram_bot_task::TelegramBotTask;
 use crate::telegram::action::fund_list_action::FundListAction;
 use crate::telegram::action::fund_change_list_action::FundChangeListAction;
+use crate::telegram::action::fund_change_info_action::FundChangeInfoAction;
 use crate::telegram::model::action_id::ActionId;
 use crate::telegram::controller::start_controller::StartController;
 use crate::telegram::controller::fund_list_controller::FundListController;
@@ -27,6 +28,7 @@ use crate::telegram::controller::subscription_list_controller::SubscriptionListC
 use crate::telegram::controller::fund_report_list_controller::FundReportListController;
 use crate::telegram::controller::fund_report_info_controller::FundReportInfoController;
 use crate::telegram::controller::fund_change_list_controller::FundChangeListController;
+use crate::telegram::controller::fund_change_info_controller::FundChangeInfoController;
 use crate::telegram::model::chat::Chat;
 use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::model::chat_messages::ChatMessages;
@@ -58,6 +60,8 @@ pub const FUND_REPORT_INFO_CONTROLLER: ServiceId<FundReportInfoController> = Ser
 pub const FUND_REPORT_INFO_ACTION_REPOSITORY: ServiceId<RepositoryInstance<ActionId, FundReportInfoAction>> = ServiceIdResolver::SERVICE_ID;
 pub const FUND_CHANGE_LIST_CONTROLLER: ServiceId<FundChangeListController> = ServiceIdResolver::SERVICE_ID;
 pub const FUND_CHANGE_LIST_ACTION_REPOSITORY: ServiceId<RepositoryInstance<ActionId, FundChangeListAction>> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_CHANGE_INFO_CONTROLLER: ServiceId<FundChangeInfoController> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_CHANGE_INFO_ACTION_REPOSITORY: ServiceId<RepositoryInstance<ActionId, FundChangeInfoAction>> = ServiceIdResolver::SERVICE_ID;
 
 pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error> {
     builder.register(COMMAND_ROUTER, async move |resolver| {
@@ -255,6 +259,7 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
             resolver.get_service(di::market_fund_report_di::FUND_REPOSITORY).await?,
             resolver.get_service(di::market_fund_report_di::FUND_REPORTS_REPOSITORY).await?,
             resolver.get_service(FUND_CHANGE_LIST_ACTION_REPOSITORY).await?,
+            resolver.get_service(FUND_CHANGE_INFO_CONTROLLER).await?,
         );
         return Ok(service);
     })?;
@@ -265,6 +270,25 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         let service = FileRepository::new(
             action_id_path_resolver(path),
             JsonSerializer::new(),
+        );
+        return Ok(service);
+    })?;
+    builder.register(FUND_CHANGE_INFO_ACTION_REPOSITORY, async move |resolver| {
+        let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
+        let config = config.get_repository();
+        let path = config.get_path();
+        let service = FileRepository::new(
+            action_id_path_resolver(path),
+            JsonSerializer::new(),
+        );
+        return Ok(service);
+    })?;
+    builder.register(FUND_CHANGE_INFO_CONTROLLER, async move |resolver| {
+        let service = FundChangeInfoController::new(
+            resolver.get_service(di::market_fund_report_di::FUND_REPOSITORY).await?,
+            resolver.get_service(di::market_fund_report_di::FUND_CHANGES_REPOSITORY).await?,
+            resolver.get_service(di::market_data_di::CANDLESTICK_PROVIDER).await?,
+            resolver.get_service(FUND_CHANGE_INFO_ACTION_REPOSITORY).await?,
         );
         return Ok(service);
     })?;

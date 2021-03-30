@@ -7,6 +7,7 @@ use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::telegram::views::fund_change_list_view::fund_change_list_view;
 use crate::telegram::service_handlers::action_handler::ActionHandler;
 use crate::telegram::controller::fund_report_info_controller::FundReportInfoController;
+use crate::telegram::controller::fund_change_info_controller::FundChangeInfoController;
 use crate::telegram::action::fund_change_list_action::{FundChangeListAction, FundChangeListActionDecision};
 use typed_di::service::service::Service;
 
@@ -15,6 +16,7 @@ pub struct FundChangeListController {
     fund_repository: Service<RepositoryInstance<FundId, Fund>>,
     fund_reports_repository: Service<RepositoryInstance<FundId, FundReports>>,
     action_repository: Service<RepositoryInstance<ActionId, FundChangeListAction>>,
+    fund_change_info_controller: Service<FundChangeInfoController>,
 }
 
 impl FundChangeListController {
@@ -36,8 +38,11 @@ impl ActionHandler for FundChangeListController {
             .get(action_route.get_action_id()).await?;
         let action_decision = action.decide(&action_route);
         match action_decision {
-            FundChangeListActionDecision::View(_) => {
-                unimplemented!()
+            FundChangeListActionDecision::View(fund_changes_id) => {
+                let view = self
+                    .fund_change_info_controller
+                    .render(&fund_changes_id).await?;
+                return Ok(view);
             },
             FundChangeListActionDecision::SelectPage(page) => {
                 action.select_page(&page)?;
