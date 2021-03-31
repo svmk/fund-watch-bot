@@ -2,6 +2,7 @@ use crate::{prelude::*};
 use crate::telegram::service::message_handler::MessageHandler;
 use crate::telegram::service::bot_instance::BotInstance;
 use crate::telegram::views::bot_command_settings_view::bot_command_settings_view;
+use sentry::integrations::anyhow::capture_anyhow as sentry_capture_error;
 use typed_di::service::service::Service;
 use tbot::types::update::Kind;
 use std::ops::Deref;
@@ -33,7 +34,7 @@ impl TelegramBotTask {
                     },
                 };
                 if let Err(error) = result {
-                    let sentry_uuid = sentry::capture_error(error.deref());
+                    let sentry_uuid = sentry_capture_error(&error);
                     eprintln!("Telegram error: {}. Sentry uuid = {}", error, sentry_uuid);
                 }
             }

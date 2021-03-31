@@ -37,6 +37,7 @@ use crate::console::console_application::ConsoleApplication;
 use crate::system::di::application_di::{create_di_contaner, configure_services};
 use crate::system::console_execution::execute_console;
 use crate::system::app_config_loader::app_config_from_path;
+use std::mem::forget;
 use structopt::StructOpt;
 
 
@@ -45,7 +46,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let console_argument = ConsoleApplication::from_args();
     let config = app_config_from_path(&console_argument.config_path)?;
     if let Some(sentry_dsn) = config.get_opt_sentry() {
-        let _sentry_guard = sentry::init(sentry_dsn.as_str());
+        let sentry_guard = sentry::init(sentry_dsn.as_str());
+        forget(sentry_guard);
     }
     let container = create_di_contaner(config)
         .map_err(|error| {

@@ -38,4 +38,4 @@ rand = "0.8"
 radix_fmt = "1.0"
 uuid = {version = "0.8", features = ["serde", "v4"]}
 structopt = "0.3"
-sentry = "0.22"
+sentry = {version = "0.22", features = ["anyhow"]}
