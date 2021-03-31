@@ -32,11 +32,11 @@ impl FundChanges {
         }
         let mut prev_fund_components = prev_report.get_fund_components().to_vec();
         prev_fund_components.sort_by(|a, b| {
-            return a.get_ticker().cmp(b.get_ticker());
+            return a.get_company_id().get_cusip().cmp(b.get_company_id().get_cusip());
         });
         let mut next_fund_components = next_report.get_fund_components().to_vec();
         next_fund_components.sort_by(|a, b| {
-            return a.get_ticker().cmp(b.get_ticker());
+            return a.get_company_id().get_cusip().cmp(b.get_company_id().get_cusip());
         });
         let id = FundChangesId::new(
             prev_report.get_id().clone(),
@@ -51,7 +51,7 @@ impl FundChanges {
         for next_fund_component in next_fund_components.iter() {
             let prev_fund = prev_fund_components
                 .binary_search_by(|item| {
-                    return item.get_ticker().cmp(next_fund_component.get_ticker());
+                    return item.get_company_id().get_cusip().cmp(next_fund_component.get_company_id().get_cusip());
                 })
                 .ok()
                 .and_then(|prev_fund_component_index| {
@@ -68,7 +68,7 @@ impl FundChanges {
         }
         for prev_fund_component in prev_fund_components.iter() {
             let is_next_fund_component_found = next_fund_components.binary_search_by(|item| {
-                return item.get_ticker().cmp(prev_fund_component.get_ticker());
+                return item.get_company_id().get_cusip().cmp(prev_fund_component.get_company_id().get_cusip());
             })
             .is_ok();
             if !is_next_fund_component_found {
@@ -96,7 +96,7 @@ impl FundChanges {
             new_component.get_share().get_weight().clone(),
         );
         let fund_component_change = FundComponentChange::new(
-            old_component.get_ticker().clone(),
+            old_component.get_company_id().clone(),
             share_change,
             price_change,
             weight_change,
@@ -116,7 +116,7 @@ impl FundChanges {
         let mut result = Vec::new();
         for added_component in self.added_to_fund.iter() {
             let added_component = FundComponentBuy::new(
-                added_component.get_ticker().clone(),
+                added_component.get_company_id().clone(),
                 added_component.get_share().get_share().clone(),
                 added_component.get_share().get_price().clone(),
                 added_component.get_share().get_weight().clone(),
@@ -135,7 +135,7 @@ impl FundChanges {
         let mut result = Vec::new();
         for removed_component in self.removed_from_fund.iter() {
             let removed_component = FundComponentSell::new(
-                removed_component.get_ticker().clone(),
+                removed_component.get_company_id().clone(),
                 removed_component.get_share().get_share().clone(),
                 removed_component.get_share().get_price().clone(),
                 removed_component.get_share().get_weight().clone(),

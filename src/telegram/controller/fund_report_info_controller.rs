@@ -30,7 +30,7 @@ impl FundReportInfoController {
         for component in fund_report.get_fund_components().iter() {
             let split_rules = self
                 .candlestick_provider
-                .fetch_split_rules(component.get_ticker(), &fund_report_datetime).await?;
+                .fetch_split_rules(component.get_company_id(), &fund_report_datetime).await?;
             action.push_component(component, &split_rules)?;
         }
         self.action_repository.store(&action).await?;

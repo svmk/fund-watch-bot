@@ -4,7 +4,7 @@ use crate::repository::path_mapper::subdir_path_mapper::SubdirPathMapper;
 use crate::repository::path_mapper::iter_path_mapper::IterPathMapper;
 use std::path::PathBuf;
 
-pub fn ticker_price_path_resolver(mut path: PathBuf) -> PathResolver {
+pub fn company_price_path_resolver(mut path: PathBuf) -> PathResolver {
     path.push("prices");
     let path_mapper = IterPathMapper::new()
         .push_mapper(SubdirPathMapper::new(0, 2))

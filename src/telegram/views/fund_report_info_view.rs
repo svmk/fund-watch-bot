@@ -5,6 +5,7 @@ use crate::telegram::action::fund_report_info_action::FundReportInfoAction;
 use crate::telegram::views::date_view::date_view;
 use crate::telegram::views::pager_keyboard_view::pager_keyboard_view;
 use crate::telegram::utils::text_table::{TextTable, Row};
+use crate::telegram::views::company_id_view::company_id_view;
 
 pub fn fund_report_info_view(action: &FundReportInfoAction) -> View {
     let report_date = date_view(action.get_report_date());
@@ -15,7 +16,7 @@ pub fn fund_report_info_view(action: &FundReportInfoAction) -> View {
     );
     let mut table = TextTable::new_empty();
     for component in action.iter() {
-        let ticker = component.get_ticker();
+        let ticker = company_id_view(component.get_company_id());
         let price = component.get_price().into_f64();
         let price = format!("{:.2}", price);
         let volume = component.get_volume().into_f64();

@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use crate::repository::model::identity::Identity;
-#[derive(Debug, Clone, PartialEq, ValueObject)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, ValueObject)]
 #[value_object(error_type = "Failure", load_fn = "Cusip::from_string")]
 pub struct Cusip(String);
 

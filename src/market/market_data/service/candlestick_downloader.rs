@@ -1,6 +1,7 @@
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::market::common::model::ticker::Ticker;
-use crate::market::market_data::model::ticker_price::TickerPrice;
+use crate::market::common::model::company_id::CompanyId;
+use crate::market::market_data::model::company_price::CompanyPrice;
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
 use crate::market::market_data::model::quartal_price::QuartalPrice;
 use crate::market::market_data::model::chart_period::ChartPeriod;
@@ -19,7 +20,7 @@ use self::update_decision::UpdateDecision;
 #[derive(new)]
 pub struct CandlestickDownloader {
     yahoo_api: Service<YahooApi>,
-    ticker_price_repository: Service<RepositoryInstance<Ticker, TickerPrice>>,
+    ticker_price_repository: Service<RepositoryInstance<CompanyId, CompanyPrice>>,
     quartal_price_repository: Service<RepositoryInstance<QuartalPriceId, QuartalPrice>>,
 }
 
@@ -48,15 +49,15 @@ impl CandlestickDownloader {
             self.ticker_price_repository.store(ticker_price.as_ref()).await?;
         }
         if !ticker_price.get_actual_chart_period().is_actual(request.get_chart_period()) {
-            return Err(CandlestickFetchError::TickerNotAvailable(ticker_price.get_ticker().clone()));
+            return Err(CandlestickFetchError::CompanyNotAvailable(ticker_price.get_company_id().clone()));
         }
         return Ok(());
     }
 
-    async fn fetch_ticker_price(&self, request: &CandlestickRequest) -> Result<UpdateDecision<TickerPrice>, CandlestickFetchError> {
+    async fn fetch_ticker_price(&self, request: &CandlestickRequest) -> Result<UpdateDecision<CompanyPrice>, CandlestickFetchError> {
         let ticker_price = self
             .ticker_price_repository
-            .find(request.get_ticker()).await?;
+            .find(request.get_company_id()).await?;
         let (is_acutal, mut ticker_price) = match ticker_price {
             Some(ticker_price) => {
                 let is_acutal = ticker_price
@@ -64,18 +65,25 @@ impl CandlestickDownloader {
                     .is_actual(request.get_chart_period());
                 (is_acutal, ticker_price)
             },
-            None => {(false, TickerPrice::new(request.get_ticker().clone()))},
+            None => {(false, CompanyPrice::new(request.get_company_id().clone()))},
         };
         if !is_acutal {
+            let ticker = request.get_company_id().get_opt_ticker();
+            let ticker = match ticker {
+                Some(ticker) => ticker,
+                None => {
+                    return Err(CandlestickFetchError::CompanyNotAvailable(request.get_company_id().clone()));
+                },
+            };
             let chart_request = ChartRequest::new(
-                request.get_ticker().clone(), 
+                ticker.clone(), 
                 Interval::ThreeMonths, 
                 TimeStamp::zero(),
                 TimeStamp::now(),
             );
             let chart_response = self.yahoo_api.send(chart_request).await?;
             let chart_response = chart_response.ok_or_else(|| {
-                return CandlestickFetchError::TickerNotAvailable(request.get_ticker().clone());
+                return CandlestickFetchError::CompanyNotAvailable(request.get_company_id().clone());
             })?;
             let chart_response = chart_response.get_charts()?;
             for split in chart_response.get_splits()? {
@@ -90,7 +98,7 @@ impl CandlestickDownloader {
         return Ok(UpdateDecision::nothing(ticker_price));
     }
 
-    fn update_ticker_chart(&self, ticker_price: &mut UpdateDecision<TickerPrice>, quartal_prices: &[UpdateDecision<QuartalPrice>]) {
+    fn update_ticker_chart(&self, ticker_price: &mut UpdateDecision<CompanyPrice>, quartal_prices: &[UpdateDecision<QuartalPrice>]) {
         for quartal_price in quartal_prices.iter() {
             if let Some(candlestick) = quartal_price.quartal_candlestick() {
                 if ticker_price.need_update_chart_price(quartal_price.get_id(), &candlestick) {
@@ -100,7 +108,7 @@ impl CandlestickDownloader {
         }
     }
 
-    async fn fetch_quartal_price(&self, ticker_price: &TickerPrice, quartal_price_id: QuartalPriceId) -> Result<UpdateDecision<QuartalPrice>, CandlestickFetchError> {
+    async fn fetch_quartal_price(&self, ticker_price: &CompanyPrice, quartal_price_id: QuartalPriceId) -> Result<UpdateDecision<QuartalPrice>, CandlestickFetchError> {
         // println!("fetch_quartal_price = `{}`", quartal_price_id);
         let quartal_price = self
             .quartal_price_repository
@@ -119,8 +127,15 @@ impl CandlestickDownloader {
             let started_at = quartal_price.get_id().get_period().get_start().to_timestamp();
             let next_period = quartal_price.get_id().get_period().next();
             let ended_at = next_period.get_end().to_timestamp();
+            let ticker = quartal_price.get_id().get_company_id().get_opt_ticker();
+            let ticker = match ticker {
+                Some(ticker) => ticker,
+                None => {
+                    return Err(CandlestickFetchError::CompanyNotAvailable(quartal_price.get_id().get_company_id().clone()));
+                },
+            };
             let chart_request = ChartRequest::new(
-                quartal_price.get_id().get_ticker().clone(), 
+                ticker.clone(), 
                 Interval::OneDay, 
                 started_at,
                 ended_at,

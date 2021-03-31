@@ -11,3 +11,4 @@ pub mod fund_report_info_view;
 pub mod fund_change_list_view;
 pub mod fund_change_info_view;
 pub mod fund_change_table_view;
+pub mod company_id_view;

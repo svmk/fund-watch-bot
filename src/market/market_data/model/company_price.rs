@@ -1,3 +1,4 @@
+use crate::market::common::model::company_id::CompanyId;
 use crate::{app::model::{datetime::DateTime, year_quartal_iterator::YearQuartalIterator}, market::common::model::ticker::Ticker};
 use crate::app::model::year_quartal::YearQuartal;
 use crate::app::model::year::Year;
@@ -12,9 +13,9 @@ use crate::repository::model::entity::Entity;
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TickerPrice {
-    #[serde(rename = "ticker")]
-    ticker: Ticker,
+pub struct CompanyPrice {
+    #[serde(rename = "company_id")]
+    company_id: CompanyId,
     #[serde(rename = "chart")]
     chart: Chart<YearQuartal>,
     #[serde(rename = "split_rules")]
@@ -23,20 +24,20 @@ pub struct TickerPrice {
     actual_chart_period: ActualChartPeriod,
 }
 
-impl TickerPrice {
+impl CompanyPrice {
     pub fn new(
-        ticker: Ticker, 
-    ) -> TickerPrice {
-        return TickerPrice {
-            ticker,
+        company_id: CompanyId, 
+    ) -> CompanyPrice {
+        return CompanyPrice {
+            company_id,
             chart: Chart::new(),
             split_rules: SplitRules::new(),
             actual_chart_period: ActualChartPeriod::new_uncached(),
         };
     }
 
-    pub fn get_ticker(&self) -> &Ticker {
-        return &self.ticker;
+    pub fn get_company_id(&self) -> &CompanyId {
+        return &self.company_id;
     }
 
     pub fn can_add_split(&self, split: &Split) -> bool {
@@ -75,7 +76,7 @@ impl TickerPrice {
             let iterator = YearQuartalIterator::new(begin_quartal, end_quartal)?;
             let iterator = iterator.map(|quartal_price_id| {
                 return QuartalPriceId::new(
-                    self.ticker.clone(),
+                    self.company_id.clone(),
                     quartal_price_id,
                 );
             });
@@ -102,8 +103,8 @@ impl TickerPrice {
     }
 }
 
-impl Entity<Ticker> for TickerPrice {
-    fn get_entity_id(&self) -> &Ticker {
-        return &self.ticker;
+impl Entity<CompanyId> for CompanyPrice {
+    fn get_entity_id(&self) -> &CompanyId {
+        return &self.company_id;
     }
 }

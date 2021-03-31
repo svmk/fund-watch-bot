@@ -7,7 +7,7 @@ use crate::market::common::model::company_name::CompanyName;
 use crate::telegram::model::action_type::ActionType;
 use crate::telegram::model::action_route::ActionRoute;
 use crate::telegram::action::pager_action::{PagerAction, Page};
-use crate::market::common::model::ticker::Ticker;
+use crate::market::common::model::company_id::CompanyId;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::common::model::actual_price::ActualPrice;
 use crate::market::common::model::actual_volume::ActualVolume;
@@ -22,8 +22,8 @@ use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FundComponentRecord {
-    #[serde(rename="ticker")]
-    ticker: Ticker,
+    #[serde(rename="company_id")]
+    company_id: CompanyId,
     #[serde(rename="price")]
     price: ActualPrice,
     #[serde(rename="volume")]
@@ -39,15 +39,15 @@ impl FundComponentRecord {
         let volume = split_rules
             .calculate_actual_volume(component.get_share().get_share())?;
         return Ok(FundComponentRecord {
-            ticker: component.get_ticker().clone(),
+            company_id: component.get_company_id().clone(),
             price,
             volume,
             weight: component.get_share().get_weight().clone(),
         });
     }
 
-    pub fn get_ticker(&self) -> &Ticker {
-        return &self.ticker;
+    pub fn get_company_id(&self) -> &CompanyId {
+        return &self.company_id;
     }
 
     pub fn get_price(&self) -> &ActualPrice {

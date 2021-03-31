@@ -1,4 +1,4 @@
-use crate::market::common::model::ticker::Ticker;
+use crate::market::common::model::company_id::CompanyId;
 use crate::market::fund_report::model::fund_component_sell::FundComponentSell;
 use crate::market::fund_report::model::share_change::ShareChange;
 use crate::market::fund_report::model::price_change::PriceChange;
@@ -7,8 +7,8 @@ use crate::market::fund_report::model::fund_component_buy::FundComponentBuy;
 
 #[derive(new, Debug, Clone, Serialize, Deserialize)]
 pub struct FundComponentChange {
-    #[serde(rename = "ticker")]
-    ticker: Ticker,
+    #[serde(rename = "company_id")]
+    company_id: CompanyId,
     #[serde(rename = "share_change")]
     share_change: ShareChange,
     #[serde(rename = "price_change")]
@@ -24,7 +24,7 @@ impl FundComponentChange {
         let weight = self.weight_change.compute_buy();
         if let Some((share, weight)) = share.zip(weight) {
             let result = FundComponentBuy::new(
-                self.ticker.clone(),
+                self.company_id.clone(),
                 share,
                 price,
                 weight,
@@ -40,7 +40,7 @@ impl FundComponentChange {
         let weight = self.weight_change.compute_sell();
         if let Some((share, weight)) = share.zip(weight) {
             let result = FundComponentSell::new(
-                self.ticker.clone(),
+                self.company_id.clone(),
                 share,
                 price,
                 weight,

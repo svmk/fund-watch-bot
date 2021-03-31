@@ -73,7 +73,14 @@ impl HttpClient {
             let retry_delay = match error {
                 FetchError::Download(..) => request.get_retry_delay(),
                 FetchError::Custom(..) => request.get_retry_delay(),
-                FetchError::WrongStatusCode(..) => None,
+                FetchError::WrongStatusCode(ref response) => {
+                    let status_code = response.status().as_u16();
+                    if [500, 409].contains(&status_code) {
+                        request.get_retry_delay()
+                    } else {
+                        None
+                    }
+                },
                 FetchError::ExpectedMimeType{..} => None,
                 FetchError::MimeTypeNotProvided {..} => None,
             };

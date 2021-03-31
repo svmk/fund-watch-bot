@@ -1,4 +1,4 @@
-use crate::market::common::model::ticker::Ticker;
+use crate::market::common::model::company_id::CompanyId;
 use crate::market::common::model::share::Share;
 use crate::market::common::model::original_price::OriginalPrice;
 use crate::market::fund_report::model::weight::Weight;
@@ -6,15 +6,15 @@ use crate::market::fund_report::model::fund_component_share::FundComponentShare;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FundComponent {
-    #[serde(rename = "ticker")]
-    ticker: Ticker,
+    #[serde(rename = "company_id")]
+    company_id: CompanyId,
     #[serde(rename = "fund_component_share")]
     fund_component_share: FundComponentShare,
 }
 
 impl FundComponent {
     pub fn new(
-        ticker: Ticker,
+        company_id: CompanyId,
         share: Share,
         price: OriginalPrice,
         weight: Weight,
@@ -25,13 +25,13 @@ impl FundComponent {
             weight,
         );
         return FundComponent {
-            ticker,
+            company_id,
             fund_component_share,
         }; 
     }
 
-    pub fn get_ticker(&self) -> &Ticker {
-        return &self.ticker;
+    pub fn get_company_id(&self) -> &CompanyId {
+        return &self.company_id;
     }
 
     pub fn get_share(&self) -> &FundComponentShare {

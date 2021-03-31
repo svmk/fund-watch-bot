@@ -1,7 +1,7 @@
 pub mod split_rule;
 pub mod split_rules;
 pub mod split;
-pub mod ticker_price;
+pub mod company_price;
 pub mod quartal_price;
 pub mod quartal_price_id;
 pub mod candlestick_report;

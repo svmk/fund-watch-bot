@@ -1,6 +1,7 @@
 use crate::app::model::year_quartal::YearQuartal;
 use crate::app::model::year_quartal_iterator::YearQuartalIterator;
 use crate::market::common::model::share::Share;
+use crate::market::common::model::company_id::CompanyId;
 use crate::market::fund_report::model::daily_fund_report::DailyFundReport;
 use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
 use crate::market::fund_report::model::fund::Fund;
@@ -147,18 +148,15 @@ impl DailyFundReportImporting {
                 .openfigi_api
                 .get_ticker_by_cusip(fund_component.get_cusip())
                 .await?;
-            // TODO: Компонент фонда, для которого не был найден тикер, всё равно должен попасть в фонд.
-            let ticker = match ticker {
-                Some(ticker) => ticker,
-                None => {
-                    continue;
-                }
-            };
+            let mut company_id = CompanyId::new(fund_component.get_cusip().clone());
+            if let Some(ticker) = ticker {
+                company_id = company_id.with_ticker(ticker);
+            }
             let weight = fund_component.get_share().clone().into_f64() / share_sum;
             let weight = Weight::from_f64(weight)?;
             let candlestick_result = self
                 .candlestick_provider
-                .fetch_last_candlestick(ticker.clone(), report_datetime.clone())
+                .fetch_last_candlestick(company_id.clone(), report_datetime.clone())
                 .await;
             let candlestick = match candlestick_result {
                 Ok(candlestick) => Some(candlestick),
@@ -173,7 +171,7 @@ impl DailyFundReportImporting {
             if let Some(candlestick) = candlestick {
                 // TODO: Изменить модель FundComponent, и сделать цены опциональными
                 let fund_component = FundComponent::new(
-                    ticker.clone(),
+                    company_id,
                     fund_component.get_share().clone(),
                     candlestick.get_orignal().get_close().clone(),
                     weight,
