@@ -4,7 +4,9 @@ use crate::market::fund_report::model::fund::Fund;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund_changes::FundChanges;
 use crate::market::fund_report::model::fund_changes_id::FundChangesId;
+use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
 use crate::repository::repository::repository_instance::RepositoryInstance;
+use crate::telegram::action::fund_change_record::FundChangeRecord;
 use crate::telegram::model::chat_id::ChatId;
 use crate::telegram::model::chat::Chat;
 use crate::telegram::query::chat_subscribed_to_fund_query::ChatSubscribedToFundQuery;
@@ -19,6 +21,7 @@ pub struct EventNotifier {
     fund_repository: Service<RepositoryInstance<FundId, Fund>>,
     chat_repository: Service<RepositoryInstance<ChatId, Chat>>,
     fund_changes_repository: Service<RepositoryInstance<FundChangesId, FundChanges>>,
+    candlestick_provider: Service<CandlestickProvider>,
 }
 
 impl EventNotifier {
@@ -34,10 +37,32 @@ impl EventNotifier {
             .chat_repository
             .query(ChatSubscribedToFundQuery::new(fund_id)).await?
             .to_vec().await?;
+        let datetime = event
+            .get_payload()
+            .get_fund_change_id()
+            .get_next_fund_id()
+            .get_date()
+            .end_of_day();
         let fund_changes = self
             .fund_changes_repository
             .get(event.get_payload().get_fund_change_id()).await?;
-        let view = fund_change_view(&fund, &fund_changes);
+        let mut sells = Vec::new();
+        for sell in fund_changes.generate_sells() {
+            let split_rules = self
+                .candlestick_provider
+                .fetch_split_rules(sell.get_company_id(), &datetime).await?;
+            let sell = FundChangeRecord::from_sell(&sell, &split_rules)?;
+            sells.push(sell);
+        }
+        let mut buys = Vec::new();
+        for buy in fund_changes.generate_buys() {
+            let split_rules = self
+                .candlestick_provider
+                .fetch_split_rules(buy.get_company_id(), &datetime).await?;
+            let buy = FundChangeRecord::from_buy(&buy, &split_rules)?;
+            buys.push(buy);
+        }
+        let view = fund_change_view(&fund, &sells, &buys);
         for chat in subscribed_chats.iter() {
             self.bot_instance.send_view(chat.get_id().clone(), view.clone()).await?;
         }

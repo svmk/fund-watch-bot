@@ -1,13 +1,14 @@
 use crate::telegram::model::action_id::ActionId;
 use crate::telegram::model::action_type::ActionType;
 use crate::telegram::model::outgoing_message_id::OutgoingMessageId;
-use crate::market::fund_report::model::fund_component_buy::FundComponentBuy;
-use crate::market::fund_report::model::fund_component_sell::FundComponentSell;
+use crate::telegram::action::fund_change_record::FundChangeRecord;
 use crate::market::fund_report::model::fund_changes::FundChanges;
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
+use crate::market::market_data::model::split_rules::SplitRules;
 use crate::market::common::model::company_name::CompanyName;
 use crate::repository::model::entity::Entity;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FundChangeInfoAction {
@@ -16,9 +17,9 @@ pub struct FundChangeInfoAction {
     #[serde(rename="action_id")]
     action_id: ActionId,
     #[serde(rename = "buys")]
-    buys: Vec<FundComponentBuy>,
+    buys: Vec<FundChangeRecord>,
     #[serde(rename = "sells")]
-    sells: Vec<FundComponentSell>,
+    sells: Vec<FundChangeRecord>,
     #[serde(rename="fund_id")]
     fund_id: FundId,
     #[serde(rename="fund_name")]
@@ -26,18 +27,24 @@ pub struct FundChangeInfoAction {
 }
 
 impl FundChangeInfoAction {
-    pub fn new(fund: &Fund, fund_changes: &FundChanges) -> FundChangeInfoAction {
+    pub fn new(fund: &Fund) -> FundChangeInfoAction {
         let action_id = ActionId::new(ActionType::FUND_CHANGE_INFO);
-        let buys = fund_changes.generate_buys();
-        let sells = fund_changes.generate_sells();
         return FundChangeInfoAction {
             outgoing_message_id: OutgoingMessageId::new(),
             action_id: action_id.clone(),
-            buys,
-            sells,
+            buys: Vec::new(),
+            sells: Vec::new(),
             fund_id: fund.get_fund_id().clone(),
             fund_name: fund.get_company_name().clone(),
         }
+    }
+
+    pub fn push_buy(&mut self, item: FundChangeRecord) {
+        self.buys.push(item);
+    }
+
+    pub fn push_sell(&mut self, item: FundChangeRecord) {
+        self.sells.push(item);
     }
 
     pub fn get_outgoing_message_id(&self) -> &OutgoingMessageId {
@@ -52,11 +59,11 @@ impl FundChangeInfoAction {
         return &self.fund_name;
     }
 
-    pub fn get_buys(&self) -> &Vec<FundComponentBuy> {
+    pub fn get_buys(&self) -> &Vec<FundChangeRecord> {
         return &self.buys;
     }
     
-    pub fn get_sells(&self) -> &Vec<FundComponentSell> {
+    pub fn get_sells(&self) -> &Vec<FundChangeRecord> {
         return &self.sells;
     }
 }

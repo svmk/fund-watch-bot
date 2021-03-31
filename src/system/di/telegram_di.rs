@@ -124,6 +124,7 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
             resolver.get_service(di::market_fund_report_di::FUND_REPOSITORY).await?,
             resolver.get_service(CHAT_REPOSITORY).await?,
             resolver.get_service(di::market_fund_report_di::FUND_CHANGES_REPOSITORY).await?,
+            resolver.get_service(di::market_fund_report_di::CANDLESTICK_PROVIDER).await?,
         );
         return Ok(service);
     })?;
@@ -288,6 +289,7 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
             resolver.get_service(di::market_fund_report_di::FUND_REPOSITORY).await?,
             resolver.get_service(di::market_fund_report_di::FUND_CHANGES_REPOSITORY).await?,
             resolver.get_service(FUND_CHANGE_INFO_ACTION_REPOSITORY).await?,
+            resolver.get_service(di::market_fund_report_di::CANDLESTICK_PROVIDER).await?,
         );
         return Ok(service);
     })?;
