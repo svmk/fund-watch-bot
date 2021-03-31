@@ -7,6 +7,7 @@ use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::telegram::views::fund_report_info_view::fund_report_info_view;
 use crate::telegram::service_handlers::action_handler::ActionHandler;
 use crate::telegram::action::fund_report_info_action::{FundReportInfoAction, FundReportInfoActionDecision};
+use crate::market::market_data::error::candlestick_fetch_result::CandlestickFetchResult;
 use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
 use typed_di::service::service::Service;
 
@@ -30,7 +31,8 @@ impl FundReportInfoController {
         for component in fund_report.get_fund_components().iter() {
             let split_rules = self
                 .candlestick_provider
-                .fetch_split_rules(component.get_company_id(), &fund_report_datetime).await?;
+                .fetch_split_rules(component.get_company_id(), &fund_report_datetime).await;
+            let split_rules = split_rules.opt_available()?;
             action.push_component(component, &split_rules)?;
         }
         self.action_repository.store(&action).await?;

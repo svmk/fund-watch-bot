@@ -6,14 +6,12 @@ use crate::market::fund_report::model::fund_changes::FundChanges;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::telegram::views::fund_change_info_view::fund_change_info_view;
 use crate::telegram::action::fund_change_info_action::FundChangeInfoAction;
-use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
 use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct FundChangeInfoController {
     fund_repository: Service<RepositoryInstance<FundId, Fund>>,
     fund_changes_repository: Service<RepositoryInstance<FundChangesId, FundChanges>>,
-    candlestick_provider: Service<CandlestickProvider>,
     action_repository: Service<RepositoryInstance<ActionId, FundChangeInfoAction>>,
 }
 

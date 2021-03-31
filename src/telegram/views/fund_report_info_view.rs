@@ -17,18 +17,14 @@ pub fn fund_report_info_view(action: &FundReportInfoAction) -> View {
     let mut table = TextTable::new_empty();
     for component in action.iter() {
         let ticker = company_id_view(component.get_company_id());
-        let price = match component.get_price() {
-            Some(price) => {
-                let price = price.into_f64();
-                let price = format!("{:.2}", price);
-                price
-            },
-            None => {
-                "??.??".to_string()
-            },
-        };
-        let volume = component.get_volume().into_f64();
-        let volume = format!("{:.2}", volume);
+        let price = component.get_price().map(|price| {
+            return price.into_f64();
+        });
+        let price = format_opt_float(price);
+        let volume = component.get_volume().map(|volume| {
+            return volume.into_f64();
+        });
+        let volume = format_opt_float(volume);
         let weight = component.get_weight().clone().into_f64();
         let weight = format!("{:.2}%", weight);
         let row = Row::new()
@@ -47,4 +43,15 @@ pub fn fund_report_info_view(action: &FundReportInfoAction) -> View {
     keyboard.push_keyboard_line(pager_buttons);
     let message = message.with_reply_markup(keyboard);
     return View::with_one_message(message);
+}
+
+fn format_opt_float(value: Option<f64>) -> String {
+    match value {
+        Some(value) => {
+            format!("{:.2}", value)
+        },
+        None => {
+            "??.??".to_string()
+        },
+    }
 }

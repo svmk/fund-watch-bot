@@ -27,24 +27,29 @@ pub struct FundComponentRecord {
     #[serde(rename="price")]
     price: Option<ActualPrice>,
     #[serde(rename="volume")]
-    volume: ActualVolume,
+    volume: Option<ActualVolume>,
     #[serde(rename="weight")]
     weight: Weight,
 }
 
 impl FundComponentRecord {
-    pub fn new(component: &FundComponent, split_rules: &SplitRules) -> Result<FundComponentRecord, Failure> {
-        let price = match component.get_share().get_price() {
-            Some(price) => {
-                let price = split_rules.calculate_actual_price(price)?;
-                Some(price)
+    pub fn new(component: &FundComponent, split_rules: &Option<SplitRules>) -> Result<FundComponentRecord, Failure> {
+        let price = component
+            .get_share()
+            .get_price()
+            .zip(split_rules.as_ref())
+            .map(|(price, split_rules)| {
+                return split_rules.calculate_actual_price(price);
+            })
+            .transpose()?;
+        let volume = match split_rules {
+            Some(split_rules) => {
+                let volume = split_rules
+                    .calculate_actual_volume(component.get_share().get_share())?;
+                Some(volume)
             },
-            None => {
-                None
-            },
+            None => None,
         };
-        let volume = split_rules
-            .calculate_actual_volume(component.get_share().get_share())?;
         return Ok(FundComponentRecord {
             company_id: component.get_company_id().clone(),
             price,
@@ -61,8 +66,8 @@ impl FundComponentRecord {
         return self.price.as_ref();
     }
 
-    pub fn get_volume(&self) -> &ActualVolume {
-        return &self.volume;
+    pub fn get_volume(&self) -> Option<&ActualVolume> {
+        return self.volume.as_ref();
     }
 
     pub fn get_weight(&self) -> &Weight {
@@ -106,7 +111,7 @@ impl FundReportInfoAction {
         }
     }
 
-    pub fn push_component(&mut self, component: &FundComponent, split_rules: &SplitRules) -> Result<(), Failure> {
+    pub fn push_component(&mut self, component: &FundComponent, split_rules: &Option<SplitRules>) -> Result<(), Failure> {
         let fund_component_record = FundComponentRecord::new(
             component,
             split_rules,

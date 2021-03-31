@@ -11,6 +11,7 @@ use crate::market::fund_report::model::weight::Weight;
 use crate::market::fund_report::model::daily_fund_report_import_request::DailyFundReportImportRequest;
 use crate::market::fund_report::events::new_daily_fund_report_event::NewDailyFundReportEvent;
 use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
+use crate::market::market_data::error::candlestick_fetch_result::CandlestickFetchResult;
 use crate::event_emitter::service::event_emitter::EventEmitter;
 use crate::openfigi::service::openfigi_api::OpenFigiApi;
 use crate::prelude::*;
@@ -154,16 +155,7 @@ impl DailyFundReportImporting {
                 .candlestick_provider
                 .fetch_last_candlestick(company_id.clone(), report_datetime.clone())
                 .await;
-            let candlestick = match candlestick_result {
-                Ok(candlestick) => Some(candlestick),
-                Err(error) => {
-                    if error.is_ticker_not_available() {
-                        None
-                    } else {
-                        return Err(error.into());
-                    }
-                },
-            };
+            let candlestick = candlestick_result.opt_available()?;
             let original_price = candlestick.map(|candlestick| {
                 return candlestick.get_orignal().get_close().clone();
             });
