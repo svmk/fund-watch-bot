@@ -4,6 +4,7 @@ use crate::telegram::service::bot_instance::BotInstance;
 use crate::telegram::views::bot_command_settings_view::bot_command_settings_view;
 use typed_di::service::service::Service;
 use tbot::types::update::Kind;
+use std::ops::Deref;
 
 #[derive(new)]
 pub struct TelegramBotTask {
@@ -32,7 +33,8 @@ impl TelegramBotTask {
                     },
                 };
                 if let Err(error) = result {
-                    eprintln!("Telegram error: {}", error);
+                    let sentry_uuid = sentry::capture_error(error.deref());
+                    eprintln!("Telegram error: {}. Sentry uuid = {}", error, sentry_uuid);
                 }
             }
         });

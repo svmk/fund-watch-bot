@@ -20,6 +20,8 @@ pub struct AppConfig {
     edgar_api: EdgarApiConfig,
     #[serde(rename="repository")]
     repository: RepositoryConfig,
+    #[serde(rename="sentry")]
+    sentry: Option<String>,
 }
 
 impl AppConfig {
@@ -45,6 +47,10 @@ impl AppConfig {
 
     pub fn get_repository(&self) -> RepositoryConfig {
         return self.repository.clone();
+    }
+
+    pub fn get_opt_sentry(&self) -> Option<&String> {
+        return self.sentry.as_ref();
     }
 }
 

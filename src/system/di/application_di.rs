@@ -5,10 +5,8 @@ use std::path::Path;
 use crate::prelude::*;
 use crate::system::di;
 use crate::system::app_config::AppConfig;
-use crate::system::app_config_loader::app_config_from_path;
 
-pub fn create_di_contaner(path: &Path) -> Result<Container, Failure> {
-    let config = app_config_from_path(path)?;
+pub fn create_di_contaner(config: AppConfig) -> Result<Container, Failure> {
     let mut builder = ContainerDeclaration::new();
     builder.add_argument(AppConfig::ARGUMENT_ID, config)?;
     di::console_di::register_services(&mut builder)?;
