@@ -16,7 +16,7 @@ impl FundComponent {
     pub fn new(
         company_id: CompanyId,
         share: Share,
-        price: OriginalPrice,
+        price: Option<OriginalPrice>,
         weight: Weight,
     ) -> FundComponent {
         let fund_component_share = FundComponentShare::new(

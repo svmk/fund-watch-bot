@@ -87,21 +87,25 @@ impl FundChanges {
             old_component.get_share().get_share().clone(), 
             new_component.get_share().get_share().clone(),
         );
-        let price_change = PriceChange::new(
-            old_component.get_share().get_price().clone(), 
-            new_component.get_share().get_price().clone(),
-        );
-        let weight_change = WeightChange::new(
-            old_component.get_share().get_weight().clone(), 
-            new_component.get_share().get_weight().clone(),
-        );
-        let fund_component_change = FundComponentChange::new(
-            old_component.get_company_id().clone(),
-            share_change,
-            price_change,
-            weight_change,
-        );
-        self.fund_component_changes.push(fund_component_change);
+        let old_price = old_component.get_share().get_price().map(Clone::clone);
+        let new_price = new_component.get_share().get_price().map(Clone::clone);
+        if let Some((old_price, new_price)) = old_price.zip(new_price) {
+            let price_change = PriceChange::new(
+                old_price,
+                new_price,
+            );
+            let weight_change = WeightChange::new(
+                old_component.get_share().get_weight().clone(), 
+                new_component.get_share().get_weight().clone(),
+            );
+            let fund_component_change = FundComponentChange::new(
+                old_component.get_company_id().clone(),
+                share_change,
+                price_change,
+                weight_change,
+            );
+            self.fund_component_changes.push(fund_component_change);
+        }
     }
 
     fn push_removed_fund_component(&mut self, component: FundComponent) {
@@ -115,10 +119,16 @@ impl FundChanges {
     pub fn generate_buys(&self) -> Vec<FundComponentBuy> {
         let mut result = Vec::new();
         for added_component in self.added_to_fund.iter() {
+            let buy_price = match added_component.get_share().get_price() {
+                Some(price) => price.clone(),
+                None => {
+                    continue;
+                },
+            };
             let added_component = FundComponentBuy::new(
                 added_component.get_company_id().clone(),
                 added_component.get_share().get_share().clone(),
-                added_component.get_share().get_price().clone(),
+                buy_price,
                 added_component.get_share().get_weight().clone(),
             );
             result.push(added_component);
@@ -134,10 +144,16 @@ impl FundChanges {
     pub fn generate_sells(&self) -> Vec<FundComponentSell> {
         let mut result = Vec::new();
         for removed_component in self.removed_from_fund.iter() {
+            let sell_price = match removed_component.get_share().get_price() {
+                Some(price) => price.clone(),
+                None => {
+                    continue;
+                },
+            };
             let removed_component = FundComponentSell::new(
                 removed_component.get_company_id().clone(),
                 removed_component.get_share().get_share().clone(),
-                removed_component.get_share().get_price().clone(),
+                sell_price,
                 removed_component.get_share().get_weight().clone(),
             );
             result.push(removed_component);

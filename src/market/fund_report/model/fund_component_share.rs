@@ -7,7 +7,7 @@ pub struct FundComponentShare {
     #[serde(rename = "share")]
     share: Share,
     #[serde(rename = "price")]
-    price: OriginalPrice,
+    price: Option<OriginalPrice>,
     #[serde(rename = "weight")]
     weight: Weight,
 }
@@ -17,8 +17,8 @@ impl FundComponentShare {
         return &self.share;
     }
 
-    pub fn get_price(&self) -> &OriginalPrice {
-        return &self.price;
+    pub fn get_price(&self) -> Option<&OriginalPrice> {
+        return self.price.as_ref();
     }
 
     pub fn get_weight(&self) -> &Weight {

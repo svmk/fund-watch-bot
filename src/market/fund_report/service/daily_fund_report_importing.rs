@@ -164,16 +164,16 @@ impl DailyFundReportImporting {
                     }
                 },
             };
-            if let Some(candlestick) = candlestick {
-                // TODO: Изменить модель FundComponent, и сделать цены опциональными
-                let fund_component = FundComponent::new(
-                    company_id,
-                    fund_component.get_share().clone(),
-                    candlestick.get_orignal().get_close().clone(),
-                    weight,
-                );
-                result.add_fund_component(fund_component);
-            }
+            let original_price = candlestick.map(|candlestick| {
+                return candlestick.get_orignal().get_close().clone();
+            });
+            let fund_component = FundComponent::new(
+                company_id,
+                fund_component.get_share().clone(),
+                original_price,
+                weight,
+            );
+            result.add_fund_component(fund_component);
         }
         self.report_repository.store(&result).await?;
         self.event_emitter.emit_event(NewDailyFundReportEvent::new(result.get_id().clone())).await?;

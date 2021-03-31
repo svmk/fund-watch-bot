@@ -17,8 +17,16 @@ pub fn fund_report_info_view(action: &FundReportInfoAction) -> View {
     let mut table = TextTable::new_empty();
     for component in action.iter() {
         let ticker = company_id_view(component.get_company_id());
-        let price = component.get_price().into_f64();
-        let price = format!("{:.2}", price);
+        let price = match component.get_price() {
+            Some(price) => {
+                let price = price.into_f64();
+                let price = format!("{:.2}", price);
+                price
+            },
+            None => {
+                "??.??".to_string()
+            },
+        };
         let volume = component.get_volume().into_f64();
         let volume = format!("{:.2}", volume);
         let weight = component.get_weight().clone().into_f64();

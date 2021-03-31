@@ -25,7 +25,7 @@ pub struct FundComponentRecord {
     #[serde(rename="company_id")]
     company_id: CompanyId,
     #[serde(rename="price")]
-    price: ActualPrice,
+    price: Option<ActualPrice>,
     #[serde(rename="volume")]
     volume: ActualVolume,
     #[serde(rename="weight")]
@@ -34,8 +34,15 @@ pub struct FundComponentRecord {
 
 impl FundComponentRecord {
     pub fn new(component: &FundComponent, split_rules: &SplitRules) -> Result<FundComponentRecord, Failure> {
-        let price = split_rules
-            .calculate_actual_price(component.get_share().get_price())?;
+        let price = match component.get_share().get_price() {
+            Some(price) => {
+                let price = split_rules.calculate_actual_price(price)?;
+                Some(price)
+            },
+            None => {
+                None
+            },
+        };
         let volume = split_rules
             .calculate_actual_volume(component.get_share().get_share())?;
         return Ok(FundComponentRecord {
@@ -50,8 +57,8 @@ impl FundComponentRecord {
         return &self.company_id;
     }
 
-    pub fn get_price(&self) -> &ActualPrice {
-        return &self.price;
+    pub fn get_price(&self) -> Option<&ActualPrice> {
+        return self.price.as_ref();
     }
 
     pub fn get_volume(&self) -> &ActualVolume {
