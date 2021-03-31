@@ -5,6 +5,7 @@ use crate::fetching::service::http_client::HttpClient;
 use crate::fetching::error::fetch_error::FetchError;
 use crate::market::common::model::cusip::Cusip;
 use crate::market::common::model::ticker::Ticker;
+use crate::market::common::model::company_id::CompanyId;
 use crate::fetching::model::mime_type::MIME_APPLICATION_JSON;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::openfigi::model::figi_record::FigiRecord;
@@ -75,9 +76,9 @@ impl OpenFigiApi {
         };
     }
 
-    pub async fn get_ticker_by_cusip(&self, cusip: &Cusip) -> Result<Option<Ticker>, Failure> {
+    pub async fn get_company_id_by_cusip(&self, cusip: &Cusip) -> Result<CompanyId, Failure> {
         if let Some(cache_record) = self.cache_repository.find(cusip).await? {
-            return Ok(cache_record.find_ticker());
+            return Ok(cache_record.create_company_id());
         }
         let url = self.config.base_url.join("/v2/mapping")?;
         let mut request = Request::post(url);
@@ -121,6 +122,6 @@ impl OpenFigiApi {
         }
         let cache_record = CusipCacheRecord::new(cusip.clone(), records);
         self.cache_repository.store(&cache_record).await?;
-        return Ok(cache_record.find_ticker());
+        return Ok(cache_record.create_company_id());
     }
 }

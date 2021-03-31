@@ -144,15 +144,11 @@ impl DailyFundReportImporting {
         let share_sum = share_sum.into_f64();
         let report_datetime = report.get_form_13f().get_period_of_report().end_of_day();
         for fund_component in report.get_information_table().iter_components() {
-            let ticker = self
+            let company_id = self
                 .openfigi_api
-                .get_ticker_by_cusip(fund_component.get_cusip())
+                .get_company_id_by_cusip(fund_component.get_cusip())
                 .await?;
-            let mut company_id = CompanyId::new(fund_component.get_cusip().clone());
-            if let Some(ticker) = ticker {
-                company_id = company_id.with_ticker(ticker);
-            }
-            let weight = fund_component.get_share().clone().into_f64() / share_sum;
+            let weight = fund_component.get_share().clone().into_f64() * 100.0 / share_sum;
             let weight = Weight::from_f64(weight)?;
             let candlestick_result = self
                 .candlestick_provider
