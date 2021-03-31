@@ -4,6 +4,7 @@ use crate::telegram::model::inline_keyboard::InlineKeyboard;
 use crate::telegram::action::fund_report_info_action::FundReportInfoAction;
 use crate::telegram::views::date_view::date_view;
 use crate::telegram::views::pager_keyboard_view::pager_keyboard_view;
+use crate::telegram::views::finviz_view::finviz_view;
 use crate::telegram::utils::text_table::{TextTable, Row};
 use crate::telegram::views::company_id_view::company_id_view;
 
@@ -27,13 +28,15 @@ pub fn fund_report_info_view(action: &FundReportInfoAction) -> View {
         let volume = format_opt_float(volume);
         let weight = component.get_weight().clone().into_f64();
         let weight = format!("{:.2}%", weight);
+        let finviz = finviz_view(component.get_company_id());
         let row = Row::new()
             .with_code("<code>")
             .with_text(ticker)
             .with_text(price)
             .with_text(volume)
             .with_text(weight)
-            .with_code("</code>");
+            .with_code("</code>")
+            .with_cell(finviz.0, finviz.1);
         table = table.with_row(row);
     }
     message += format!("{}", table).as_str();

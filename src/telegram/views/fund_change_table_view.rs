@@ -2,6 +2,7 @@ use crate::telegram::utils::text_table::{TextTable, Row};
 use crate::market::fund_report::model::fund_component_buy::FundComponentBuy;
 use crate::market::fund_report::model::fund_component_sell::FundComponentSell;
 use crate::telegram::views::company_id_view::company_id_view;
+use crate::telegram::views::finviz_view::finviz_view;
 
 pub fn fund_change_table_view(sells: &[FundComponentSell], buys: &[FundComponentBuy]) -> TextTable {
     let mut table = TextTable::new_empty();
@@ -13,6 +14,7 @@ pub fn fund_change_table_view(sells: &[FundComponentSell], buys: &[FundComponent
         let volume = format!("{:.2}", volume);
         let weight = component.get_sold_weight().clone().into_f64();
         let weight = format!("{:.2}%", weight);
+        let finviz = finviz_view(component.get_company_id());
         let row = Row::new()
             .with_code("<code>")
             .with_text("BUY")
@@ -20,7 +22,8 @@ pub fn fund_change_table_view(sells: &[FundComponentSell], buys: &[FundComponent
             .with_text(price)
             .with_text(volume)
             .with_text(weight)
-            .with_code("</code>");
+            .with_code("</code>")
+            .with_cell(finviz.0, finviz.1);
         table = table.with_row(row);
     }
     for component in buys.iter() {
@@ -31,6 +34,7 @@ pub fn fund_change_table_view(sells: &[FundComponentSell], buys: &[FundComponent
         let volume = format!("{:.2}", volume);
         let weight = component.get_buyed_weight().clone().into_f64();
         let weight = format!("{:.2}%", weight);
+        let finviz = finviz_view(component.get_company_id());
         let row = Row::new()
             .with_code("<code>")
             .with_text("SELL")
@@ -38,7 +42,8 @@ pub fn fund_change_table_view(sells: &[FundComponentSell], buys: &[FundComponent
             .with_text(price)
             .with_text(volume)
             .with_text(weight)
-            .with_code("</code>");
+            .with_code("</code>")
+            .with_cell(finviz.0, finviz.1);
         table = table.with_row(row);
     }
     return table;
