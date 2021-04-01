@@ -7,7 +7,7 @@ use typed_di::error::Error;
 use crate::system::di;
 use crate::system::app_config::AppConfig;
 use crate::openfigi::service::openfigi_api::OpenFigiApi;
-use crate::market::common::model::cusip::Cusip;
+
 use crate::openfigi::model::cusip_cache_record::CusipCacheRecord;
 use crate::openfigi::path_resolver::cusip_cache_path_resolver::cusip_cache_path_resolver;
 use crate::repository::repository::repository_instance::RepositoryInstance;

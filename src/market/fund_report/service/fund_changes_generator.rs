@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::market::fund_report::model::daily_fund_report::DailyFundReport;
-use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
+
 use crate::market::fund_report::model::fund_changes::FundChanges;
 use crate::market::fund_report::model::fund_changes_id::FundChangesId;
 use crate::market::fund_report::events::new_fund_change_event::NewFundChangeEvent;

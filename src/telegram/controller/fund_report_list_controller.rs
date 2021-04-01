@@ -1,5 +1,5 @@
 use crate::market::fund_report::model::fund_reports::FundReports;
-use crate::telegram::{controller::prelude::*, model::action_id::ActionId};
+use crate::telegram::{controller::prelude::*};
 use crate::market::fund_report::model::fund_id::FundId;
 use crate::market::fund_report::model::fund::Fund;
 use crate::repository::repository::repository_instance::RepositoryInstance;
@@ -30,7 +30,7 @@ impl FundReportListController {
 
 #[async_trait]
 impl ActionHandler for FundReportListController {
-    async fn handle_action(&self, context: &ChatContext, action_route: ActionRoute) -> Result<View, Failure> {
+    async fn handle_action(&self, _context: &ChatContext, action_route: ActionRoute) -> Result<View, Failure> {
         let mut action = self
             .action_repository
             .get(action_route.get_action_id()).await?;

@@ -5,7 +5,7 @@ use crate::telegram::views::bot_command_settings_view::bot_command_settings_view
 use sentry::integrations::anyhow::capture_anyhow as sentry_capture_error;
 use typed_di::service::service::Service;
 use tbot::types::update::Kind;
-use std::ops::Deref;
+
 
 #[derive(new)]
 pub struct TelegramBotTask {

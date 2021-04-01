@@ -1,6 +1,6 @@
 use crate::repository::repository::repository_instance::RepositoryInstance;
-use crate::market::common::model::ticker::Ticker;
-use crate::market::common::model::company_id::CompanyId;
+
+
 use crate::market::market_data::model::company_price::CompanyPrice;
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
 use crate::market::market_data::model::quartal_price::QuartalPrice;
@@ -10,7 +10,7 @@ use crate::yahoo_finance::service::yahoo_api::YahooApi;
 use crate::yahoo_finance::model::chart::chart_request::ChartRequest;
 use crate::yahoo_finance::model::common_api::interval::Interval;
 use crate::app::model::timestamp::TimeStamp;
-use crate::prelude::*;
+
 use typed_di::service::service::Service;
 mod candlestick_request;
 pub use self::candlestick_request::CandlestickRequest;

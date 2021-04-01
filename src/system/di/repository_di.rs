@@ -4,13 +4,13 @@ use typed_di::service::service_id::ServiceId;
 use typed_di::async_di::container_declaration::ContainerDeclaration;
 use typed_di::error::Error;
 use crate::repository::service::query_comparator::QueryComparator;
-use crate::repository::query::all_query::AllQuery;
+
 
 pub const QUERY_COMPARATOR: ServiceId<QueryComparator> = ServiceIdResolver::SERVICE_ID;
 
 pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error> {
     builder.register_ready(QUERY_COMPARATOR, async move |_resolver| {
-        let mut result = QueryComparator::new();
+        let result = QueryComparator::new();
         // result.register(AllQuery::new());
         return result;
     })?;

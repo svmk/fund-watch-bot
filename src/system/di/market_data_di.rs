@@ -10,11 +10,11 @@ use crate::market::market_data::service::candlestick_provider::CandlestickProvid
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::repository::repository::file_repository::FileRepository;
 use crate::serializer::service::json_serializer::JsonSerializer;
-use crate::market::common::model::ticker::Ticker;
-use crate::market::common::model::company_id::CompanyId;
+
+
 use crate::market::market_data::model::company_price::CompanyPrice;
 use crate::market::market_data::model::quartal_price::QuartalPrice;
-use crate::market::market_data::model::quartal_price_id::QuartalPriceId;
+
 use crate::market::market_data::path_resolver::company_price_path_resolver::company_price_path_resolver;
 use crate::market::market_data::path_resolver::quartal_price_path_resolver::quartal_price_path_resolver;
 

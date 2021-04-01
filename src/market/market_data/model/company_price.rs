@@ -1,5 +1,5 @@
 use crate::market::common::model::company_id::CompanyId;
-use crate::{app::model::{datetime::DateTime, year_quartal_iterator::YearQuartalIterator}, market::common::model::ticker::Ticker};
+use crate::{app::model::{datetime::DateTime, year_quartal_iterator::YearQuartalIterator}};
 use crate::app::model::year_quartal::YearQuartal;
 use crate::app::model::year::Year;
 use crate::market::market_data::model::quartal_price_id::QuartalPriceId;

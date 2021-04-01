@@ -1,4 +1,4 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self};
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct RawEventHandlerId(u128);

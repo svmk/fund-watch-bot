@@ -3,7 +3,7 @@ use typed_di::service::service::Service;
 use crate::sec_gov::model::company_report_ref::CompanyReportRef;
 use crate::sec_gov::model::processed_reports::ProcessedReports;
 use crate::repository::repository::repository_instance::RepositoryInstance;
-use crate::app::model::date::Date;
+
 
 #[derive(new)]
 pub struct ReportProcessingCache {

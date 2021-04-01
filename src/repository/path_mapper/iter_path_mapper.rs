@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use crate::repository::path_mapper::path_mapper::PathMapper;
 use crate::repository::path_mapper::path_mapper_instance::PathMapperInstance;
-use std::path::{PathBuf, Path};
+use std::path::{PathBuf};
 
 pub struct IterPathMapper {
     mappers: Vec<PathMapperInstance>,

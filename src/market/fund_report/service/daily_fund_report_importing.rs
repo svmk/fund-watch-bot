@@ -1,7 +1,7 @@
 use crate::app::model::year_quartal::YearQuartal;
 use crate::app::model::year_quartal_iterator::YearQuartalIterator;
 use crate::market::common::model::share::Share;
-use crate::market::common::model::company_id::CompanyId;
+
 use crate::market::fund_report::model::daily_fund_report::DailyFundReport;
 use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
 use crate::market::fund_report::model::fund::Fund;

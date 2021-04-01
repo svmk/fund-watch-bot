@@ -1,4 +1,4 @@
-use crate::market::common::model::ticker::Ticker;
+
 use crate::market::common::model::company_id::CompanyId;
 use crate::market::market_data::model::chart_period::ChartPeriod;
 use crate::app::model::datetime::DateTime;

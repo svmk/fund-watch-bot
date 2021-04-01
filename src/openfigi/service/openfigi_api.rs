@@ -4,7 +4,7 @@ use crate::fetching::model::request::{Request, CONTENT_TYPE};
 use crate::fetching::service::http_client::HttpClient;
 use crate::fetching::error::fetch_error::FetchError;
 use crate::market::common::model::cusip::Cusip;
-use crate::market::common::model::ticker::Ticker;
+
 use crate::market::common::model::company_id::CompanyId;
 use crate::fetching::model::mime_type::MIME_APPLICATION_JSON;
 use crate::repository::repository::repository_instance::RepositoryInstance;

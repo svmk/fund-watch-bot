@@ -20,7 +20,7 @@ use crate::telegram::task::telegram_bot_task::TelegramBotTask;
 use crate::telegram::action::fund_list_action::FundListAction;
 use crate::telegram::action::fund_change_list_action::FundChangeListAction;
 use crate::telegram::action::fund_change_info_action::FundChangeInfoAction;
-use crate::telegram::model::action_id::ActionId;
+
 use crate::telegram::controller::start_controller::StartController;
 use crate::telegram::controller::fund_list_controller::FundListController;
 use crate::telegram::controller::fund_info_controller::FundInfoController;
@@ -30,7 +30,7 @@ use crate::telegram::controller::fund_report_info_controller::FundReportInfoCont
 use crate::telegram::controller::fund_change_list_controller::FundChangeListController;
 use crate::telegram::controller::fund_change_info_controller::FundChangeInfoController;
 use crate::telegram::model::chat::Chat;
-use crate::telegram::model::chat_id::ChatId;
+
 use crate::telegram::model::chat_messages::ChatMessages;
 use crate::telegram::model::command::Command;
 use crate::telegram::model::action_type::ActionType;

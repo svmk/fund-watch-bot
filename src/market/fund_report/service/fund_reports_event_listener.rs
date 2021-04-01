@@ -3,7 +3,7 @@ use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::market::fund_report::service::fund_changes_generator::FundChangesGenerator;
 use crate::market::fund_report::events::new_daily_fund_report_event::NewDailyFundReportEvent;
 use crate::market::fund_report::model::fund_reports::FundReports;
-use crate::market::fund_report::model::fund_id::FundId;
+
 use crate::event_emitter::prelude::*;
 use typed_di::service::service::Service;
 

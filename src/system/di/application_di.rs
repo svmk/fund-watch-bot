@@ -1,7 +1,7 @@
 use typed_di::argument::argument_id_resolver::ArgumentIdResolver;
 use typed_di::async_di::container_declaration::ContainerDeclaration;
 use typed_di::async_di::container::Container;
-use std::path::Path;
+
 use crate::prelude::*;
 use crate::system::di;
 use crate::system::app_config::AppConfig;

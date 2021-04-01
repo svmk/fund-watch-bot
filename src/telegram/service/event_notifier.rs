@@ -1,13 +1,13 @@
 use crate::telegram::service::bot_instance::BotInstance;
 use crate::market::fund_report::events::new_fund_change_event::NewFundChangeEvent;
 use crate::market::fund_report::model::fund::Fund;
-use crate::market::fund_report::model::fund_id::FundId;
+
 use crate::market::fund_report::model::fund_changes::FundChanges;
-use crate::market::fund_report::model::fund_changes_id::FundChangesId;
+
 use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::telegram::action::fund_change_record::FundChangeRecord;
-use crate::telegram::model::chat_id::ChatId;
+
 use crate::telegram::model::chat::Chat;
 use crate::telegram::query::chat_subscribed_to_fund_query::ChatSubscribedToFundQuery;
 use crate::telegram::views::fund_change_notification_view::fund_change_view;

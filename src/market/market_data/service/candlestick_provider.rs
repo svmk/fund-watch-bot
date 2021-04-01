@@ -1,5 +1,5 @@
 use crate::market::{common::model::original_candlestick::OriginalCandleStick, market_data::service::candlestick_downloader::{CandlestickDownloader, CandlestickRequest}};
-use crate::market::common::model::ticker::Ticker;
+
 use crate::market::common::model::company_id::CompanyId;
 use crate::market::market_data::model::candlestick_report::CandlestickReport;
 use crate::market::market_data::model::time_frame::TimeFrame;

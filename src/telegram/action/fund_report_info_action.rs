@@ -8,11 +8,11 @@ use crate::telegram::model::action_type::ActionType;
 use crate::telegram::model::action_route::ActionRoute;
 use crate::telegram::action::pager_action::{PagerAction, Page};
 use crate::market::common::model::company_id::CompanyId;
-use crate::market::fund_report::model::fund_id::FundId;
+
 use crate::market::common::model::actual_price::ActualPrice;
 use crate::market::common::model::actual_volume::ActualVolume;
 use crate::market::fund_report::model::fund::Fund;
-use crate::market::fund_report::model::daily_fund_report_id::DailyFundReportId;
+
 use crate::market::fund_report::model::weight::Weight;
 use crate::market::market_data::model::split_rules::SplitRules;
 use crate::market::fund_report::model::daily_fund_report::DailyFundReport;

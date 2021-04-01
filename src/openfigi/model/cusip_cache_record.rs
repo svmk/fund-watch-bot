@@ -3,7 +3,7 @@ use crate::market::common::model::company_id::CompanyId;
 use crate::market::common::model::ticker::Ticker;
 use crate::openfigi::model::figi_record::FigiRecord;
 use crate::repository::model::entity::Entity;
-use crate::prelude::*;
+
 
 #[derive(new, Debug, Serialize, Deserialize)]
 pub struct CusipCacheRecord {
