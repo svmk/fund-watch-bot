@@ -1,3 +1,4 @@
+use crate::console::command::run_command::RunCommand;
 use crate::prelude::*;
 use typed_di::service::service::Service;
 use crate::telegram::task::telegram_bot_task::TelegramBotTask;
@@ -8,7 +9,7 @@ pub struct RunTelegram {
 }
 
 impl RunTelegram {
-    pub async fn run(&self) -> Result<(), Failure> {
-        return self.telegram_bot_task.run().await;
+    pub async fn run(&self, command: &RunCommand) -> Result<(), Failure> {
+        return self.telegram_bot_task.run(command.get_started_at()).await;
     }
 }

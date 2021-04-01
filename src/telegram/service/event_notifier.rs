@@ -1,13 +1,10 @@
 use crate::telegram::service::bot_instance::BotInstance;
 use crate::market::fund_report::events::new_fund_change_event::NewFundChangeEvent;
 use crate::market::fund_report::model::fund::Fund;
-
 use crate::market::fund_report::model::fund_changes::FundChanges;
-
 use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
 use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::telegram::action::fund_change_record::FundChangeRecord;
-
 use crate::telegram::model::chat::Chat;
 use crate::telegram::query::chat_subscribed_to_fund_query::ChatSubscribedToFundQuery;
 use crate::telegram::views::fund_change_notification_view::fund_change_view;
@@ -25,7 +22,7 @@ pub struct EventNotifier {
 }
 
 impl EventNotifier {
-    pub async fn handle_new_fund_change_event(&self, event: EventRecord<NewFundChangeEvent>)  -> Result<(), Failure> {
+    pub async fn handle_new_fund_change_event(self: Service<Self>, event: EventRecord<NewFundChangeEvent>)  -> Result<(), Failure> {
         let fund_id = event
             .get_payload()
             .get_fund_change_id()

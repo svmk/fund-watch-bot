@@ -129,9 +129,15 @@ pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error
         return Ok(service);
     })?;
     builder.register(TELEGRAM_BOT_TASK, async move |resolver| {
+        let config = resolver.get_argument(AppConfig::ARGUMENT_ID)?;
+        let config = config.get_telegram_bot_task();
         let service = TelegramBotTask::new(
+            config,
             resolver.get_service(MESSAGE_HANDLER).await?,
             resolver.get_service(BOT_INSTANCE).await?,
+            resolver.get_service(di::market_fund_report_di::DAILY_FUND_REPORT_IMPORTING).await?,
+            resolver.get_service(di::event_emitter_di::EVENT_LISTENER).await?,
+            resolver.get_service(EVENT_NOTIFIER).await?,
         );
         return Ok(service);
     })?;

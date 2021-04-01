@@ -12,7 +12,7 @@ impl DailyFundReportImportRequest {
         return DailyFundReportImportRequest {
             started_at,
             ended_at: None,
-            process_only_new: false,
+            process_only_new: true,
         }
     }
 

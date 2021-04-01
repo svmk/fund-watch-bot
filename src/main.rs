@@ -34,9 +34,11 @@ mod event_emitter;
 mod system;
 mod console;
 use crate::console::console_application::ConsoleApplication;
+use crate::system::app_config::AppConfig;
 use crate::system::di::application_di::{create_di_contaner, configure_services};
 use crate::system::console_execution::execute_console;
 use crate::system::app_config_loader::app_config_from_path;
+use crate::error::failure::Failure;
 use std::mem::forget;
 use structopt::StructOpt;
 
@@ -49,6 +51,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let sentry_guard = sentry::init(sentry_dsn.as_str());
         forget(sentry_guard);
     }
+    let result = run(console_argument, config).await;
+    if let Err(error) = result {
+        sentry::integrations::anyhow::capture_anyhow(&error);
+        return Err(error.into());
+    }
+    return Ok(());
+}
+
+
+async fn run(console_argument: ConsoleApplication, config: AppConfig) -> Result<(), Failure> {
     let container = create_di_contaner(config)
         .map_err(|error| {
             return crate::error!("Unable to create di container: {}", error);

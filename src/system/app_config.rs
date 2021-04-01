@@ -2,6 +2,7 @@ use crate::fetching::service::http_client::HttpClientConfig;
 use crate::yahoo_finance::service::yahoo_api::YahooApiConfig;
 use crate::openfigi::service::openfigi_api::OpenFigiApiConfig;
 use crate::telegram::service::bot_instance::BotInstanceConfig;
+use crate::telegram::task::telegram_bot_task::TelegramBotTaskConfig;
 use crate::sec_gov::service::edgar_api::EdgarApiConfig;
 mod repository_config;
 pub use self::repository_config::RepositoryConfig;
@@ -16,6 +17,8 @@ pub struct AppConfig {
     openfigi_api: OpenFigiApiConfig,
     #[serde(rename="telegram_bot")]
     bot_instance: BotInstanceConfig,
+    #[serde(rename="telegram_bot_importing", default)]
+    telegram_bot_task: TelegramBotTaskConfig,
     #[serde(rename="edgar_api", default)]
     edgar_api: EdgarApiConfig,
     #[serde(rename="repository")]
@@ -51,6 +54,10 @@ impl AppConfig {
 
     pub fn get_opt_sentry(&self) -> Option<&String> {
         return self.sentry.as_ref();
+    }
+
+    pub fn get_telegram_bot_task(&self) -> TelegramBotTaskConfig {
+        return self.telegram_bot_task.clone();
     }
 }
 
