@@ -12,9 +12,9 @@ use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct SubscriptionListController {
-    chat_repository: Service<RepositoryInstance<ChatId, Chat>>,
-    fund_repository: Service<RepositoryInstance<FundId, Fund>>,
-    action_repository: Service<RepositoryInstance<ActionId, SubscriptionListAction>>,
+    chat_repository: Service<RepositoryInstance<Chat>>,
+    fund_repository: Service<RepositoryInstance<Fund>>,
+    action_repository: Service<RepositoryInstance<SubscriptionListAction>>,
     fund_info_controller: Service<FundInfoController>,
 }
 

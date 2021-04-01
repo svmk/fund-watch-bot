@@ -167,7 +167,8 @@ impl FundChanges {
     }
 }
 
-impl Entity<FundChangesId> for FundChanges {
+impl Entity for FundChanges {
+    type Id = FundChangesId;
     fn get_entity_id(&self) -> &FundChangesId {
         return &self.id;
     }

@@ -18,9 +18,9 @@ use typed_di::service::service::Service;
 #[derive(new)]
 pub struct EventNotifier {
     bot_instance: Service<BotInstance>,
-    fund_repository: Service<RepositoryInstance<FundId, Fund>>,
-    chat_repository: Service<RepositoryInstance<ChatId, Chat>>,
-    fund_changes_repository: Service<RepositoryInstance<FundChangesId, FundChanges>>,
+    fund_repository: Service<RepositoryInstance<Fund>>,
+    chat_repository: Service<RepositoryInstance<Chat>>,
+    fund_changes_repository: Service<RepositoryInstance<FundChanges>>,
     candlestick_provider: Service<CandlestickProvider>,
 }
 

@@ -11,9 +11,9 @@ use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct FundReportListController {
-    fund_repository: Service<RepositoryInstance<FundId, Fund>>,
-    fund_reports_repository: Service<RepositoryInstance<FundId, FundReports>>,
-    action_repository: Service<RepositoryInstance<ActionId, FundReportListAction>>,
+    fund_repository: Service<RepositoryInstance<Fund>>,
+    fund_reports_repository: Service<RepositoryInstance<FundReports>>,
+    action_repository: Service<RepositoryInstance<FundReportListAction>>,
     fund_report_controller: Service<FundReportInfoController>,
 }
 

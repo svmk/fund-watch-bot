@@ -12,9 +12,9 @@ use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct FundChangeInfoController {
-    fund_repository: Service<RepositoryInstance<FundId, Fund>>,
-    fund_changes_repository: Service<RepositoryInstance<FundChangesId, FundChanges>>,
-    action_repository: Service<RepositoryInstance<ActionId, FundChangeInfoAction>>,
+    fund_repository: Service<RepositoryInstance<Fund>>,
+    fund_changes_repository: Service<RepositoryInstance<FundChanges>>,
+    action_repository: Service<RepositoryInstance<FundChangeInfoAction>>,
     candlestick_provider: Service<CandlestickProvider>,
 }
 

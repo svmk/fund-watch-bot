@@ -56,7 +56,7 @@ impl Default for OpenFigiApiConfig {
 pub struct OpenFigiApi {
     config: OpenFigiApiConfig,
     http_client: Service<HttpClient>,
-    cache_repository: Service<RepositoryInstance<Cusip, CusipCacheRecord>>,
+    cache_repository: Service<RepositoryInstance<CusipCacheRecord>>,
     serializer: SerializerInstance,
 }
 
@@ -66,7 +66,7 @@ impl OpenFigiApi {
     pub fn new(
         config: OpenFigiApiConfig,
         http_client: Service<HttpClient>,
-        cache_repository: Service<RepositoryInstance<Cusip, CusipCacheRecord>>,
+        cache_repository: Service<RepositoryInstance<CusipCacheRecord>>,
     ) -> OpenFigiApi {
         return OpenFigiApi {
             config,

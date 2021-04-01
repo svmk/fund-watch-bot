@@ -46,7 +46,8 @@ impl Chat {
     }
 }
 
-impl Entity<ChatId> for Chat {
+impl Entity for Chat {
+    type Id = ChatId;
     fn get_entity_id(&self) -> &ChatId {
         return &self.id;
     }

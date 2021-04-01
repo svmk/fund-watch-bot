@@ -43,25 +43,25 @@ pub const COMMAND_ROUTER: ServiceId<CommandRouter> = ServiceIdResolver::SERVICE_
 pub const MESSAGE_HANDLER: ServiceId<MessageHandler> = ServiceIdResolver::SERVICE_ID;
 pub const ACTION_ROUTER: ServiceId<ActionRouter> = ServiceIdResolver::SERVICE_ID;
 pub const BOT_INSTANCE: ServiceId<BotInstance> = ServiceIdResolver::SERVICE_ID;
-pub const CHAT_REPOSITORY: ServiceId<RepositoryInstance<ChatId, Chat>> = ServiceIdResolver::SERVICE_ID;
-pub const MESSAGES_REPOSITORY: ServiceId<RepositoryInstance<ChatId, ChatMessages>> = ServiceIdResolver::SERVICE_ID;
+pub const CHAT_REPOSITORY: ServiceId<RepositoryInstance<Chat>> = ServiceIdResolver::SERVICE_ID;
+pub const MESSAGES_REPOSITORY: ServiceId<RepositoryInstance<ChatMessages>> = ServiceIdResolver::SERVICE_ID;
 pub const EVENT_NOTIFIER: ServiceId<EventNotifier> = ServiceIdResolver::SERVICE_ID;
 pub const TELEGRAM_BOT_TASK: ServiceId<TelegramBotTask> = ServiceIdResolver::SERVICE_ID;
 pub const START_CONTROLLER: ServiceId<StartController> = ServiceIdResolver::SERVICE_ID;
 pub const FUND_LIST_CONTROLLER: ServiceId<FundListController> = ServiceIdResolver::SERVICE_ID;
-pub const FUND_LIST_ACTION_REPOSITORY: ServiceId<RepositoryInstance<ActionId, FundListAction>> = ServiceIdResolver::SERVICE_ID;
-pub const FUND_REPORT_LIST_ACTION_REPOSITORY: ServiceId<RepositoryInstance<ActionId, FundReportListAction>> = ServiceIdResolver::SERVICE_ID;
-pub const FUND_INFO_ACTION_REPOSITORY: ServiceId<RepositoryInstance<ActionId, FundInfoAction>> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_LIST_ACTION_REPOSITORY: ServiceId<RepositoryInstance<FundListAction>> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_REPORT_LIST_ACTION_REPOSITORY: ServiceId<RepositoryInstance<FundReportListAction>> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_INFO_ACTION_REPOSITORY: ServiceId<RepositoryInstance<FundInfoAction>> = ServiceIdResolver::SERVICE_ID;
 pub const FUND_INFO_CONTROLLER: ServiceId<FundInfoController> = ServiceIdResolver::SERVICE_ID;
 pub const SUBSCRIPTION_LIST_CONTROLLER: ServiceId<SubscriptionListController> = ServiceIdResolver::SERVICE_ID;
-pub const SUBSCRIPTION_LIST_ACTION_REPOSITORY: ServiceId<RepositoryInstance<ActionId, SubscriptionListAction>> = ServiceIdResolver::SERVICE_ID;
+pub const SUBSCRIPTION_LIST_ACTION_REPOSITORY: ServiceId<RepositoryInstance<SubscriptionListAction>> = ServiceIdResolver::SERVICE_ID;
 pub const FUND_REPORT_LIST_CONTROLLER: ServiceId<FundReportListController> = ServiceIdResolver::SERVICE_ID;
 pub const FUND_REPORT_INFO_CONTROLLER: ServiceId<FundReportInfoController> = ServiceIdResolver::SERVICE_ID;
-pub const FUND_REPORT_INFO_ACTION_REPOSITORY: ServiceId<RepositoryInstance<ActionId, FundReportInfoAction>> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_REPORT_INFO_ACTION_REPOSITORY: ServiceId<RepositoryInstance<FundReportInfoAction>> = ServiceIdResolver::SERVICE_ID;
 pub const FUND_CHANGE_LIST_CONTROLLER: ServiceId<FundChangeListController> = ServiceIdResolver::SERVICE_ID;
-pub const FUND_CHANGE_LIST_ACTION_REPOSITORY: ServiceId<RepositoryInstance<ActionId, FundChangeListAction>> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_CHANGE_LIST_ACTION_REPOSITORY: ServiceId<RepositoryInstance<FundChangeListAction>> = ServiceIdResolver::SERVICE_ID;
 pub const FUND_CHANGE_INFO_CONTROLLER: ServiceId<FundChangeInfoController> = ServiceIdResolver::SERVICE_ID;
-pub const FUND_CHANGE_INFO_ACTION_REPOSITORY: ServiceId<RepositoryInstance<ActionId, FundChangeInfoAction>> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_CHANGE_INFO_ACTION_REPOSITORY: ServiceId<RepositoryInstance<FundChangeInfoAction>> = ServiceIdResolver::SERVICE_ID;
 
 pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error> {
     builder.register(COMMAND_ROUTER, async move |resolver| {

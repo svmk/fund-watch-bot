@@ -79,7 +79,8 @@ impl QuartalPrice {
     }
 }
 
-impl Entity<QuartalPriceId> for QuartalPrice {
+impl Entity for QuartalPrice {
+    type Id = QuartalPriceId;
     fn get_entity_id(&self) -> &QuartalPriceId {
         return &self.id;
     }

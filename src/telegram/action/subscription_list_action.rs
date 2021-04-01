@@ -159,7 +159,8 @@ impl SubscriptionListAction {
     }
 }
 
-impl Entity<ActionId> for SubscriptionListAction {
+impl Entity for SubscriptionListAction {
+    type Id = ActionId;
     fn get_entity_id(&self) -> &ActionId {
         return &self.action_id;
     }

@@ -118,7 +118,8 @@ impl FundReportListAction {
     }
 }
 
-impl Entity<ActionId> for FundReportListAction {
+impl Entity for FundReportListAction {
+    type Id = ActionId;
     fn get_entity_id(&self) -> &ActionId {
         return &self.action_id;
     }

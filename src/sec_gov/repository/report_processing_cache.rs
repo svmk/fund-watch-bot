@@ -7,7 +7,7 @@ use crate::app::model::date::Date;
 
 #[derive(new)]
 pub struct ReportProcessingCache {
-    processed_reports_repository: Service<RepositoryInstance<Date, ProcessedReports>>,
+    processed_reports_repository: Service<RepositoryInstance<ProcessedReports>>,
 }
 
 impl ReportProcessingCache {

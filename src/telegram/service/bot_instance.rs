@@ -28,14 +28,14 @@ impl BotInstanceConfig {
 
 
 pub struct BotInstance {
-    messages_repository: Service<RepositoryInstance<ChatId, ChatMessages>>,
+    messages_repository: Service<RepositoryInstance<ChatMessages>>,
     bot: Bot,
 }
 
 impl BotInstance {
     pub fn new(
         config: BotInstanceConfig,
-        messages_repository: Service<RepositoryInstance<ChatId, ChatMessages>>,
+        messages_repository: Service<RepositoryInstance<ChatMessages>>,
     ) -> BotInstance {
         let bot = Bot::new(config.get_token().to_string());
         return BotInstance {

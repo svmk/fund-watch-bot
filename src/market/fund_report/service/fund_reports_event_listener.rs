@@ -10,7 +10,7 @@ use typed_di::service::service::Service;
 #[derive(new)]
 pub struct FundReportsEventListener {
     fund_changes_generator: Service<FundChangesGenerator>,
-    fund_reports_repository: Service<RepositoryInstance<FundId, FundReports>>,
+    fund_reports_repository: Service<RepositoryInstance<FundReports>>,
 }
 
 impl FundReportsEventListener {

@@ -20,7 +20,7 @@ use std::str::FromStr;
 pub struct MessageHandler {
     command_router: Service<CommandRouter>,
     action_router: Service<ActionRouter>,
-    chat_repository: Service<RepositoryInstance<ChatId, Chat>>,
+    chat_repository: Service<RepositoryInstance<Chat>>,
     bot_instance: Service<BotInstance>,
 }
 

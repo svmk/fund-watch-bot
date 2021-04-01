@@ -13,7 +13,8 @@ pub struct CusipCacheRecord {
     records: Vec<FigiRecord>,
 }
 
-impl Entity<Cusip> for CusipCacheRecord {
+impl Entity for CusipCacheRecord {
+    type Id = Cusip;
     fn get_entity_id(&self) -> &Cusip {
         return &self.cusip;
     }

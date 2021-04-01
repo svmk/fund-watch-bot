@@ -25,8 +25,8 @@ use typed_di::service::service::Service;
 pub struct DailyFundReportImporting {
     edgar_api: Service<EdgarApi>,
     openfigi_api: Service<OpenFigiApi>,
-    fund_repository: Service<RepositoryInstance<FundId, Fund>>,
-    report_repository: Service<RepositoryInstance<DailyFundReportId, DailyFundReport>>,
+    fund_repository: Service<RepositoryInstance<Fund>>,
+    report_repository: Service<RepositoryInstance<DailyFundReport>>,
     candlestick_provider: Service<CandlestickProvider>,
     event_emitter: Service<EventEmitter>,
     report_processing_cache: Service<ReportProcessingCache>,

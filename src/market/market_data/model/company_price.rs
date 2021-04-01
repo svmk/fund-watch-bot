@@ -103,7 +103,8 @@ impl CompanyPrice {
     }
 }
 
-impl Entity<CompanyId> for CompanyPrice {
+impl Entity for CompanyPrice {
+    type Id = CompanyId;
     fn get_entity_id(&self) -> &CompanyId {
         return &self.company_id;
     }

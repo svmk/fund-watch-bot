@@ -10,8 +10,8 @@ use typed_di::service::service::Service;
 
 #[derive(new)]
 pub struct FundChangesGenerator {
-    report_repository: Service<RepositoryInstance<DailyFundReportId, DailyFundReport>>,
-    fund_changes_repository: Service<RepositoryInstance<FundChangesId, FundChanges>>,
+    report_repository: Service<RepositoryInstance<DailyFundReport>>,
+    fund_changes_repository: Service<RepositoryInstance<FundChanges>>,
     event_emitter: Service<EventEmitter>,
 }
 

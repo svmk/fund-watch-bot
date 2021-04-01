@@ -30,7 +30,8 @@ impl Fund {
     }
 }
 
-impl Entity<FundId> for Fund {
+impl Entity for Fund {
+    type Id = FundId;
     fn get_entity_id(&self) -> &FundId {
         return &self.fund_id;
     }

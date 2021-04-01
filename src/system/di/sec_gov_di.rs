@@ -23,7 +23,7 @@ use crate::system::di;
 pub const EDGAR_API: ServiceId<EdgarApi> = EdgarApi::SERVICE_ID;
 pub const EDGAR_CACHE: ServiceId<EdgarCache> = EdgarCache::SERVICE_ID;
 pub const EDGAR_FILE_STORAGE: ServiceId<StorageInstance<EdgarFile>> = ServiceIdResolver::SERVICE_ID;
-pub const REPORT_PROCESSING_REPOSITORY: ServiceId<RepositoryInstance<Date, ProcessedReports>> = ServiceIdResolver::SERVICE_ID;
+pub const REPORT_PROCESSING_REPOSITORY: ServiceId<RepositoryInstance<ProcessedReports>> = ServiceIdResolver::SERVICE_ID;
 pub const REPORT_PROCESSING_CACHE: ServiceId<ReportProcessingCache> = ServiceIdResolver::SERVICE_ID;
 
 pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error> {

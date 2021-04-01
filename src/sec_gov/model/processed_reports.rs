@@ -29,7 +29,8 @@ impl ProcessedReports {
     }
 }
 
-impl Entity<Date> for ProcessedReports {
+impl Entity for ProcessedReports {
+    type Id = Date;
     fn get_entity_id(&self) -> &Date {
         return &self.date;
     }

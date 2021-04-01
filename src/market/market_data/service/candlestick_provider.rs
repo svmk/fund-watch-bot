@@ -17,8 +17,8 @@ use typed_di::service::service::Service;
 #[derive(new)]
 pub struct CandlestickProvider {
     candlestick_downloader: Service<CandlestickDownloader>,
-    company_price_repository: Service<RepositoryInstance<CompanyId, CompanyPrice>>,
-    quartal_price_repository: Service<RepositoryInstance<QuartalPriceId, QuartalPrice>>,
+    company_price_repository: Service<RepositoryInstance<CompanyPrice>>,
+    quartal_price_repository: Service<RepositoryInstance<QuartalPrice>>,
 }
 
 impl CandlestickProvider {

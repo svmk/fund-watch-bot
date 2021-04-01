@@ -20,8 +20,8 @@ use self::update_decision::UpdateDecision;
 #[derive(new)]
 pub struct CandlestickDownloader {
     yahoo_api: Service<YahooApi>,
-    ticker_price_repository: Service<RepositoryInstance<CompanyId, CompanyPrice>>,
-    quartal_price_repository: Service<RepositoryInstance<QuartalPriceId, QuartalPrice>>,
+    ticker_price_repository: Service<RepositoryInstance<CompanyPrice>>,
+    quartal_price_repository: Service<RepositoryInstance<QuartalPrice>>,
 }
 
 impl CandlestickDownloader {

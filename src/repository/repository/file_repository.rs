@@ -1,6 +1,6 @@
 use crate::prelude::*;
-use crate::repository::model::identity::Identity;
 use crate::repository::model::entity::Entity;
+use crate::repository::model::identity::Identity;
 use crate::repository::model::relative_path::RelativePath;
 use crate::repository::model::query::Query;
 use crate::repository::model::entity_stream::EntityStream;
@@ -19,29 +19,25 @@ use async_std::fs::File;
 use async_std::io::prelude::*;
 use async_walkdir::WalkDir;
 use async_walkdir::Filtering;
-use std::path::PathBuf;
-use std::sync::Arc;
 
-pub struct FileRepository<I, E>
+pub struct FileRepository<E>
 {
-    _identity: PhantomData<I>,
     _entity: PhantomData<E>,
     path_resolver: PathResolver,
     serializer_instance: SerializerInstance,
     query_comparator: Option<Service<QueryComparator>>,
 }
 
-impl <I, E> FileRepository<I, E>
+impl <E> FileRepository<E>
     where 
-        I: Identity,
-        E: Entity<I>,
+        E: Entity,
+        E::Id: Identity,
 {
     pub fn new(
         path_resolver: PathResolver,
         serializer_instance: SerializerInstance,
-    ) -> RepositoryInstance<I, E> {
+    ) -> RepositoryInstance<E> {
         let repository = FileRepository {
-            _identity: PhantomData{},
             _entity: PhantomData {},
             path_resolver,
             serializer_instance,
@@ -55,7 +51,7 @@ impl <I, E> FileRepository<I, E>
         return self;
     }
 
-    pub async fn get(&self, id: &I) -> Result<E, Failure> {
+    pub async fn get(&self, id: &E::Id) -> Result<E, Failure> {
         let path = RelativePath::from_string(id.to_string());
         let path = self.path_resolver.resolve_path(path)?;
         let mut file = File::open(&path).await
@@ -68,7 +64,7 @@ impl <I, E> FileRepository<I, E>
         return Ok(model);
     }
 
-    pub async fn get_many(&self, ids: &[I]) -> Result<Vec<E>, Failure> {
+    pub async fn get_many(&self, ids: &[E::Id]) -> Result<Vec<E>, Failure> {
         let mut result = Vec::with_capacity(ids.len());
         for id in ids.iter() {
             let item = self.get(id).await?;
@@ -77,7 +73,7 @@ impl <I, E> FileRepository<I, E>
         return Ok(result);
     }
 
-    pub async fn find(&self, id: &I) -> Result<Option<E>, Failure> {
+    pub async fn find(&self, id: &E::Id) -> Result<Option<E>, Failure> {
         let path = RelativePath::from_string(id.to_string());
         let path = self.path_resolver.resolve_path(path)?;
         {
@@ -93,7 +89,7 @@ impl <I, E> FileRepository<I, E>
         return Ok(Some(model));
     }
 
-    pub async fn is_exists(&self, id: &I) -> Result<bool, Failure> {
+    pub async fn is_exists(&self, id: &E::Id) -> Result<bool, Failure> {
         let path = RelativePath::from_string(id.to_string());
         let path = self.path_resolver.resolve_path(path)?;
         let async_path = AsyncPath::new(&path);
@@ -101,7 +97,7 @@ impl <I, E> FileRepository<I, E>
         return Ok(is_exists);
     }
 
-    pub async fn find_many(&self, ids: &[I]) -> Result<Vec<Option<E>>, Failure> {
+    pub async fn find_many(&self, ids: &[E::Id]) -> Result<Vec<Option<E>>, Failure> {
         let mut result = Vec::with_capacity(ids.len());
         for id in ids.iter() {
             let opt_item = self.find(id).await?;
@@ -125,7 +121,6 @@ impl <I, E> FileRepository<I, E>
         where 
             Q: Query,
             Q: Send + Sync,
-            I: Send + Sync,
             E: Send + Sync + 'static,
     {
         let query_comparator = match self.query_comparator {
@@ -161,7 +156,6 @@ impl <I, E> FileRepository<I, E>
 
     pub async fn all(&self) -> Result<EntityStream<'_, E>, Failure> 
         where 
-            I: Send + Sync,
             E: Send + Sync + 'static,
     {
         let base_path = self.path_resolver.base_path()?;

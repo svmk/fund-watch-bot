@@ -21,8 +21,8 @@ use crate::market::market_data::path_resolver::quartal_price_path_resolver::quar
 
 pub const CANDLESTICK_DOWNLOADER: ServiceId<CandlestickDownloader> = ServiceIdResolver::SERVICE_ID;
 pub const CANDLESTICK_PROVIDER: ServiceId<CandlestickProvider> = ServiceIdResolver::SERVICE_ID;
-pub const COMPANY_PRICE_REPOSITORY: ServiceId<RepositoryInstance<CompanyId, CompanyPrice>> = ServiceIdResolver::SERVICE_ID;
-pub const QUARTAL_PRICE_REPOSITORY: ServiceId<RepositoryInstance<QuartalPriceId, QuartalPrice>> = ServiceIdResolver::SERVICE_ID;
+pub const COMPANY_PRICE_REPOSITORY: ServiceId<RepositoryInstance<CompanyPrice>> = ServiceIdResolver::SERVICE_ID;
+pub const QUARTAL_PRICE_REPOSITORY: ServiceId<RepositoryInstance<QuartalPrice>> = ServiceIdResolver::SERVICE_ID;
 
 pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error> {
     builder.register(CANDLESTICK_DOWNLOADER, async move |resolver| {

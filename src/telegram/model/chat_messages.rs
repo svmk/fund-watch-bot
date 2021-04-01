@@ -32,7 +32,8 @@ impl ChatMessages {
     }
 }
 
-impl Entity<ChatId> for ChatMessages {
+impl Entity for ChatMessages {
+    type Id = ChatId;
     fn get_entity_id(&self) -> &ChatId {
         return &self.chat_id;
     }

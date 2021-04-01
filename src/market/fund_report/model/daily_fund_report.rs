@@ -31,7 +31,8 @@ impl DailyFundReport {
     }
 }
 
-impl Entity<DailyFundReportId> for DailyFundReport {
+impl Entity for DailyFundReport {
+    type Id = DailyFundReportId;
     fn get_entity_id(&self) -> &DailyFundReportId {
         return &self.id;
     }

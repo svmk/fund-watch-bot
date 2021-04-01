@@ -14,7 +14,7 @@ use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::repository::repository::file_repository::FileRepository;
 use crate::serializer::service::json_serializer::JsonSerializer;
 
-pub const CUSIP_CACHE: ServiceId<RepositoryInstance<Cusip, CusipCacheRecord>> = ServiceIdResolver::SERVICE_ID;
+pub const CUSIP_CACHE: ServiceId<RepositoryInstance<CusipCacheRecord>> = ServiceIdResolver::SERVICE_ID;
 pub const OPENFIGI_API: ServiceId<OpenFigiApi> = OpenFigiApi::SERVICE_ID;
 
 pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error> {

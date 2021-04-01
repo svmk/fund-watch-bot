@@ -26,14 +26,14 @@ use crate::repository::repository::repository_instance::RepositoryInstance;
 use crate::repository::repository::file_repository::FileRepository;
 use crate::market::market_data::service::candlestick_provider::CandlestickProvider;
 
-pub const FUND_REPOSITORY: ServiceId<RepositoryInstance<FundId, Fund>> = ServiceIdResolver::SERVICE_ID;
-pub const DAILY_FUND_REPORT_REPOSITORY: ServiceId<RepositoryInstance<DailyFundReportId, DailyFundReport>> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_REPOSITORY: ServiceId<RepositoryInstance<Fund>> = ServiceIdResolver::SERVICE_ID;
+pub const DAILY_FUND_REPORT_REPOSITORY: ServiceId<RepositoryInstance<DailyFundReport>> = ServiceIdResolver::SERVICE_ID;
 pub const CANDLESTICK_PROVIDER: ServiceId<CandlestickProvider> = ServiceIdResolver::SERVICE_ID;
 pub const DAILY_FUND_REPORT_IMPORTING: ServiceId<DailyFundReportImporting> = ServiceIdResolver::SERVICE_ID;
 pub const FUND_CHANGES_GENERATOR: ServiceId<FundChangesGenerator> = ServiceIdResolver::SERVICE_ID;
-pub const FUND_CHANGES_REPOSITORY: ServiceId<RepositoryInstance<FundChangesId, FundChanges>> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_CHANGES_REPOSITORY: ServiceId<RepositoryInstance<FundChanges>> = ServiceIdResolver::SERVICE_ID;
 pub const FUND_REPORTS_EVENT_LISTENER: ServiceId<FundReportsEventListener> = ServiceIdResolver::SERVICE_ID;
-pub const FUND_REPORTS_REPOSITORY: ServiceId<RepositoryInstance<FundId, FundReports>> = ServiceIdResolver::SERVICE_ID;
+pub const FUND_REPORTS_REPOSITORY: ServiceId<RepositoryInstance<FundReports>> = ServiceIdResolver::SERVICE_ID;
 
 pub fn register_services(builder: &mut ContainerDeclaration) -> Result<(), Error> {
     builder.register(DAILY_FUND_REPORT_IMPORTING, async move |resolver| {

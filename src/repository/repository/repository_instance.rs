@@ -1,20 +1,18 @@
 use crate::prelude::*;
-use crate::repository::model::identity::Identity;
 use crate::repository::model::entity::Entity;
 use crate::repository::model::query::Query;
 use crate::repository::repository::file_repository::FileRepository;
 use crate::repository::model::entity_stream::EntityStream;
 
-pub enum RepositoryInstance<I, E> {
-    FileRepository(FileRepository<I, E>),
+pub enum RepositoryInstance<E> {
+    FileRepository(FileRepository<E>),
 }
 
-impl <I, E> RepositoryInstance<I, E>
+impl <E> RepositoryInstance<E>
     where 
-        I: Identity,
-        E: Entity<I>,
+        E: Entity,
 {
-    pub async fn get(&self, id: &I) -> Result<E, Failure> {
+    pub async fn get(&self, id: &E::Id) -> Result<E, Failure> {
         match self {
             RepositoryInstance::FileRepository(ref service) => {
                 return service.get(id).await;
@@ -22,7 +20,7 @@ impl <I, E> RepositoryInstance<I, E>
         }
     }
 
-    pub async fn get_many(&self, ids: &[I]) -> Result<Vec<E>, Failure> {
+    pub async fn get_many(&self, ids: &[E::Id]) -> Result<Vec<E>, Failure> {
         match self {
             RepositoryInstance::FileRepository(ref service) => {
                 return service.get_many(ids).await;
@@ -30,7 +28,7 @@ impl <I, E> RepositoryInstance<I, E>
         }
     }
 
-    pub async fn find(&self, id: &I) -> Result<Option<E>, Failure> {
+    pub async fn find(&self, id: &E::Id) -> Result<Option<E>, Failure> {
         match self {
             RepositoryInstance::FileRepository(ref service) => {
                 return service.find(id).await;
@@ -38,7 +36,7 @@ impl <I, E> RepositoryInstance<I, E>
         }
     }
 
-    pub async fn is_exists(&self, id: &I) -> Result<bool, Failure> {
+    pub async fn is_exists(&self, id: &E::Id) -> Result<bool, Failure> {
         match self {
             RepositoryInstance::FileRepository(ref service) => {
                 return service.is_exists(id).await;
@@ -46,7 +44,7 @@ impl <I, E> RepositoryInstance<I, E>
         }
     }
 
-    pub async fn find_many(&self, ids: &[I]) -> Result<Vec<Option<E>>, Failure> {
+    pub async fn find_many(&self, ids: &[E::Id]) -> Result<Vec<Option<E>>, Failure> {
         match self {
             RepositoryInstance::FileRepository(ref service) => {
                 return service.find_many(ids).await;
@@ -66,7 +64,6 @@ impl <I, E> RepositoryInstance<I, E>
         where 
             Q: Query,
             Q: Send + Sync,
-            I: Send + Sync,
             E: Send + Sync + 'static,
     {
         match self {
@@ -78,7 +75,6 @@ impl <I, E> RepositoryInstance<I, E>
 
     pub async fn all(&self) -> Result<EntityStream<'_, E>, Failure> 
         where 
-            I: Send + Sync,
             E: Send + Sync + 'static,
     {
         match self {
