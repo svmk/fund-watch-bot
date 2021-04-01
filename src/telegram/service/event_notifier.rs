@@ -60,7 +60,7 @@ impl EventNotifier {
         }
         let view = fund_change_view(&fund, &sells, &buys);
         for chat in subscribed_chats.iter() {
-            if chat.is_subscribed(&fund_id) || true {
+            if chat.is_subscribed(&fund_id) {
                 self.bot_instance.send_view(chat.get_id().clone(), view.clone()).await?;
             }
         }

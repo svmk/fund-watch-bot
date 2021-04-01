@@ -1,15 +1,22 @@
-version: "3.0"  # optional since v1.27.0
+version: "3.0"
 services:
   fund-watch-bot:
-    build: .
-    # volumes:
-    #   - .:/code
-    #   - logvolume01:/var/log
-    restart_policy:
-      condition: on-failure
-      delay: 2s
-      max_attempts: 1000000
-      window: 5s
+    build:
+      context: .
+      args:
+        TARGET_ARCHITECTURE: ${TARGET_ARCHITECTURE}
+    volumes:
+      - fund-watch-bot://usr/src/app/data
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 1000000
+        window: 5s
+    environment:
+      - FWB_TELEGRAM_TOKEN=${FWB_TELEGRAM_TOKEN}
+      - FWB_OPENFIGI_TOKEN=${FWB_OPENFIGI_TOKEN}
+      - FWB_SENTRY=${FWB_SENTRY}
 volumes:
   fund-watch-bot:
     external:

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ -z "$FWB_TELEGRAM_TOKEN" ]
+then
+    >&2 echo "Enviroment variable FWB_TELEGRAM_TOKEN is not setted"
+    exit 1
+fi
+
+export TEMPLATE_FWB_TELEGRAM_TOKEN=${FWB_TELEGRAM_TOKEN}
+
+if [ -z "$FWB_OPENFIGI_TOKEN" ]
+then
+    >&2 echo "Enviroment variable FWB_OPENFIGI_TOKEN is empty"
+    export TEMPLATE_FWB_OPENFIGI_TOKEN="~"
+else
+    export TEMPLATE_FWB_OPENFIGI_TOKEN=$FWB_OPENFIGI_TOKEN
+fi
+
+if [ -z "$FWB_SENTRY" ]
+then
+    >&2 echo "Enviroment variable FWB_SENTRY is empty"
+    export TEMPLATE_FWB_SENTRY="~"
+else
+    export TEMPLATE_FWB_SENTRY=$FWB_SENTRY
+fi
+
+esh /usr/src/app/docker-config.yaml.esh > /usr/src/app/config/config.yaml || exit 1
+/usr/src/app/bin/fund-watch-bot /usr/src/app/config/config.yaml $*
+exit $?

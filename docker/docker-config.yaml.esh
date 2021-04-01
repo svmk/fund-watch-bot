@@ -1,0 +1,7 @@
+telegram_bot:
+  token: "<%= ${TEMPLATE_FWB_TELEGRAM_TOKEN} %>"
+repository:
+  path: /usr/src/app/data
+openfigi_api:
+  auth_token: <%= ${TEMPLATE_FWB_OPENFIGI_TOKEN} %>
+sentry: <%= ${TEMPLATE_FWB_SENTRY} %>
