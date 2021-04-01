@@ -150,6 +150,10 @@ impl DailyFundReportImporting {
                 .get_company_id_by_cusip(fund_component.get_cusip())
                 .await?;
             let weight = fund_component.get_share().clone().into_f64() * 100.0 / share_sum;
+            let weight = match weight.is_nan() {
+                true => 0.0,
+                false => weight,
+            };
             let weight = Weight::from_f64(weight)?;
             let candlestick_result = self
                 .candlestick_provider

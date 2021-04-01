@@ -1,4 +1,5 @@
 use crate::fetching::service::http_client::HttpClient;
+use crate::fetching::error::fetch_error::FetchError;
 use crate::fetching::model::url::Url;
 use crate::fetching::model::file_download_request::FileDownloadRequest;
 use crate::sec_gov::model::year_quartal::YearQuartal;
@@ -75,7 +76,19 @@ impl EdgarApi {
         if let Some(retry_delay) = self.config.retry_delay {
             request = request.with_retry_delay(retry_delay.clone());
         }
-        let file = self.http_client.fetch_file(request).await?;
+        let file = self.http_client.fetch_file(request).await;
+        let file = match file {
+            Ok(file) => Ok(file),
+            Err(error) => {
+                if let FetchError::WrongStatusCode(ref response) = error {
+                    if response.status().as_u16() == 403 {
+                        return Ok(CompanyReportIndex::new());
+                    }
+                }
+                Err(error)
+            },
+        };
+        let file = file?;
         self.edgar_cache.replace(&relative_url, &file).await?;
         let file = self.edgar_cache.get(&relative_url).await?;
         let company_index = read_edgar_company_index(file).await?;

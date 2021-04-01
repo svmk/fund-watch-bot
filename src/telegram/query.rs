@@ -1,1 +1,0 @@
-pub mod chat_subscribed_to_fund_query;

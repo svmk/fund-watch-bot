@@ -502,6 +502,7 @@ dependencies = [
 [[package]]
 name = "derive_value_object"
 version = "0.1.0"
+source = "git+https://github.com/svmk/derive_value_object#4956b8a7ba43243c96cc5d64e835fa8fc790f2a2"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -1981,6 +1982,7 @@ dependencies = [
 [[package]]
 name = "tbot"
 version = "0.6.7"
+source = "git+https://gitlab.com/svmk/tbot#fd4caec235d000220ff2fd65a34c284118674cf8"
 dependencies = [
  "futures",
  "hyper",
@@ -2184,6 +2186,7 @@ checksum = "a9b2228007eba4120145f785df0f6c92ea538f5a3635a612ecf4e334c8c1446d"
 [[package]]
 name = "typed-di"
 version = "0.1.0"
+source = "git+https://github.com/svmk/typed-di#cd1bedb30421caf25885d3a5cfecfa95cf9a3bf7"
 dependencies = [
  "futures",
 ]

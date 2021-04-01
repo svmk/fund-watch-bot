@@ -32,7 +32,6 @@ impl CandlestickProvider {
     }
 
     async fn fetch_candlestick(&self, company_id: CompanyId, time_frame: TimeFrame, datetime: DateTime) -> Result<Option<CandlestickReport>, CandlestickFetchError> {
-        // println!("Fetching `{}` `{}`", ticker, datetime);
         let request = CandlestickRequest::from_datetime(company_id.clone(), datetime.clone());
         self.candlestick_downloader.fetch_by_ticker(&request).await?;
         let ticker_price = self.company_price_repository.get(&company_id).await?;

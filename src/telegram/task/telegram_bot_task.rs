@@ -16,7 +16,6 @@ mod telegram_bot_task_config;
 pub use self::telegram_bot_task_config::TelegramBotTaskConfig;
 use futures::future::try_join3;
 
-
 #[derive(new)]
 pub struct TelegramBotTask {
     config: TelegramBotTaskConfig,
@@ -51,7 +50,9 @@ impl TelegramBotTask {
 
     async fn run_import(&self, started_at: Option<Date>) -> Result<(), Failure> {
         loop {
-            let start_at = started_at.clone().unwrap_or(Date::today());
+            let start_at = started_at.clone().unwrap_or_else(|| {
+                return Date::today().prev();
+            });
             let request = DailyFundReportImportRequest::new(start_at);
             self.daily_fund_report_importing.import_period(request).await?;
             sleep(self.config.get_import_delay().clone()).await;

@@ -1,4 +1,4 @@
-FROM ekidd/rust-musl-builder:stable as builder
+FROM ekidd/rust-musl-builder:nightly-2021-02-13 as builder
 
 RUN USER=root cargo new --bin fund-watch-bot
 WORKDIR ./fund-watch-bot

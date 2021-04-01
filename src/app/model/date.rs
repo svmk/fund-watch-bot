@@ -52,6 +52,11 @@ impl Date {
         return Date(date);
     }
 
+    pub fn prev(&self) -> Date {
+        let date = self.0.pred();
+        return Date(date);
+    }
+
     pub fn start_of_day(&self) -> DateTime {
         let datetime = self.0.and_hms(00, 00, 00);
         return DateTime::from_chrono_datetime(datetime);
